@@ -20,6 +20,7 @@ import {
 import { Course, CourseResult, GradeLevel, CourseType } from '../types';
 import { GRADE_COLORS, GRADE_POINTS } from '../utils/gradeCalculations';
 import { CourseRegexPasteBox } from './CourseRegexPasteBox';
+import { MicroTooltip } from './MicroTooltip';
 import { Sliders, Settings2 } from 'lucide-react';
 
 interface CourseBentoCardProps {
@@ -141,39 +142,45 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
               </span>
 
               {/* Allow / Disallow Contribution Toggle Button */}
-              <button
-                onClick={() => onToggleCourseExcluded(course.id)}
-                title={isExcluded ? "Include this subject back into SGPA calculations" : "Disallow / exclude this subject from SGPA calculations"}
-                className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-all border ${
-                  isExcluded
-                    ? 'bg-rose-950/60 text-rose-300 border-rose-500/40 hover:bg-rose-900/60'
-                    : 'bg-emerald-950/40 text-emerald-300 border-emerald-500/30 hover:bg-emerald-900/60'
-                }`}
-              >
-                {isExcluded ? (
-                  <>
-                    <EyeOff className="w-2.5 h-2.5 text-rose-400" />
-                    <span>Excluded (0 Cr)</span>
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-2.5 h-2.5 text-emerald-400" />
-                    <span>In SGPA</span>
-                  </>
-                )}
-              </button>
+              <div className="inline-flex items-center gap-0.5">
+                <button
+                  onClick={() => onToggleCourseExcluded(course.id)}
+                  title={isExcluded ? "Include this subject back into SGPA calculations" : "Disallow / exclude this subject from SGPA calculations"}
+                  className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-all border ${
+                    isExcluded
+                      ? 'bg-rose-950/60 text-rose-300 border-rose-500/40 hover:bg-rose-900/60'
+                      : 'bg-emerald-950/40 text-emerald-300 border-emerald-500/30 hover:bg-emerald-900/60'
+                  }`}
+                >
+                  {isExcluded ? (
+                    <>
+                      <EyeOff className="w-2.5 h-2.5 text-rose-400" />
+                      <span>Excluded (0 Cr)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-2.5 h-2.5 text-emerald-400" />
+                      <span>In SGPA</span>
+                    </>
+                  )}
+                </button>
+                <MicroTooltip content="In SGPA / Exclude: Exclude this course from your SGPA calculation without deleting marks." />
+              </div>
 
               {/* Configure Subject Modal Trigger */}
               {onOpenEditCourse && (
-                <button
-                  type="button"
-                  onClick={() => onOpenEditCourse(course)}
-                  title="Configure subject name, code, credits, or change evaluation mode"
-                  className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-400 hover:text-cyan-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
-                >
-                  <Settings2 className="w-2.5 h-2.5" />
-                  <span>Config</span>
-                </button>
+                <div className="inline-flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => onOpenEditCourse(course)}
+                    title="Configure subject name, code, credits, or change evaluation mode"
+                    className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-400 hover:text-cyan-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                  >
+                    <Settings2 className="w-2.5 h-2.5" />
+                    <span>Config</span>
+                  </button>
+                  <MicroTooltip content="Subject Config: Modify course code, credits, or convert evaluation pattern (Theory, Practical, Hybrid 70/30, 100% Internal, or Direct Grade)." />
+                </div>
               )}
             </div>
 
@@ -315,28 +322,34 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                 >
                   0
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setShowRegexBox(!showRegexBox)}
-                  className={`text-[10px] font-mono px-1.5 py-0.5 rounded border transition-all flex items-center gap-1 ${
-                    showRegexBox
-                      ? 'bg-cyan-950 text-cyan-300 border-cyan-500/50 shadow-[0_0_8px_rgba(6,182,212,0.2)]'
-                      : 'bg-white/[0.04] text-cyan-400 border-white/5 hover:border-cyan-500/30'
-                  }`}
-                  title="Regex auto-fill marks from CUIMS copied text for this subject"
-                >
-                  <ClipboardPaste className="w-2.5 h-2.5" />
-                  <span>Paste</span>
-                </button>
-                {onConvertCourseMode && (
+                <div className="inline-flex items-center gap-0.5">
                   <button
                     type="button"
-                    onClick={() => onConvertCourseMode(course.id, 'DirectGrade')}
-                    className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-950/60 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/60 transition-colors"
-                    title="Switch this subject to Direct Grade (NPTEL / Certificate)"
+                    onClick={() => setShowRegexBox(!showRegexBox)}
+                    className={`text-[10px] font-mono px-1.5 py-0.5 rounded border transition-all flex items-center gap-1 ${
+                      showRegexBox
+                        ? 'bg-cyan-950 text-cyan-300 border-cyan-500/50 shadow-[0_0_8px_rgba(6,182,212,0.2)]'
+                        : 'bg-white/[0.04] text-cyan-400 border-white/5 hover:border-cyan-500/30'
+                    }`}
+                    title="Regex auto-fill marks from CUIMS copied text for this subject"
                   >
-                    ⇄ Direct Grade
+                    <ClipboardPaste className="w-2.5 h-2.5" />
+                    <span>Regex Paste</span>
                   </button>
+                  <MicroTooltip content="Regex Paste: Copy your raw internal marks table from the CUIMS portal and click paste. Automatically fills MSTs, Quizzes, Experiments, and Assignments with zero manual typing." />
+                </div>
+                {onConvertCourseMode && (
+                  <div className="inline-flex items-center gap-0.5">
+                    <button
+                      type="button"
+                      onClick={() => onConvertCourseMode(course.id, 'DirectGrade')}
+                      className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-950/60 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/60 transition-colors"
+                      title="Switch this subject to Direct Grade (NPTEL / Certificate)"
+                    >
+                      ⇄ Direct Grade
+                    </button>
+                    <MicroTooltip content="Direct Grade: For NPTEL / MOOC electives where you get a direct letter grade without internal/external exams." />
+                  </div>
                 )}
               </div>
             </div>

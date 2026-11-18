@@ -98,15 +98,15 @@ export const CohortTrackModal: React.FC<CohortTrackModalProps> = ({
         </div>
 
         {/* Preserved Marks Banner */}
-        <div className="px-5 sm:px-6 py-2.5 bg-emerald-950/40 border-b border-emerald-500/20 flex items-center gap-2.5 text-xs text-emerald-300">
+        <div className="px-4 sm:px-6 py-2.5 bg-emerald-950/40 border-b border-emerald-500/20 flex items-center gap-2 text-xs text-emerald-300">
           <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
           <span>
-            <strong>Zero Data Loss:</strong> Switching tracks preserves all entered marks for Probability & Statistics, Java PBL, Computer Networks, CC-2, FSD-2, and Soft Skills.
+            <strong>Zero Data Loss:</strong> Switching cohorts preserves all your entered marks.
           </span>
         </div>
 
         {/* Track Selection Grid */}
-        <div className="p-4 sm:p-6 overflow-y-auto space-y-3 relative z-10 flex-1">
+        <div className="p-3 sm:p-6 overflow-y-auto space-y-2.5 sm:space-y-3 relative z-10 flex-1">
           {COHORT_TRACKS_INFO.map((track) => {
             const isSelected = track.id === currentTrackId;
 
@@ -117,7 +117,7 @@ export const CohortTrackModal: React.FC<CohortTrackModalProps> = ({
                   onSelectTrack(track.id);
                   onClose();
                 }}
-                className={`p-4 rounded-xl border transition-all cursor-pointer relative group flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                className={`p-3 sm:p-4 rounded-xl border transition-all cursor-pointer relative group flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 ${
                   isSelected
                     ? 'bg-gradient-to-r from-cyan-950/70 to-indigo-950/70 border-cyan-500/60 shadow-[0_0_20px_rgba(6,182,212,0.2)]'
                     : 'bg-obsidian-850/60 hover:bg-obsidian-800 border-white/10 hover:border-white/20'

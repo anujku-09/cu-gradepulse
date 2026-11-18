@@ -36,6 +36,7 @@ import { Course, CourseResult, GradeLevel, CurveMode, GradeCutoffs, CohortTrackI
 import { GRADE_COLORS, GRADE_POINTS } from '../utils/gradeCalculations';
 import { COHORT_TRACKS_INFO } from '../data/courses';
 import { CourseRegexPasteBox } from './CourseRegexPasteBox';
+import { MicroTooltip } from './MicroTooltip';
 
 interface SemesterSetupWizardProps {
   isOpen: boolean;
@@ -483,35 +484,35 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
               initial="enter"
               animate="center"
               exit="exit"
-              className="glass-card rounded-2xl p-5 sm:p-7 border border-white/15 shadow-2xl relative overflow-hidden"
+              className="glass-card rounded-2xl p-3.5 sm:p-7 border border-white/15 shadow-2xl relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
               
-              <div className="text-center space-y-2 mb-6">
+              <div className="text-center space-y-1.5 mb-5 sm:mb-6">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-cyan-950/80 text-cyan-300 border border-cyan-800/60">
                   <GraduationCap className="w-3.5 h-3.5" />
-                  Chandigarh University • CSE Semester V
+                  CSE Semester V Setup
                 </span>
-                <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                <h2 className="text-lg sm:text-2xl font-extrabold text-white tracking-tight">
                   Configure Your 5th Sem Setup
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
-                  Select your 5th Sem Elective Set (Set F Core, Set B Apple, Set D ML/AI, Set C IoT, Set E Industry) and Aptitude/Soft Skills track.
+                  Select your elective cohort track and Aptitude/Soft Skills evaluation mode.
                 </p>
               </div>
 
               {/* 1. CHOOSE YOUR COHORT / SPECIALIZATION SECTION */}
-              <div className="space-y-2 mb-6 text-left">
+              <div className="space-y-2 mb-5 sm:mb-6 text-left">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                    <span>1. Select Your 5th Sem Elective Set / Cohort:</span>
+                    <span>1. Select Your Elective Cohort Track:</span>
                   </span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800/60 font-semibold">
-                    CU 5th Sem Elective Sets
+                    Elective Sets
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 gap-2">
                   {COHORT_TRACKS_INFO.map(track => {
                     const isSelected = track.id === currentTrackId;
                     return (
@@ -519,15 +520,15 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                         key={track.id}
                         type="button"
                         onClick={() => onSelectTrack(track.id)}
-                        className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2.5 ${
+                        className={`p-2 sm:p-2.5 rounded-xl border text-left transition-all flex items-center gap-2 sm:gap-2.5 ${
                           isSelected
                             ? 'bg-gradient-to-r from-cyan-950/80 to-indigo-950/80 border-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.25)] ring-1 ring-cyan-500/50'
                             : 'bg-obsidian-900/80 hover:bg-obsidian-850 border-white/10 text-slate-300'
                         }`}
                       >
-                        <span className="text-xl flex-shrink-0">{track.icon}</span>
+                        <span className="text-lg sm:text-xl flex-shrink-0">{track.icon}</span>
                         <div className="min-w-0 flex-1">
-                          <span className={`text-xs font-bold block leading-tight line-clamp-2 ${isSelected ? 'text-cyan-300' : 'text-slate-200'}`}>
+                          <span className={`text-xs font-bold block leading-tight truncate ${isSelected ? 'text-cyan-300' : 'text-slate-200'}`}>
                             {track.name}
                           </span>
                           <span className="text-[10px] text-slate-400 block truncate font-mono mt-0.5">
@@ -539,7 +540,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                   })}
                 </div>
 
-                <div className="p-2.5 rounded-xl bg-obsidian-850/80 border border-white/10 text-[11px] text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                <div className="p-2 sm:p-2.5 rounded-xl bg-obsidian-850/80 border border-white/10 text-[11px] text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <div className="flex items-center gap-1.5 truncate">
                     <span className="text-cyan-400 font-mono font-semibold">Electives:</span>
                     <span className="text-slate-200 font-medium truncate">{currentTrack.electiveHighlight}</span>
@@ -551,45 +552,51 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
               </div>
 
               {/* 2. CHOOSE APTITUDE & SOFT SKILLS EVALUATION */}
-              <div className="space-y-2 mb-6 text-left">
-                <span className="text-xs font-bold text-slate-200 block">
-                  2. How does your batch evaluate Aptitude & Soft Skills?
-                </span>
+              <div className="space-y-1.5 mb-5 sm:mb-6 text-left">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-slate-200 block">
+                    2. Soft Skills & Aptitude Evaluation Mode:
+                  </span>
+                  <MicroTooltip content="Soft Skills-III (24TDP-311) and Aptitude-III (24TDT-312) are evaluated as either Non-Graded (Pass/Fail) or Full Credit depending on your department notification." />
+                </div>
                 <p className="text-[11px] text-slate-400">
-                  In Chandigarh University, Soft Skills-III (<code className="font-mono text-cyan-300">24TDP-311</code>) and Aptitude-III (<code className="font-mono text-cyan-300">24TDT-312</code>) are evaluated as Non-Graded (MNG) or Graded.
+                  Choose how your section calculates Soft Skills & Aptitude credits.
                 </p>
               </div>
 
               {/* 2 Options Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
                 
                 {/* Option A: Non-Graded (MNG) */}
                 <div
                   onClick={() => {
                     if (!isGlobalMng) onToggleGlobalMng();
                   }}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
+                  className={`p-3.5 sm:p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
                     isGlobalMng
                       ? 'bg-gradient-to-b from-cyan-950/60 to-obsidian-900 border-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.2)] ring-1 ring-cyan-500/50'
                       : 'bg-obsidian-900/60 border-white/10 hover:border-white/20'
                   }`}
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/60 font-bold uppercase">
                         Recommended (90% Batches)
                       </span>
                       {isGlobalMng && <CheckCircle className="w-4 h-4 text-cyan-400" />}
                     </div>
-                    <h3 className="font-bold text-white text-base">
-                      Non-Graded Track (MNG)
-                    </h3>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-bold text-white text-base">
+                        Non-Graded Track (MNG)
+                      </h3>
+                      <MicroTooltip content="Non-Graded (MNG): Pass/Fail qualifying subjects (≥40/100 to avoid backlog). Marks do NOT dilute or alter your 10-point SGPA." />
+                    </div>
                     <p className="text-xs text-slate-400 leading-relaxed">
-                      Requires <strong>≥ 40 / 100</strong> to qualify and avoid a backlog. Their marks <strong>do not affect</strong> your final SGPA calculation.
+                      Qualifying only (≥40/100). Marks do not affect your 10-point SGPA.
                     </p>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs font-mono">
-                    <span className="text-slate-400">Total Graded Credits:</span>
+                  <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-xs font-mono">
+                    <span className="text-slate-400">Graded Credits:</span>
                     <span className="font-bold text-cyan-300">19.0 Credits</span>
                   </div>
                 </div>
@@ -599,28 +606,31 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                   onClick={() => {
                     if (isGlobalMng) onToggleGlobalMng();
                   }}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
+                  className={`p-3.5 sm:p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
                     !isGlobalMng
                       ? 'bg-gradient-to-b from-indigo-950/60 to-obsidian-900 border-indigo-500/50 shadow-[0_0_20px_rgba(99,102,241,0.2)] ring-1 ring-indigo-500/50'
                       : 'bg-obsidian-900/60 border-white/10 hover:border-white/20'
                   }`}
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800/60 font-bold uppercase">
                         Full Credit Track
                       </span>
                       {!isGlobalMng && <CheckCircle className="w-4 h-4 text-indigo-400" />}
                     </div>
-                    <h3 className="font-bold text-white text-base">
-                      Graded Track
-                    </h3>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-bold text-white text-base">
+                        Graded Track
+                      </h3>
+                      <MicroTooltip content="Graded Track: Soft Skills & Aptitude letter grades (A+ to F) directly factor into your 10-point SGPA formula." />
+                    </div>
                     <p className="text-xs text-slate-400 leading-relaxed">
-                      Soft Skills and Aptitude letter grades (A+ to F) <strong>directly count</strong> into your 10-point SGPA formula.
+                      Letter grades directly count toward your 10-point SGPA formula.
                     </p>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs font-mono">
-                    <span className="text-slate-400">Total Graded Credits:</span>
+                  <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-xs font-mono">
+                    <span className="text-slate-400">Graded Credits:</span>
                     <span className="font-bold text-indigo-300">23.0 Credits</span>
                   </div>
                 </div>
@@ -708,21 +718,24 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
 
                     {/* 1-Click Evaluation Mode Swapper */}
                     {onConvertCourseMode && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const nextMode: CourseType = 
-                            activeCourse.type === 'Theory' ? 'Practical' :
-                            activeCourse.type === 'Practical' ? 'Hybrid' :
-                            activeCourse.type === 'Hybrid' ? 'ContinuousEvaluation' :
-                            activeCourse.type === 'ContinuousEvaluation' ? 'DirectGrade' : 'Theory';
-                          onConvertCourseMode(activeCourse.id, nextMode);
-                        }}
-                        title="Click to cycle evaluation mode (Theory ⇄ Practical ⇄ Hybrid ⇄ 100% Internal ⇄ Direct Grade)"
-                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-300 bg-white/5 border border-white/10 hover:border-cyan-500/40 hover:text-cyan-300 transition-colors"
-                      >
-                        <span>⇄ Cycle Mode</span>
-                      </button>
+                      <div className="inline-flex items-center gap-0.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const nextMode: CourseType = 
+                              activeCourse.type === 'Theory' ? 'Practical' :
+                              activeCourse.type === 'Practical' ? 'Hybrid' :
+                              activeCourse.type === 'Hybrid' ? 'ContinuousEvaluation' :
+                              activeCourse.type === 'ContinuousEvaluation' ? 'DirectGrade' : 'Theory';
+                            onConvertCourseMode(activeCourse.id, nextMode);
+                          }}
+                          title="Click to cycle evaluation mode (Theory ⇄ Practical ⇄ Hybrid ⇄ 100% Internal ⇄ Direct Grade)"
+                          className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-300 bg-white/5 border border-white/10 hover:border-cyan-500/40 hover:text-cyan-300 transition-colors"
+                        >
+                          <span>⇄ Cycle Mode</span>
+                        </button>
+                        <MicroTooltip content="Subject Config: Switch this course between Theory (40/60), Practical (60/40), Hybrid (70/30), 100% Internal, or Direct Grade." />
+                      </div>
                     )}
                   </div>
                   <h3 className="text-lg sm:text-xl font-bold text-white">
@@ -799,7 +812,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                         Class Attendance (≥ 75% Rule)
                       </span>
                       <p className="text-[11px] text-slate-400">
-                        Chandigarh University awards full {attendanceComp.rawMax} marks for ≥ 75% attendance.
+                        Attendance Credit: +{attendanceComp.rawMax} marks for ≥ 75% attendance.
                       </p>
                     </div>
 
@@ -867,19 +880,22 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                         >
                           Zero
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setShowRegexBox(!showRegexBox)}
-                          className={`text-[10px] font-mono px-2 py-0.5 rounded border transition-all flex items-center gap-1 ${
-                            showRegexBox
-                              ? 'bg-cyan-950 text-cyan-300 border-cyan-500/50 shadow-[0_0_10px_rgba(6,182,212,0.3)]'
-                              : 'bg-white/[0.04] text-cyan-400 border-white/10 hover:border-cyan-500/30'
-                          }`}
-                          title="Paste copied table text from CUIMS portal to auto-fill marks via regex"
-                        >
-                          <ClipboardPaste className="w-3 h-3 text-cyan-400" />
-                          <span>Regex Paste</span>
-                        </button>
+                        <div className="inline-flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setShowRegexBox(!showRegexBox)}
+                            className={`text-[10px] font-mono px-2 py-0.5 rounded border transition-all flex items-center gap-1 ${
+                              showRegexBox
+                                ? 'bg-cyan-950 text-cyan-300 border-cyan-500/50 shadow-[0_0_10px_rgba(6,182,212,0.3)]'
+                                : 'bg-white/[0.04] text-cyan-400 border-white/10 hover:border-cyan-500/30'
+                            }`}
+                            title="Paste copied table text from CUIMS portal to auto-fill marks via regex"
+                          >
+                            <ClipboardPaste className="w-3 h-3 text-cyan-400" />
+                            <span>Regex Paste</span>
+                          </button>
+                          <MicroTooltip content="Regex Paste: Copy your raw internal marks table from the CUIMS portal and click paste. The smart parser automatically fills MSTs, Quizzes, and Assignments into the correct fields with zero manual typing." />
+                        </div>
                       </div>
                     </div>
 
