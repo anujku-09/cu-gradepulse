@@ -88,6 +88,7 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
 
   return (
     <div
+      id={`course-${course.id}`}
       className={`glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden transition-all duration-300 border ${
         isExcluded 
           ? 'opacity-65 border-white/10 hover:opacity-100' 

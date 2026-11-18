@@ -26,7 +26,10 @@ import {
   EyeOff,
   ClipboardPaste,
   Sliders,
-  HelpCircle
+  HelpCircle,
+  Target,
+  ChevronDown,
+  CheckCircle2
 } from 'lucide-react';
 import { Course, CourseResult, GradeLevel, CurveMode, GradeCutoffs, CohortTrackId } from '../types';
 import { GRADE_COLORS, GRADE_POINTS } from '../utils/gradeCalculations';
@@ -59,6 +62,8 @@ interface SemesterSetupWizardProps {
   onClaimAllAttendance: () => void;
   onOpenEditCourse?: (course: Course) => void;
   onConvertCourseMode?: (courseId: string, targetType: 'Theory' | 'Practical' | 'DirectGrade') => void;
+  globalCutoffs?: GradeCutoffs;
+  onSaveCustomCutoffs?: (courseId: string, cutoffs: GradeCutoffs | undefined) => void;
   onComplete: () => void;
 }
 
@@ -88,6 +93,8 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
   onClaimAllAttendance,
   onOpenEditCourse,
   onConvertCourseMode,
+  globalCutoffs,
+  onSaveCustomCutoffs,
   onComplete,
 }) => {
   // Step 0: Track Mode (MNG vs Graded & Cohort Section)
@@ -98,6 +105,9 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
   const [showDetailedComponents, setShowDetailedComponents] = useState(false);
   const [showRegexBox, setShowRegexBox] = useState(false);
   const [allAttendanceClaimed, setAllAttendanceClaimed] = useState(false);
+  const [showCutoffInspector, setShowCutoffInspector] = useState(false);
+  const [showSingleSubjectModal, setShowSingleSubjectModal] = useState(false);
+  const [snapFeedback, setSnapFeedback] = useState<string | null>(null);
 
   const currentTrack = COHORT_TRACKS_INFO.find(t => t.id === currentTrackId) || COHORT_TRACKS_INFO[0];
 
@@ -217,6 +227,9 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
       setCurrentStep(prev => prev + 1);
       setShowDetailedComponents(false);
       setShowRegexBox(false);
+      setShowCutoffInspector(false);
+      setShowSingleSubjectModal(false);
+      setSnapFeedback(null);
     } else {
       handleEnterMissionControl();
     }
@@ -228,6 +241,9 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
       setCurrentStep(prev => prev - 1);
       setShowDetailedComponents(false);
       setShowRegexBox(false);
+      setShowCutoffInspector(false);
+      setShowSingleSubjectModal(false);
+      setSnapFeedback(null);
     }
   };
 
@@ -236,6 +252,9 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
     setCurrentStep(stepIdx);
     setShowDetailedComponents(false);
     setShowRegexBox(false);
+    setShowCutoffInspector(false);
+    setShowSingleSubjectModal(false);
+    setSnapFeedback(null);
   };
 
   const handleSkipToDashboard = () => {
@@ -297,102 +316,134 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
       {/* ============================================================== */}
       {/* 1. TOP HEADER & LIVE PROGRESS HUB                             */}
       {/* ============================================================== */}
-      <div className="w-full max-w-4xl mx-auto flex flex-col gap-3">
-        <div className="flex items-center justify-between gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
-          {/* Brand & Step title */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-cyan-500/20 via-indigo-500/20 to-violet-500/20 border border-cyan-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.3)] flex-shrink-0">
+      <div className="w-full max-w-4xl mx-auto flex flex-col gap-2 sm:gap-2.5">
+        
+        {/* Row 1: Brand, Step Status, Live SGPA & Exit */}
+        <div className="flex items-center justify-between gap-2 h-11 sm:h-12">
+          {/* Brand Logo & Step Indicator */}
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-500/20 via-indigo-500/20 to-violet-500/20 border border-cyan-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.3)] flex-shrink-0">
               <Sparkles className="w-4 h-4 text-cyan-400" />
             </div>
-            <div>
-              <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 whitespace-nowrap">
                 <span className="text-xs sm:text-sm font-extrabold text-white tracking-tight">
                   CU <span className="text-cyan-400">GradePulse</span>
                 </span>
-                <span className="text-[9px] sm:text-[10px] font-mono px-1.5 sm:px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800/60 uppercase">
+                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800/60 uppercase hidden xs:inline-flex">
                   Sem V Fast-Track
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium">
+              <p className="text-[10px] text-slate-400 font-medium truncate">
                 {currentStep === 0 && 'Step 0: Choose Section & Evaluation Track'}
-                {currentStep >= 1 && currentStep <= totalCourseSteps && `Subject ${currentStep} of ${totalCourseSteps}: ${activeCourse?.code}`}
+                {currentStep >= 1 && currentStep <= totalCourseSteps && `${currentStep}/${totalCourseSteps}: ${activeCourse?.code} • ${activeCourse?.name}`}
                 {currentStep === celebrationStep && 'Final Step: Academic Flight Plan'}
               </p>
             </div>
           </div>
 
-          {/* Right: Live SGPA badge & Cutoff Curve & Cohort Pill & Global Attendance & Close */}
-          <div className="flex items-center gap-1.5 sm:gap-2 ml-auto sm:ml-0 flex-wrap sm:flex-nowrap justify-end">
-            
-            {/* Cohort Section Pill in Wizard Header */}
-            <button
-              type="button"
-              onClick={onOpenTrackModal}
-              title="Click to switch your 5th Sem section (Apple, AI/ML, Cloud, Cyber, General)"
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 text-xs font-semibold transition-all shadow-[0_0_10px_rgba(6,182,212,0.15)]"
-            >
-              <span>{currentTrack.icon}</span>
-              <span className="hidden xs:inline">{currentTrack.name}</span>
-            </button>
-
-            {/* Cutoff Line / Curve Mode Option in Wizard Nav */}
-            <div className="flex items-center gap-1 sm:gap-1.5 px-2 py-1 rounded-xl bg-obsidian-900 border border-white/10 text-xs">
-              <span className="text-[10px] font-mono text-slate-400 hidden lg:inline">Cutoff:</span>
-              <select
-                value={curveMode}
-                onChange={(e) => onCurveChange(e.target.value as CurveMode)}
-                className="bg-obsidian-850 border border-white/10 rounded-md text-[10px] sm:text-xs text-cyan-300 px-1.5 sm:px-2 py-0.5 font-mono focus:border-cyan-500 focus:outline-none cursor-pointer"
-                title="Cohort Cutoff Curve Difficulty"
-              >
-                <option value="standard">Standard (95+)</option>
-                <option value="strict">Strict (96+)</option>
-                <option value="lenient">Lenient (91+)</option>
-                {curveMode === 'custom' && <option value="custom">Custom</option>}
-              </select>
-
-              <button
-                type="button"
-                onClick={onOpenCutoffModal}
-                title="Inspect & Customize Cutoff Matrix (A+, A, B+, B, C+, C, D thresholds)"
-                className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
-              >
-                <Sliders className="w-3.5 h-3.5 text-cyan-400" />
-              </button>
-            </div>
-
+          {/* Right: Live SGPA badge & Skip to Dashboard */}
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             {/* Live Predicted SGPA badge */}
-            <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-xl bg-obsidian-900 border border-white/10 shadow-inner">
-              <span className="text-[9px] sm:text-[10px] font-mono text-slate-400 uppercase tracking-wider hidden xs:inline">SGPA:</span>
-              <span className={`text-sm sm:text-base font-extrabold font-mono ${
+            <div className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-xl bg-obsidian-900 border border-white/10 shadow-inner">
+              <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider hidden xs:inline">SGPA:</span>
+              <span className={`text-xs sm:text-sm font-extrabold font-mono ${
                 liveSgpa >= 9.0 ? 'text-emerald-400' : liveSgpa >= 8.0 ? 'text-cyan-300' : liveSgpa >= 7.0 ? 'text-indigo-300' : liveSgpa > 0 ? 'text-amber-400' : 'text-slate-400'
               }`}>
                 {liveSgpa > 0 ? liveSgpa.toFixed(2) : '--.--'}
               </span>
             </div>
 
-            {/* Quick 100% Attendance Claimer */}
-            <button
-              onClick={handleClaimAll}
-              title="Give full attendance marks to all 6 subjects with attendance requirements (>75%)"
-              className={`hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold font-mono transition-all border ${
-                allAttendanceClaimed
-                  ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.25)]'
-                  : 'bg-obsidian-850 text-slate-300 hover:text-white border-white/10 hover:border-cyan-500/40'
-              }`}
-            >
-              <CalendarCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{allAttendanceClaimed ? '✓ 100% Att' : 'Claim Attendance'}</span>
-            </button>
-
             {/* Close / Skip to Dashboard */}
             <button
               type="button"
               onClick={handleSkipToDashboard}
-              className="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-obsidian-850 hover:bg-white/10 border border-white/10 transition-colors flex items-center gap-1 sm:gap-1.5 shadow-sm whitespace-nowrap active:scale-95 touch-manipulation"
+              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-obsidian-850 hover:bg-white/10 border border-white/10 transition-colors flex items-center gap-1 shadow-sm whitespace-nowrap active:scale-95 touch-manipulation"
               title="Exit setup wizard and open full mission control dashboard"
             >
-              <span className="hidden xs:inline">Skip to </span>Dashboard
+              <span className="hidden xs:inline">Dashboard</span>
               <X className="w-3.5 h-3.5 text-slate-400" />
+            </button>
+          </div>
+        </div>
+
+        {/* Row 2: Single-Subject Quick Jumper & Controls Bar */}
+        <div className="flex items-center justify-between gap-1.5 sm:gap-2 py-1 px-1 bg-obsidian-900/70 rounded-xl border border-white/5 overflow-x-auto no-scrollbar">
+          
+          {/* Quick Subject Switcher Dropdown */}
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-[10px] font-mono text-cyan-400 font-bold uppercase whitespace-nowrap hidden xs:inline">
+              Jump To:
+            </span>
+            <select
+              value={currentStep}
+              onChange={(e) => handleJumpToStep(parseInt(e.target.value))}
+              className="bg-obsidian-850 text-[11px] sm:text-xs text-slate-200 font-medium rounded-lg px-2 py-1 border border-white/10 focus:border-cyan-400 focus:outline-none cursor-pointer max-w-[150px] xs:max-w-[210px] sm:max-w-[260px] truncate"
+              title="Jump directly to any subject"
+            >
+              <option value={0}>⚙️ Step 0: Cohort Track Setup</option>
+              {orderedCourses.map((c, idx) => {
+                const stepNum = idx + 1;
+                const res = results[c.id];
+                const gradeBadge = res?.predictedGrade ? `[Grade ${res.predictedGrade}]` : '';
+                return (
+                  <option key={c.id} value={stepNum}>
+                    {stepNum}. {c.code} - {c.name.slice(0, 16)} {gradeBadge}
+                  </option>
+                );
+              })}
+              <option value={celebrationStep}>🎉 Done: Flight Plan</option>
+            </select>
+          </div>
+
+          {/* Controls: Cohort Section Pill + Cutoff Selector + 100% Attendance */}
+          <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
+            {/* Cohort Section Pill */}
+            <button
+              type="button"
+              onClick={onOpenTrackModal}
+              title="Switch section (Apple, AI/ML, Cloud, Cyber, General)"
+              className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 text-[10px] sm:text-[11px] font-semibold transition-all whitespace-nowrap"
+            >
+              <span>{currentTrack.icon}</span>
+              <span className="truncate max-w-[80px] sm:max-w-[110px]">{currentTrack.name}</span>
+            </button>
+
+            {/* Cutoff Curve Selector */}
+            <div className="flex items-center gap-0.5 sm:gap-1 px-1.5 py-0.5 rounded-lg bg-obsidian-850 border border-white/10 text-[10px] sm:text-[11px]">
+              <select
+                value={curveMode}
+                onChange={(e) => onCurveChange(e.target.value as CurveMode)}
+                className="bg-transparent text-[10px] sm:text-[11px] text-cyan-300 font-mono focus:outline-none cursor-pointer"
+                title="Cohort Cutoff Curve"
+              >
+                <option value="standard" className="bg-obsidian-900 text-slate-200">95+ Std</option>
+                <option value="strict" className="bg-obsidian-900 text-slate-200">96+ Strict</option>
+                <option value="lenient" className="bg-obsidian-900 text-slate-200">91+ Len</option>
+                {curveMode === 'custom' && <option value="custom" className="bg-obsidian-900 text-slate-200">Custom</option>}
+              </select>
+              <button
+                type="button"
+                onClick={onOpenCutoffModal}
+                title="Inspect & Customize Cutoff Matrix"
+                className="p-0.5 rounded text-slate-400 hover:text-white"
+              >
+                <Sliders className="w-3 h-3 text-cyan-400" />
+              </button>
+            </div>
+
+            {/* Attendance Claim Button */}
+            <button
+              onClick={handleClaimAll}
+              title="Full attendance marks for all subjects (>75% rule)"
+              className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-semibold font-mono transition-all border whitespace-nowrap ${
+                allAttendanceClaimed
+                  ? 'bg-emerald-950/70 text-emerald-300 border-emerald-500/50'
+                  : 'bg-obsidian-850 text-slate-300 hover:text-white border-white/10'
+              }`}
+            >
+              <CalendarCheck className="w-3 h-3 text-emerald-400" />
+              <span className="hidden xs:inline">{allAttendanceClaimed ? '✓ Att' : '+2 Att'}</span>
             </button>
           </div>
         </div>
@@ -407,24 +458,33 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
           />
         </div>
 
-        {/* Step Navigation Dots (Clickable) */}
-        <div className="flex items-center justify-between px-1 overflow-x-auto no-scrollbar py-1">
+        {/* Step Navigation Dots (Clickable with short code & grade pill) */}
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
           {Array.from({ length: celebrationStep + 1 }, (_, i) => {
             const isCompleted = i < currentStep;
             const isCurrent = i === currentStep;
+            const course = i >= 1 && i <= totalCourseSteps ? orderedCourses[i - 1] : null;
+            const res = course ? results[course.id] : null;
+            const label = i === 0 ? 'Track' : i === celebrationStep ? 'Done' : (course?.code.split('-')[1] || course?.code.slice(0, 6));
+
             return (
               <button
                 key={i}
                 onClick={() => handleJumpToStep(i)}
-                className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono transition-all flex-shrink-0 ${
+                className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono transition-all flex-shrink-0 border ${
                   isCurrent
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/50 font-bold shadow-[0_0_10px_rgba(6,182,212,0.3)]'
+                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/60 font-bold shadow-[0_0_10px_rgba(6,182,212,0.3)] ring-1 ring-cyan-400/30'
                     : isCompleted
-                    ? 'text-slate-400 hover:text-white'
-                    : 'text-slate-600 hover:text-slate-400'
+                    ? 'bg-obsidian-900 text-slate-300 border-white/10 hover:text-white'
+                    : 'bg-obsidian-900/60 text-slate-500 border-white/5 hover:text-slate-400'
                 }`}
               >
-                <span>{i === 0 ? 'Track' : i === celebrationStep ? 'Done' : orderedCourses[i - 1]?.code.split('-')[0]}</span>
+                <span>{label}</span>
+                {res?.predictedGrade && !res.isBacklog && (
+                  <span className="text-[9px] font-bold text-cyan-400">
+                    {res.predictedGrade}
+                  </span>
+                )}
                 {isCompleted && <Check className="w-2.5 h-2.5 text-emerald-400" />}
               </button>
             );
@@ -991,7 +1051,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                 )}
 
                 {/* -------------------------------------------------------- */}
-                {/* 4. EXTERNAL EXAM TARGET SLIDER                           */}
+                {/* 4. EXTERNAL EXAM TARGET SLIDER & DEEP GRADE UNLOCKER     */}
                 {/* -------------------------------------------------------- */}
                 {activeCourse.type !== 'DirectGrade' && (
                   <div className="p-4 rounded-xl bg-obsidian-850/70 border border-white/10 space-y-3">
@@ -1034,7 +1094,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                     <div className="text-[11px] font-mono text-slate-400 flex items-center justify-between">
                       {isActiveCourseUnentered ? (
                         <span className="text-slate-400">
-                          Slide to simulate external marks • Live targets update as you enter scores
+                          Slide to simulate external marks • Tap any grade below to snap marks
                         </span>
                       ) : activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible) ? (
                         <span className="text-cyan-300">
@@ -1047,23 +1107,186 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                       )}
                       <span className="text-slate-500 text-[10px]">CU Cohort Curve</span>
                     </div>
+
+                    {/* Snap Feedback Toast */}
+                    {snapFeedback && (
+                      <div className="p-2 rounded-lg bg-cyan-950/80 border border-cyan-400/50 text-cyan-200 text-xs font-mono flex items-center gap-2 animate-fadeIn">
+                        <Check className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
+                        <span className="truncate">{snapFeedback}</span>
+                      </div>
+                    )}
+
+                    {/* ======================================================== */}
+                    {/* INLINE DEEP GRADE UNLOCKER & 1-CLICK TARGET SNAPPER      */}
+                    {/* ======================================================== */}
+                    <div className="pt-2 border-t border-white/10 space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-slate-200 flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                          <span>Deep Grade Unlocker & Target Snapper</span>
+                        </span>
+                        <span className="text-[10px] font-mono text-cyan-400 hidden xs:inline">
+                          Tap grade to snap slider
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 xs:grid-cols-4 sm:grid-cols-7 gap-1.5">
+                        {activeResult.targetRequirements.map((req) => {
+                          const isCurrentGrade = activeResult.predictedGrade === req.grade;
+                          const gTheme = GRADE_COLORS[req.grade] || GRADE_COLORS['C'];
+                          const cutoff = activeResult.gradeCutoffs[req.grade];
+
+                          return (
+                            <button
+                              key={req.grade}
+                              type="button"
+                              disabled={!req.possible && !req.alreadyAchieved}
+                              onClick={() => {
+                                if (req.alreadyAchieved) {
+                                  onUpdateExternal(activeCourse.id, 0);
+                                  setSnapFeedback(`Grade ${req.grade} already secured with internals! External set to 0.`);
+                                } else if (req.possible) {
+                                  onUpdateExternal(activeCourse.id, req.requiredExternalRaw);
+                                  setSnapFeedback(`Snapped to Grade ${req.grade} target (${req.requiredExternalRaw}/${activeCourse.externalRawMax} marks)`);
+                                }
+                                setTimeout(() => setSnapFeedback(null), 2500);
+                              }}
+                              className={`p-2 rounded-xl border text-center transition-all flex flex-col items-center justify-between min-h-[76px] relative cursor-pointer active:scale-95 ${
+                                isCurrentGrade
+                                  ? `${gTheme.bg} ${gTheme.border} ring-2 ring-cyan-400 scale-[1.02] shadow-[0_0_15px_rgba(6,182,212,0.3)]`
+                                  : req.alreadyAchieved
+                                  ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 hover:border-emerald-400'
+                                  : req.possible
+                                  ? 'bg-obsidian-900/90 border-white/10 hover:border-cyan-500/50 text-slate-200 hover:bg-obsidian-850'
+                                  : 'bg-obsidian-950/60 border-white/5 text-slate-600 opacity-40 cursor-not-allowed'
+                              }`}
+                            >
+                              {isCurrentGrade && (
+                                <span className="absolute -top-1.5 -right-1 px-1 py-0.2 rounded bg-cyan-500 text-obsidian-950 font-bold text-[8px] uppercase tracking-wider shadow">
+                                  Current
+                                </span>
+                              )}
+
+                              <div className="flex items-center gap-1">
+                                <span className={`text-sm font-extrabold font-mono ${isCurrentGrade ? gTheme.text : 'text-white'}`}>
+                                  {req.grade}
+                                </span>
+                                <span className="text-[9px] font-mono text-slate-400">
+                                  [{GRADE_POINTS[req.grade]}]
+                                </span>
+                              </div>
+
+                              <div className="text-[10px] font-mono text-slate-400">
+                                ≥{cutoff}
+                              </div>
+
+                              <div className="mt-1 w-full">
+                                {req.alreadyAchieved ? (
+                                  <span className="text-[9px] font-mono font-bold text-emerald-400 flex items-center justify-center gap-0.5">
+                                    <Check className="w-2.5 h-2.5" /> Secured
+                                  </span>
+                                ) : req.possible ? (
+                                  <div className="text-[10px] font-mono font-bold text-cyan-300 bg-cyan-950/60 py-0.5 rounded border border-cyan-800/40">
+                                    {req.requiredExternalRaw}/{activeCourse.externalRawMax}
+                                  </div>
+                                ) : (
+                                  <span className="text-[9px] font-mono text-rose-400/80">
+                                    Impossible
+                                  </span>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* ======================================================== */}
+                    {/* COLLAPSIBLE COHORT CUTOFF INSPECTOR & CURVE SAFE BANDS   */}
+                    {/* ======================================================== */}
+                    <div className="pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setShowCutoffInspector(!showCutoffInspector)}
+                        className="w-full flex items-center justify-between p-2 rounded-xl bg-obsidian-900/80 hover:bg-obsidian-850 border border-white/10 text-xs font-semibold text-slate-300 hover:text-white transition-all"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Sliders className="w-3.5 h-3.5 text-cyan-400" />
+                          <span>Cohort Cutoff Inspector & Curve Distribution</span>
+                        </span>
+                        <span className="text-[11px] font-mono text-cyan-400">
+                          {showCutoffInspector ? 'Hide ▲' : 'Inspect ▼'}
+                        </span>
+                      </button>
+
+                      {showCutoffInspector && (
+                        <div className="mt-2 p-3 rounded-xl bg-obsidian-900/95 border border-cyan-500/20 space-y-2.5 animate-fadeIn">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-slate-300 font-medium">
+                              Relative Curve Mode for {activeCourse.code}:
+                            </span>
+                            <span className="font-mono text-cyan-300 uppercase font-bold text-[11px]">
+                              {curveMode} ({activeResult.gradeCutoffs['A+']}+ for A+)
+                            </span>
+                          </div>
+
+                          {/* Cutoff Reference Pills */}
+                          <div className="grid grid-cols-2 xs:grid-cols-4 sm:grid-cols-7 gap-1 text-[11px] font-mono">
+                            {(['A+', 'A', 'B+', 'B', 'C+', 'C', 'D'] as GradeLevel[]).map(g => (
+                              <div key={g} className="p-1.5 rounded-lg bg-obsidian-850 border border-white/5 text-center">
+                                <div className="font-bold text-slate-200">{g}</div>
+                                <div className="text-[10px] text-cyan-400">≥{activeResult.gradeCutoffs[g]}</div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Next Grade Distance Hint */}
+                          <div className="p-2.5 rounded-lg bg-cyan-950/40 border border-cyan-800/40 text-xs text-slate-300 flex items-start gap-2">
+                            <Info className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="leading-relaxed">
+                                Your projected score is <strong className="text-cyan-300 font-mono">{activeResult.totalWeightedScore.toFixed(1)}/100</strong>.
+                                {activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible) ? (
+                                  <>
+                                    {' '}To reach <strong className="text-white">Grade {activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible)?.grade}</strong>, you need external marks of at least <strong className="text-cyan-300 font-mono">{activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible)?.requiredExternalRaw}/{activeCourse.externalRawMax}</strong>.
+                                  </>
+                                ) : (
+                                  <span className="text-emerald-300 font-semibold"> You are in the top-percentile A+ band!</span>
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                   </div>
                 )}
 
               </div>
 
               {/* CARD FOOTER CONTROLS */}
-              <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/10">
+              <div className="flex items-center justify-between gap-2 pt-3 border-t border-white/10 flex-wrap sm:flex-nowrap">
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="px-4 py-2 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 text-slate-300 text-xs font-semibold border border-white/10 transition-colors flex items-center gap-1.5"
+                  className="px-3 sm:px-4 py-2 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 text-slate-300 text-xs font-semibold border border-white/10 transition-colors flex items-center gap-1.5"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Back</span>
                 </button>
 
-                <div className="flex items-center gap-2">
+                {/* Center: Single Subject Report button */}
+                <button
+                  type="button"
+                  onClick={() => setShowSingleSubjectModal(true)}
+                  className="px-3 py-2 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/60 text-cyan-300 hover:text-white text-xs font-semibold border border-cyan-500/40 transition-all flex items-center gap-1.5 shadow-[0_0_12px_rgba(6,182,212,0.15)] order-3 sm:order-2 w-full sm:w-auto justify-center active:scale-95"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Single Subject Report</span>
+                </button>
+
+                <div className="flex items-center gap-2 order-2 sm:order-3 ml-auto sm:ml-0">
                   <button
                     type="button"
                     onClick={handleSkipToDashboard}
@@ -1075,9 +1298,9 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                   <button
                     type="button"
                     onClick={handleNext}
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white text-xs font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all flex items-center gap-1.5"
+                    className="px-4 sm:px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white text-xs font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all flex items-center gap-1.5"
                   >
-                    <span>{currentStep === totalCourseSteps ? 'Finish & View Flight Plan' : 'Next Subject'}</span>
+                    <span>{currentStep === totalCourseSteps ? 'Finish & Flight Plan' : 'Next Subject'}</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -1196,6 +1419,170 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
         <span className="hidden sm:inline">Use ← and → arrow keys to navigate cards</span>
         <span>Chandigarh University • CSE Batch Academic Simulator</span>
       </div>
+
+      {/* ============================================================== */}
+      {/* 4. SINGLE SUBJECT RESULT & QUICK EXIT MODAL                     */}
+      {/* ============================================================== */}
+      {showSingleSubjectModal && activeCourse && activeResult && (
+        <div className="fixed inset-0 z-60 bg-obsidian-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fadeIn">
+          <div className="relative w-full max-w-lg bg-obsidian-900 border border-cyan-500/30 rounded-2xl shadow-2xl p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-start justify-between pb-3 border-b border-white/10 gap-2">
+              <div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-mono text-xs font-bold text-cyan-400 px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-800/60">
+                    {activeCourse.code}
+                  </span>
+                  <span className="text-xs font-mono text-slate-300">
+                    {activeCourse.credits.toFixed(1)} Credits
+                  </span>
+                  <span className="text-[10px] font-mono text-slate-400 uppercase">
+                    {activeCourse.type}
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-white mt-1">
+                  {activeCourse.name}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSingleSubjectModal(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Hero Grade Card */}
+            <div className="p-4 rounded-xl bg-gradient-to-br from-obsidian-850 to-obsidian-800 border border-cyan-500/20 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block mb-0.5">
+                  Single Subject Predicted Grade
+                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className={`text-2xl sm:text-3xl font-extrabold font-mono ${
+                    GRADE_COLORS[activeResult.predictedGrade]?.text || 'text-cyan-300'
+                  }`}>
+                    Grade {activeResult.predictedGrade}
+                  </span>
+                  <span className="text-xs font-mono text-slate-300 font-semibold">
+                    ({activeResult.gradePoint} Grade Points)
+                  </span>
+                </div>
+                <span className="text-[11px] font-mono text-slate-400 mt-1 block">
+                  Contributes {(activeCourse.credits * activeResult.gradePoint).toFixed(1)} Credit Points to SGPA
+                </span>
+              </div>
+
+              <div className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center font-mono font-bold text-xl border ${
+                GRADE_COLORS[activeResult.predictedGrade]?.bg || 'bg-obsidian-850'
+              } ${GRADE_COLORS[activeResult.predictedGrade]?.border || 'border-cyan-500/40'} ${
+                GRADE_COLORS[activeResult.predictedGrade]?.text || 'text-cyan-300'
+              } ${GRADE_COLORS[activeResult.predictedGrade]?.glow || ''}`}>
+                {activeResult.predictedGrade}
+              </div>
+            </div>
+
+            {/* Marks Breakdown Grid */}
+            <div className="grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="p-2.5 rounded-xl bg-obsidian-850 border border-white/5">
+                <span className="text-[10px] font-mono text-slate-400 block">Total Score</span>
+                <span className="text-sm font-bold font-mono text-white">
+                  {activeResult.totalWeightedScore.toFixed(1)}
+                </span>
+                <span className="text-[10px] text-slate-500 block">/ 100.0</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-obsidian-850 border border-white/5">
+                <span className="text-[10px] font-mono text-slate-400 block">Internal Secured</span>
+                <span className="text-sm font-bold font-mono text-cyan-300">
+                  {activeResult.weightedInternalScore.toFixed(1)}
+                </span>
+                <span className="text-[10px] text-slate-500 block">/ {activeResult.maxInternalWeightage} wt</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-obsidian-850 border border-white/5">
+                <span className="text-[10px] font-mono text-slate-400 block">External Target</span>
+                <span className="text-sm font-bold font-mono text-indigo-300">
+                  {activeCourse.externalTargetScore}
+                </span>
+                <span className="text-[10px] text-slate-500 block">/ {activeCourse.externalRawMax} raw</span>
+              </div>
+            </div>
+
+            {/* Target Roadmap Table */}
+            <div className="space-y-1.5">
+              <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <Target className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Cohort Grade Roadmap for {activeCourse.code}:</span>
+              </span>
+              <div className="grid grid-cols-2 xs:grid-cols-4 sm:grid-cols-7 gap-1">
+                {activeResult.targetRequirements.map(req => {
+                  const isCurrent = activeResult.predictedGrade === req.grade;
+                  return (
+                    <div
+                      key={req.grade}
+                      className={`p-1.5 rounded-lg border text-center font-mono ${
+                        isCurrent
+                          ? 'bg-cyan-950/80 border-cyan-400 ring-1 ring-cyan-400 text-cyan-300'
+                          : req.alreadyAchieved
+                          ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300'
+                          : req.possible
+                          ? 'bg-obsidian-850 border-white/10 text-slate-300'
+                          : 'bg-obsidian-950/60 border-white/5 text-slate-600'
+                      }`}
+                    >
+                      <div className="text-xs font-bold">{req.grade}</div>
+                      <div className="text-[9px] text-slate-400">≥{activeResult.gradeCutoffs[req.grade]}</div>
+                      <div className="text-[9px] font-bold mt-0.5">
+                        {req.alreadyAchieved ? '✓' : req.possible ? `${req.requiredExternalRaw}` : '✗'}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSingleSubjectModal(false);
+                  onComplete();
+                  setTimeout(() => {
+                    document.getElementById(`course-${activeCourse.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }, 150);
+                }}
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-xs shadow-[0_0_15px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Finish & View This Subject on Dashboard 🚀</span>
+              </button>
+
+              <div className="flex items-center gap-2">
+                {currentStep < totalCourseSteps && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowSingleSubjectModal(false);
+                      handleNext();
+                    }}
+                    className="flex-1 py-2 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 text-slate-200 text-xs font-semibold border border-white/10 transition-colors"
+                  >
+                    Simulate Next Subject →
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowSingleSubjectModal(false)}
+                  className="flex-1 py-2 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 text-slate-400 hover:text-slate-200 text-xs font-semibold border border-white/10 transition-colors"
+                >
+                  Keep Editing
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

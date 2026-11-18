@@ -850,6 +850,8 @@ export const App: React.FC = () => {
           onClaimAllAttendance={handleClaimAllAttendance}
           onOpenEditCourse={(c) => setEditingCourse(c)}
           onConvertCourseMode={handleConvertCourseMode}
+          globalCutoffs={globalCutoffs}
+          onSaveCustomCutoffs={handleSaveCustomCutoffs}
           onComplete={handleCompleteWizard}
         />
       )}
