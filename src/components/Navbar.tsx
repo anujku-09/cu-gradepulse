@@ -57,7 +57,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-obsidian-950/92 backdrop-blur-xl transition-all select-none">
       {/* Unified Single Navbar: h-14 (56px) on mobile/tablet, h-16 (64px) on desktop */}
-      <div className="max-w-7xl mx-auto px-2.5 sm:px-4 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-3">
+      <div className="w-full max-w-[1700px] mx-auto px-2 sm:px-4 lg:px-6 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-2">
         
         {/* ============================================================== */}
         {/* LEFT: Brand Logo + Title + Cohort Section Pill                 */}
@@ -73,18 +73,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Title */}
-          <div className="flex flex-col justify-center min-w-0">
-            <div className="flex items-center gap-1 sm:gap-1.5 whitespace-nowrap">
-              <span className="text-sm sm:text-base font-extrabold tracking-tight text-white">
-                CU&nbsp;<span className="text-cyan-400">GradePulse</span>
-              </span>
-              <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold tracking-wider bg-cyan-950/80 text-cyan-300 border border-cyan-800/60 uppercase">
-                CSE v2.4
-              </span>
-            </div>
-            <p className="text-[10px] text-slate-400 whitespace-nowrap hidden 2xl:block">
-              Chandigarh University Academic Mission Control
-            </p>
+          <div className="flex items-center gap-1 sm:gap-1.5 whitespace-nowrap">
+            <span className="text-sm sm:text-base font-extrabold tracking-tight text-white">
+              CU&nbsp;<span className="text-cyan-400">GradePulse</span>
+            </span>
+            <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold tracking-wider bg-cyan-950/80 text-cyan-300 border border-cyan-800/60 uppercase">
+              CSE v2.4
+            </span>
           </div>
 
           {/* Cohort Section Selector Pill (Always visible across all devices!) */}
@@ -94,7 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-semibold text-cyan-300 hover:text-white bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/40 transition-all whitespace-nowrap shadow-[0_0_10px_rgba(6,182,212,0.15)] active:scale-95 touch-manipulation flex-shrink-0"
           >
             <span className="text-sm">{currentTrack.icon}</span>
-            <span className="truncate max-w-[70px] xs:max-w-[100px] md:max-w-[130px] font-sans">
+            <span className="truncate max-w-[80px] sm:max-w-[120px] font-sans">
               {currentTrack.name}
             </span>
             <ChevronDown className="w-3 h-3 text-cyan-400 flex-shrink-0" />
@@ -114,9 +109,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="bg-obsidian-850 border border-white/10 rounded-md text-xs text-cyan-300 px-1.5 py-0.5 font-mono focus:border-cyan-500 focus:outline-none cursor-pointer"
               title="Cohort Cutoff Curve Difficulty"
             >
-              <option value="standard">Standard (95+)</option>
-              <option value="strict">Strict (96+)</option>
-              <option value="lenient">Lenient (91+)</option>
+              <option value="standard">Standard</option>
+              <option value="strict">Strict</option>
+              <option value="lenient">Lenient</option>
               {curveMode === 'custom' && <option value="custom">Custom</option>}
             </select>
 
@@ -151,7 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* ============================================================== */}
-        {/* RIGHT: Action Buttons (Adaptive & Responsive)                 */}
+        {/* RIGHT: Action Buttons (Adaptive & Ultra-Compact)              */}
         {/* ============================================================== */}
         <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
           
@@ -163,9 +158,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="bg-transparent text-[10px] sm:text-xs text-cyan-300 font-mono focus:outline-none cursor-pointer"
               title="Cohort Cutoff Curve"
             >
-              <option value="standard" className="bg-obsidian-900 text-slate-200">95+ Std</option>
-              <option value="strict" className="bg-obsidian-900 text-slate-200">96+ Strict</option>
-              <option value="lenient" className="bg-obsidian-900 text-slate-200">91+ Len</option>
+              <option value="standard" className="bg-obsidian-900 text-slate-200">Standard</option>
+              <option value="strict" className="bg-obsidian-900 text-slate-200">Strict</option>
+              <option value="lenient" className="bg-obsidian-900 text-slate-200">Lenient</option>
               {curveMode === 'custom' && <option value="custom" className="bg-obsidian-900 text-slate-200">Custom</option>}
             </select>
             <button
@@ -180,14 +175,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Add Subject Button */}
           <button
             onClick={onOpenAddCustomCourse}
-            className="hidden md:flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold bg-obsidian-850 hover:bg-obsidian-750 text-slate-200 border border-white/10 hover:border-cyan-500/40 transition-all flex-shrink-0"
+            className="hidden sm:flex items-center justify-center p-1.5 sm:p-2 rounded-lg text-xs font-semibold bg-obsidian-850 hover:bg-obsidian-750 text-slate-200 border border-white/10 hover:border-cyan-500/40 transition-all flex-shrink-0"
             title="Add a custom or specialized course to Semester V"
           >
-            <Plus className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="hidden xl:inline">Subject</span>
+            <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
           </button>
 
-          {/* Guided Wizard Button */}
+          {/* Guided Wizard Button (Hero Primary Action) */}
           {onOpenWizard && (
             <button
               onClick={onOpenWizard}
@@ -195,44 +189,41 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="Launch Step-by-Step Card Flow (Setup Wizard)"
             >
               <Zap className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
-              <span className="hidden sm:inline font-sans">Cards</span>
+              <span className="font-sans">Cards</span>
             </button>
           )}
 
-          {/* Smart Paste (Mobile icon, Desktop label) */}
+          {/* Smart Paste Button */}
           <button
             onClick={onOpenPasteModal}
-            className="flex items-center justify-center gap-1 p-1.5 sm:px-2 sm:py-1.5 rounded-lg text-xs font-medium bg-obsidian-850 hover:bg-obsidian-750 text-slate-200 border border-white/10 transition-all hover:border-cyan-500/40 active:scale-95 touch-manipulation flex-shrink-0"
+            className="flex items-center justify-center p-1.5 sm:p-2 rounded-lg text-xs font-medium bg-obsidian-850 hover:bg-obsidian-750 text-slate-200 border border-white/10 transition-all hover:border-cyan-500/40 active:scale-95 touch-manipulation flex-shrink-0"
             title="Paste raw CUIMS copied text/tables"
           >
-            <ClipboardPaste className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="hidden 2xl:inline">CUIMS Paste</span>
+            <ClipboardPaste className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
           </button>
 
-          {/* Reverse Optimizer */}
+          {/* Reverse Optimizer Button */}
           <button
             onClick={onOpenOptimizer}
-            className="hidden lg:flex items-center justify-center gap-1 p-1.5 sm:px-2 sm:py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-indigo-900/60 to-violet-900/60 hover:from-indigo-800/80 hover:to-violet-800/80 text-indigo-200 border border-indigo-500/30 transition-all shadow-[0_0_12px_rgba(99,102,241,0.2)] flex-shrink-0"
+            className="hidden sm:flex items-center justify-center p-1.5 sm:p-2 rounded-lg text-xs font-medium bg-gradient-to-r from-indigo-900/60 to-violet-900/60 hover:from-indigo-800/80 hover:to-violet-800/80 text-indigo-200 border border-indigo-500/30 transition-all shadow-[0_0_12px_rgba(99,102,241,0.2)] flex-shrink-0"
             title="AI SGPA Target Reverse-Optimizer"
           >
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-            <span className="hidden 2xl:inline">AI Optimizer</span>
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400" />
           </button>
 
-          {/* Cumulative CGPA Forecaster */}
+          {/* Cumulative CGPA Forecaster Button */}
           <button
             onClick={onOpenForecaster}
-            className="hidden lg:flex items-center justify-center gap-1 p-1.5 sm:px-2 sm:py-1.5 rounded-lg text-xs font-medium bg-obsidian-850 hover:bg-obsidian-750 text-slate-200 border border-white/10 transition-all flex-shrink-0"
+            className="hidden sm:flex items-center justify-center p-1.5 sm:p-2 rounded-lg text-xs font-medium bg-obsidian-850 hover:bg-obsidian-750 text-slate-200 border border-white/10 transition-all flex-shrink-0"
             title="Forecast Overall CGPA"
           >
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="hidden 2xl:inline">CGPA</span>
+            <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
           </button>
 
-          {/* Scorecard Snapshot (Desktop & Tablet >= 640px) */}
+          {/* Scorecard Snapshot Button (Camera) */}
           <button
             onClick={onOpenExportModal}
-            className="hidden sm:flex p-1.5 sm:p-2 rounded-lg bg-obsidian-850 hover:bg-obsidian-750 text-slate-300 border border-white/10 transition-all hover:text-white flex-shrink-0"
+            className="flex items-center justify-center p-1.5 sm:p-2 rounded-lg bg-obsidian-850 hover:bg-obsidian-750 text-slate-300 border border-white/10 transition-all hover:text-white flex-shrink-0"
             title="Export Scorecard Snapshot"
           >
             <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-300" />
@@ -241,7 +232,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Reset Marks Button */}
           <button
             onClick={onResetAll}
-            className="p-1.5 sm:p-2 rounded-lg bg-obsidian-850 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-white/10 transition-all flex-shrink-0"
+            className="flex items-center justify-center p-1.5 sm:p-2 rounded-lg bg-obsidian-850 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-white/10 transition-all flex-shrink-0"
             title="Reset All Marks to Zero"
           >
             <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

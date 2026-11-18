@@ -595,10 +595,10 @@ export function getCoursesTemplate(isSample: boolean = false): Course[] {
 export const COHORT_TRACKS_INFO: CohortTrackInfo[] = [
   {
     id: 'general',
-    name: 'General CSE (Core + 2 Electives)',
-    badge: 'Core Track',
+    name: 'General CSE',
+    badge: 'Core + 2 Electives',
     icon: '🌐',
-    shortDesc: 'PE-2 (Web Dev / NPTEL) + PE-3 (NPTEL / Elective)',
+    shortDesc: 'PE-II (Web Dev) + PE-III (NPTEL / Elective)',
     description: 'Standard 5th semester curriculum with 7 Core subjects + PE-II (Web Development / NPTEL) and PE-III (NPTEL / Customizable Elective).',
     electiveHighlight: 'PE-II (Web Dev 24CST-351) + PE-III (NPTEL / Elective PE-3)',
   },
