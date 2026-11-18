@@ -74,6 +74,156 @@ export function createStandardPracticalComponents(prefix: string, isSample = fal
   ];
 }
 
+export function createStandardHybridComponents(prefix: string, isSample = false): AssessmentComponent[] {
+  return [
+    {
+      id: `${prefix}-prac-eval`,
+      name: 'Practical Evaluations',
+      rawMax: 40,
+      weightage: 20,
+      rawObtained: isSample ? 36 : 0,
+      category: 'PracticalEvaluation' as const,
+    },
+    ...Array.from({ length: 10 }, (_, i) => ({
+      id: `${prefix}-sheet-${i + 1}`,
+      name: `Practical Worksheet/Projects ${i + 1}`,
+      rawMax: 30,
+      weightage: 2,
+      rawObtained: isSample ? 28 : 0,
+      category: 'Experiment' as const,
+    })),
+    {
+      id: `${prefix}-prac-mst`,
+      name: 'Practical MST',
+      rawMax: 10,
+      weightage: 4,
+      rawObtained: isSample ? 9 : 0,
+      category: 'MST' as const,
+    },
+    {
+      id: `${prefix}-mst-1`,
+      name: 'MST-1 Hybrid',
+      rawMax: 20,
+      weightage: 5,
+      rawObtained: isSample ? 18 : 0,
+      category: 'MST' as const,
+    },
+    {
+      id: `${prefix}-mst-2`,
+      name: 'MST-2 Hybrid',
+      rawMax: 20,
+      weightage: 5,
+      rawObtained: isSample ? 17 : 0,
+      category: 'MST' as const,
+    },
+    {
+      id: `${prefix}-assign`,
+      name: 'Assignment / PBL',
+      rawMax: 10,
+      weightage: 6,
+      rawObtained: isSample ? 9.5 : 0,
+      category: 'Assignment' as const,
+    },
+    {
+      id: `${prefix}-surprise`,
+      name: 'Surprise Test',
+      rawMax: 12,
+      weightage: 4,
+      rawObtained: isSample ? 11 : 0,
+      category: 'Surprise Test' as const,
+    },
+    {
+      id: `${prefix}-quiz`,
+      name: 'Quiz',
+      rawMax: 4,
+      weightage: 4,
+      rawObtained: isSample ? 4 : 0,
+      category: 'Quiz' as const,
+    },
+    {
+      id: `${prefix}-att`,
+      name: 'Attendance Marks',
+      rawMax: 2,
+      weightage: 2,
+      rawObtained: isSample ? 2 : 0,
+      category: 'Attendance' as const,
+    }
+  ];
+}
+
+export function createContinuousInternalComponents(prefix: string, isSample = false): AssessmentComponent[] {
+  return [
+    {
+      id: `${prefix}-milestone1`,
+      name: 'Milestone 1 / Mid-Review',
+      rawMax: 50,
+      weightage: 25,
+      rawObtained: isSample ? 45 : 0,
+      category: 'PracticalEvaluation' as const,
+    },
+    {
+      id: `${prefix}-milestone2`,
+      name: 'Milestone 2 / Progress Demo',
+      rawMax: 50,
+      weightage: 25,
+      rawObtained: isSample ? 46 : 0,
+      category: 'PracticalEvaluation' as const,
+    },
+    {
+      id: `${prefix}-final-viva`,
+      name: 'Final Project Demo & Viva',
+      rawMax: 100,
+      weightage: 30,
+      rawObtained: isSample ? 90 : 0,
+      category: 'Viva' as const,
+    },
+    {
+      id: `${prefix}-report`,
+      name: 'Documentation & Technical Report',
+      rawMax: 50,
+      weightage: 15,
+      rawObtained: isSample ? 45 : 0,
+      category: 'Assignment' as const,
+    },
+    {
+      id: `${prefix}-att-conduct`,
+      name: 'Attendance & Professional Conduct',
+      rawMax: 10,
+      weightage: 5,
+      rawObtained: isSample ? 10 : 0,
+      category: 'Attendance' as const,
+    }
+  ];
+}
+
+export function detectAssessmentSchemeFromCode(code: string, name: string = ''): CourseType {
+  const c = code.trim().toUpperCase();
+  const n = name.trim().toLowerCase();
+
+  // 1. Direct Grade NPTEL / Swayam
+  if (c.includes('NPTEL') || c.includes('SWAYAM') || c.includes('MOOC') || n.includes('nptel') || n.includes('swayam') || n.includes('direct grade')) {
+    return 'DirectGrade';
+  }
+
+  // 2. Hybrid PBL (24CSH-...)
+  if (c.includes('CSH') || n.includes('(hybrid)') || n.includes('hybrid') || n.includes('pbl')) {
+    return 'Hybrid';
+  }
+
+  // 3. 100% Continuous Evaluation / Project / Capstone
+  if (n.includes('capstone') || n.includes('continuous') || n.includes('project evaluation') || n.includes('internship') || n.includes('seminar')) {
+    return 'ContinuousEvaluation';
+  }
+
+  // 4. Practical Lab (24CSP-..., 24TDP-..., Lab, Viva)
+  if (c.includes('CSP') || c.includes('TDP') || n.includes('lab') || n.includes('practical') || n.includes('viva') || n.includes('testing')) {
+    return 'Practical';
+  }
+
+  // 5. Theory (24CST-..., 24SMT-..., 24TDT-..., Theory, default)
+  return 'Theory';
+}
+
 export function getCoursesTemplate(isSample: boolean = false): Course[] {
   return [
     // 1. Competitive Coding-II
@@ -1082,7 +1232,7 @@ export function createNewBlankCourse(
       type: 'DirectGrade',
       group: 'B',
       isCustom: true,
-      externalName: 'Direct Certificate Grade',
+      externalName: 'NPTEL Certificate Score',
       externalRawMax: 100,
       externalWeightage: 100,
       externalTargetScore: 0,
@@ -1110,6 +1260,42 @@ export function createNewBlankCourse(
     };
   }
 
+  if (type === 'Hybrid') {
+    return {
+      id,
+      code: code.trim().toUpperCase() || 'CUSTOM-HYBRID',
+      name: name.trim() || 'Custom Hybrid PBL Subject',
+      credits: Number(credits) || 3.0,
+      type: 'Hybrid',
+      group: isNonGraded ? 'C' : 'A',
+      isCustom: true,
+      isNonGraded,
+      externalName: 'End Term Hybrid Theory',
+      externalRawMax: 60,
+      externalWeightage: 30,
+      externalTargetScore: 0,
+      components: createStandardHybridComponents(id, false)
+    };
+  }
+
+  if (type === 'ContinuousEvaluation') {
+    return {
+      id,
+      code: code.trim().toUpperCase() || 'CUSTOM-PROJ',
+      name: name.trim() || 'Custom Continuous Evaluation Subject',
+      credits: Number(credits) || 3.0,
+      type: 'ContinuousEvaluation',
+      group: isNonGraded ? 'C' : 'A',
+      isCustom: true,
+      isNonGraded,
+      externalName: 'Continuous Evaluation (No External Exam)',
+      externalRawMax: 0,
+      externalWeightage: 0,
+      externalTargetScore: 0,
+      components: createContinuousInternalComponents(id, false)
+    };
+  }
+
   // Default: Theory
   return {
     id,
@@ -1128,7 +1314,7 @@ export function createNewBlankCourse(
   };
 }
 
-export function convertCourseMode(course: Course, targetType: 'Theory' | 'Practical' | 'DirectGrade'): Course {
+export function convertCourseMode(course: Course, targetType: CourseType): Course {
   if (course.type === targetType) return course;
 
   if (targetType === 'DirectGrade') {
@@ -1137,7 +1323,7 @@ export function convertCourseMode(course: Course, targetType: 'Theory' | 'Practi
       type: 'DirectGrade',
       group: 'B',
       directGrade: course.directGrade || 'A',
-      externalName: 'Target Direct Grade',
+      externalName: 'NPTEL Certificate Score',
       externalRawMax: 100,
       externalWeightage: 100,
       externalTargetScore: 0,
@@ -1161,13 +1347,43 @@ export function convertCourseMode(course: Course, targetType: 'Theory' | 'Practi
     };
   }
 
+  if (targetType === 'Hybrid') {
+    return {
+      ...course,
+      type: 'Hybrid',
+      group: course.isNonGraded ? 'C' : 'A',
+      directGrade: undefined,
+      externalName: 'End Term Hybrid Theory',
+      externalRawMax: 60,
+      externalWeightage: 30,
+      externalTargetScore: 0,
+      components: createStandardHybridComponents(course.id, false),
+      directInternalOverride: undefined,
+    };
+  }
+
+  if (targetType === 'ContinuousEvaluation') {
+    return {
+      ...course,
+      type: 'ContinuousEvaluation',
+      group: course.isNonGraded ? 'C' : 'A',
+      directGrade: undefined,
+      externalName: 'Continuous Evaluation (No External Exam)',
+      externalRawMax: 0,
+      externalWeightage: 0,
+      externalTargetScore: 0,
+      components: createContinuousInternalComponents(course.id, false),
+      directInternalOverride: undefined,
+    };
+  }
+
   // Target Theory
   return {
     ...course,
     type: 'Theory',
     group: course.isNonGraded ? 'C' : 'A',
     directGrade: undefined,
-    externalName: 'External Theory',
+    externalName: 'External Theory Exam',
     externalRawMax: 60,
     externalWeightage: 60,
     externalTargetScore: 0,

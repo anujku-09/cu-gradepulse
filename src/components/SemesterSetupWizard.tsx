@@ -31,7 +31,7 @@ import {
   ChevronDown,
   CheckCircle2
 } from 'lucide-react';
-import { Course, CourseResult, GradeLevel, CurveMode, GradeCutoffs, CohortTrackId } from '../types';
+import { Course, CourseResult, GradeLevel, CurveMode, GradeCutoffs, CohortTrackId, CourseType } from '../types';
 import { GRADE_COLORS, GRADE_POINTS } from '../utils/gradeCalculations';
 import { COHORT_TRACKS_INFO } from '../data/courses';
 import { CourseRegexPasteBox } from './CourseRegexPasteBox';
@@ -61,7 +61,7 @@ interface SemesterSetupWizardProps {
   onToggleAttendance: (courseId: string, full: boolean) => void;
   onClaimAllAttendance: () => void;
   onOpenEditCourse?: (course: Course) => void;
-  onConvertCourseMode?: (courseId: string, targetType: 'Theory' | 'Practical' | 'DirectGrade') => void;
+  onConvertCourseMode?: (courseId: string, targetType: CourseType) => void;
   globalCutoffs?: GradeCutoffs;
   onSaveCustomCutoffs?: (courseId: string, cutoffs: GradeCutoffs | undefined) => void;
   onComplete: () => void;
@@ -668,8 +668,21 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                     <span className="text-xs font-mono font-bold text-cyan-300">
                       {activeCourse.credits.toFixed(1)} Credits
                     </span>
-                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-obsidian-850 text-slate-400 border border-white/5">
-                      {activeCourse.type}
+                    <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${
+                      activeCourse.type === 'Hybrid'
+                        ? 'bg-purple-950/60 text-purple-300 border-purple-500/30'
+                        : activeCourse.type === 'ContinuousEvaluation'
+                        ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/30'
+                        : activeCourse.type === 'Practical'
+                        ? 'bg-amber-950/60 text-amber-300 border-amber-500/30'
+                        : activeCourse.type === 'DirectGrade'
+                        ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/30'
+                        : 'bg-cyan-950/60 text-cyan-300 border-cyan-500/30'
+                    }`}>
+                      {activeCourse.type === 'Hybrid' ? 'HYBRID 70/30' :
+                       activeCourse.type === 'ContinuousEvaluation' ? '100% INTERNAL' :
+                       activeCourse.type === 'Practical' ? 'PRACTICAL 60/40' :
+                       activeCourse.type === 'DirectGrade' ? 'DIRECT GRADE' : 'THEORY 40/60'}
                     </span>
                     {activeCourse.credits >= 3.0 && (
                       <span className="text-[10px] font-semibold text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/40">
@@ -682,33 +695,30 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                       <button
                         type="button"
                         onClick={() => onOpenEditCourse(activeCourse)}
-                        title="Configure subject name, code, credits, or change evaluation mode"
-                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-300 hover:text-cyan-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                        title="Configure subject evaluation scheme, name, code, credits, or custom weightage"
+                        className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold text-cyan-300 hover:text-white bg-cyan-950/50 hover:bg-cyan-900/60 border border-cyan-500/30 transition-colors shadow-sm"
                       >
                         <Sliders className="w-2.5 h-2.5 text-cyan-400" />
-                        <span>Config</span>
+                        <span>Config Scheme</span>
                       </button>
                     )}
 
                     {/* 1-Click Evaluation Mode Swapper */}
-                    {onConvertCourseMode && activeCourse.type === 'DirectGrade' && (
+                    {onConvertCourseMode && (
                       <button
                         type="button"
-                        onClick={() => onConvertCourseMode(activeCourse.id, 'Theory')}
-                        title="Switch to 40 internal / 60 external theory marks evaluation"
-                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-cyan-300 bg-cyan-950/60 border border-cyan-500/40 hover:bg-cyan-900/60 transition-colors"
+                        onClick={() => {
+                          const nextMode: CourseType = 
+                            activeCourse.type === 'Theory' ? 'Practical' :
+                            activeCourse.type === 'Practical' ? 'Hybrid' :
+                            activeCourse.type === 'Hybrid' ? 'ContinuousEvaluation' :
+                            activeCourse.type === 'ContinuousEvaluation' ? 'DirectGrade' : 'Theory';
+                          onConvertCourseMode(activeCourse.id, nextMode);
+                        }}
+                        title="Click to cycle evaluation mode (Theory ⇄ Practical ⇄ Hybrid ⇄ 100% Internal ⇄ Direct Grade)"
+                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-300 bg-white/5 border border-white/10 hover:border-cyan-500/40 hover:text-cyan-300 transition-colors"
                       >
-                        ⇄ Marks Mode (40/60)
-                      </button>
-                    )}
-                    {onConvertCourseMode && activeCourse.type !== 'DirectGrade' && (
-                      <button
-                        type="button"
-                        onClick={() => onConvertCourseMode(activeCourse.id, 'DirectGrade')}
-                        title="Switch to direct grade (NPTEL / MOOC / Certificate)"
-                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-indigo-300 bg-indigo-950/60 border border-indigo-500/40 hover:bg-indigo-900/60 transition-colors"
-                      >
-                        ⇄ Direct Grade (NPTEL)
+                        <span>⇄ Cycle Mode</span>
                       </button>
                     )}
                   </div>
@@ -1025,7 +1035,18 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                 {/* 4. EXTERNAL EXAM TARGET SLIDER & DEEP GRADE UNLOCKER     */}
                 {/* -------------------------------------------------------- */}
                 {activeCourse.type !== 'DirectGrade' && (
-                  <div className="p-4 rounded-xl bg-obsidian-850/70 border border-white/10 space-y-3">
+                  activeCourse.type === 'ContinuousEvaluation' || activeCourse.externalRawMax === 0 ? (
+                    <div className="p-4 rounded-xl bg-emerald-950/25 border border-emerald-500/25 text-xs space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-emerald-300 font-bold">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                        <span>100% Continuous Internal Evaluation</span>
+                      </div>
+                      <p className="text-[11px] text-slate-300 leading-relaxed">
+                        This subject has no end-term written external exam. Course grade is calculated 100% from internal milestone reviews, practical projects, viva, and continuous assessments.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="p-4 rounded-xl bg-obsidian-850/70 border border-white/10 space-y-3">
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-bold text-slate-200 flex items-center gap-1.5">
                         <SlidersHorizontal className="w-3.5 h-3.5 text-cyan-400" />
@@ -1232,6 +1253,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                     </div>
 
                   </div>
+                  )
                 )}
 
               </div>

@@ -401,7 +401,7 @@ export const App: React.FC = () => {
     setCourses(prev => prev.filter(c => c.id !== courseId));
   }, []);
 
-  const handleConvertCourseMode = useCallback((courseId: string, targetType: 'Theory' | 'Practical' | 'DirectGrade') => {
+  const handleConvertCourseMode = useCallback((courseId: string, targetType: CourseType) => {
     setCourses(prev => prev.map(c => {
       if (c.id !== courseId) return c;
       return convertCourseMode(c, targetType);

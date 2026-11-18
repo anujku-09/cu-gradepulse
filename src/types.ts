@@ -1,4 +1,4 @@
-export type CourseType = 'Practical' | 'Theory' | 'Hybrid' | 'DirectGrade';
+export type CourseType = 'Practical' | 'Theory' | 'Hybrid' | 'ContinuousEvaluation' | 'DirectGrade';
 
 export type AssessmentComponent = {
   id: string;

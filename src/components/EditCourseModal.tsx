@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   X, 
   Sliders, 
@@ -10,10 +10,14 @@ import {
   Sparkles,
   Award,
   Layers,
-  Save
+  Save,
+  HelpCircle,
+  SlidersHorizontal,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { Course, CourseType, GradeLevel } from '../types';
-import { convertCourseMode, CU_5TH_SEM_ELECTIVE_PRESETS } from '../data/courses';
+import { convertCourseMode, CU_5TH_SEM_ELECTIVE_PRESETS, detectAssessmentSchemeFromCode } from '../data/courses';
 
 interface EditCourseModalProps {
   course: Course | null;
@@ -39,6 +43,12 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
   const [isNonGraded, setIsNonGraded] = useState(!!course.isNonGraded);
   const [isExcluded, setIsExcluded] = useState(!!course.isExcluded);
 
+  // Custom External Weightage States
+  const [showCustomWeightage, setShowCustomWeightage] = useState(false);
+  const [externalName, setExternalName] = useState(course.externalName);
+  const [externalRawMax, setExternalRawMax] = useState<number>(course.externalRawMax);
+  const [externalWeightage, setExternalWeightage] = useState<number>(course.externalWeightage);
+
   useEffect(() => {
     setName(course.name);
     setCode(course.code);
@@ -46,7 +56,41 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
     setType(course.type);
     setIsNonGraded(!!course.isNonGraded);
     setIsExcluded(!!course.isExcluded);
+    setExternalName(course.externalName);
+    setExternalRawMax(course.externalRawMax);
+    setExternalWeightage(course.externalWeightage);
+    setShowCustomWeightage(false);
   }, [course]);
+
+  // Auto-detection based on course code and title
+  const detectedType = useMemo(() => {
+    return detectAssessmentSchemeFromCode(code, name);
+  }, [code, name]);
+
+  const handleQuickConvert = (targetType: CourseType) => {
+    setType(targetType);
+    if (targetType === 'Theory') {
+      setExternalName('External Theory Exam');
+      setExternalRawMax(60);
+      setExternalWeightage(60);
+    } else if (targetType === 'Practical') {
+      setExternalName('External Viva / Voce');
+      setExternalRawMax(40);
+      setExternalWeightage(40);
+    } else if (targetType === 'Hybrid') {
+      setExternalName('End Term Hybrid Theory');
+      setExternalRawMax(60);
+      setExternalWeightage(30);
+    } else if (targetType === 'ContinuousEvaluation') {
+      setExternalName('Continuous Evaluation (No External Exam)');
+      setExternalRawMax(0);
+      setExternalWeightage(0);
+    } else if (targetType === 'DirectGrade') {
+      setExternalName('NPTEL Certificate Score');
+      setExternalRawMax(100);
+      setExternalWeightage(100);
+    }
+  };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,23 +103,26 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
       isExcluded,
     };
 
-    // If type changed, apply convertCourseMode
+    // If type changed, apply convertCourseMode first
     if (type !== course.type) {
-      updated = convertCourseMode(updated, type === 'DirectGrade' ? 'DirectGrade' : type === 'Practical' ? 'Practical' : 'Theory');
+      updated = convertCourseMode(updated, type);
     }
+
+    // Apply any customized external properties
+    updated.externalName = externalName.trim() || updated.externalName;
+    updated.externalRawMax = Math.max(0, Number(externalRawMax) || 0);
+    updated.externalWeightage = Math.max(0, Math.min(100, Number(externalWeightage) || 0));
 
     onUpdateCourse(updated);
     onClose();
   };
 
-  const handleQuickConvert = (targetType: 'Theory' | 'Practical' | 'DirectGrade') => {
-    setType(targetType);
-  };
+  const calculatedInternalWeightage = Math.max(0, 100 - externalWeightage);
 
   return (
     <div className="fixed inset-0 z-[70] overflow-y-auto bg-obsidian-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
       <div 
-        className="relative w-full max-w-lg bg-obsidian-900 border border-white/10 rounded-2xl sm:rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col"
+        className="relative w-full max-w-xl bg-obsidian-900 border border-white/10 rounded-2xl sm:rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header */}
@@ -86,13 +133,13 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                <span>Configure Subject</span>
+                <span>Configure Subject & Scheme</span>
                 <span className="font-mono text-xs text-cyan-300 px-2 py-0.5 rounded bg-white/5 border border-white/10">
                   {course.code}
                 </span>
               </h2>
               <p className="text-xs text-slate-400">
-                Switch evaluation mode (Marks ↔ Direct Grade) or customize subject properties.
+                Choose evaluation scheme (Theory, Practical, Hybrid, Continuous, NPTEL) or customize weightages.
               </p>
             </div>
           </div>
@@ -106,36 +153,68 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
         </div>
 
         {/* Modal Form */}
-        <form onSubmit={handleSave} className="p-5 sm:p-6 space-y-4">
+        <form onSubmit={handleSave} className="p-5 sm:p-6 space-y-4 overflow-y-auto">
           
-          {/* Evaluation Mode Switcher Tabs */}
+          {/* Smart Auto-Detection Banner if code suggests a different scheme */}
+          {detectedType !== type && (
+            <div className="p-3 rounded-xl bg-indigo-950/40 border border-indigo-500/30 flex items-center justify-between gap-2.5 animate-fadeIn">
+              <div className="flex items-center gap-2 text-xs text-indigo-200">
+                <Sparkles className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+                <span>
+                  Code indicates <strong>{
+                    detectedType === 'ContinuousEvaluation' ? '100% Continuous Internal' :
+                    detectedType === 'Hybrid' ? 'Hybrid PBL (70/30)' :
+                    detectedType === 'Practical' ? 'Practical Lab (60/40)' :
+                    detectedType === 'DirectGrade' ? 'Direct Grade NPTEL' : 'Theory (40/60)'
+                  }</strong>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleQuickConvert(detectedType)}
+                className="px-2.5 py-1 rounded-lg bg-indigo-500/25 hover:bg-indigo-500/40 text-cyan-300 text-[11px] font-bold border border-indigo-500/40 transition-colors whitespace-nowrap"
+              >
+                Apply Scheme
+              </button>
+            </div>
+          )}
+
+          {/* Evaluation Mode Switcher Tabs (All 5 CU Schemes) */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">
-              Evaluation Mode
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-semibold text-slate-200">
+                Evaluation & Assessment Scheme:
+              </label>
+              <span className="text-[10px] font-mono text-cyan-400">
+                CU Assessment Schemes
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {/* 1. Theory (40/60) */}
               <button
                 type="button"
                 onClick={() => handleQuickConvert('Theory')}
-                className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
                   type === 'Theory'
                     ? 'bg-cyan-950/60 border-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.2)]'
                     : 'bg-obsidian-850 border-white/10 text-slate-300 hover:border-white/20'
                 }`}
               >
                 <span className="text-xs font-bold flex items-center justify-between">
-                  Marks (40/60)
+                  Theory (40/60)
                   {type === 'Theory' && <Check className="w-3.5 h-3.5 text-cyan-400" />}
                 </span>
                 <span className="text-[10px] text-slate-400 mt-1">
-                  Standard Theory 40 internal / 60 external
+                  40 Int / 60 End-Term Exam
                 </span>
               </button>
 
+              {/* 2. Practical (60/40) */}
               <button
                 type="button"
                 onClick={() => handleQuickConvert('Practical')}
-                className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
                   type === 'Practical'
                     ? 'bg-cyan-950/60 border-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.2)]'
                     : 'bg-obsidian-850 border-white/10 text-slate-300 hover:border-white/20'
@@ -146,14 +225,53 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
                   {type === 'Practical' && <Check className="w-3.5 h-3.5 text-cyan-400" />}
                 </span>
                 <span className="text-[10px] text-slate-400 mt-1">
-                  Practical lab evaluation / Swift Lab
+                  60 Lab / 40 External Viva
                 </span>
               </button>
 
+              {/* 3. Hybrid (70/30) */}
+              <button
+                type="button"
+                onClick={() => handleQuickConvert('Hybrid')}
+                className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                  type === 'Hybrid'
+                    ? 'bg-cyan-950/60 border-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.2)]'
+                    : 'bg-obsidian-850 border-white/10 text-slate-300 hover:border-white/20'
+                }`}
+              >
+                <span className="text-xs font-bold flex items-center justify-between">
+                  Hybrid (70/30)
+                  {type === 'Hybrid' && <Check className="w-3.5 h-3.5 text-cyan-400" />}
+                </span>
+                <span className="text-[10px] text-slate-400 mt-1">
+                  70 PBL / 30 End-Term
+                </span>
+              </button>
+
+              {/* 4. Continuous Internal (100/0) */}
+              <button
+                type="button"
+                onClick={() => handleQuickConvert('ContinuousEvaluation')}
+                className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                  type === 'ContinuousEvaluation'
+                    ? 'bg-emerald-950/60 border-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.2)]'
+                    : 'bg-obsidian-850 border-white/10 text-slate-300 hover:border-white/20'
+                }`}
+              >
+                <span className="text-xs font-bold flex items-center justify-between">
+                  100% Internal
+                  {type === 'ContinuousEvaluation' && <Check className="w-3.5 h-3.5 text-emerald-400" />}
+                </span>
+                <span className="text-[10px] text-slate-400 mt-1">
+                  100 Int / 0 External Exam
+                </span>
+              </button>
+
+              {/* 5. Direct Grade (NPTEL) */}
               <button
                 type="button"
                 onClick={() => handleQuickConvert('DirectGrade')}
-                className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
                   type === 'DirectGrade'
                     ? 'bg-indigo-950/60 border-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.2)]'
                     : 'bg-obsidian-850 border-white/10 text-slate-300 hover:border-white/20'
@@ -164,7 +282,7 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
                   {type === 'DirectGrade' && <Check className="w-3.5 h-3.5 text-indigo-400" />}
                 </span>
                 <span className="text-[10px] text-slate-400 mt-1">
-                  NPTEL / Swayam Exam certificate direct grade
+                  NPTEL / Swayam Letter Grade
                 </span>
               </button>
             </div>
@@ -177,7 +295,7 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
                 CU 5th Sem Elective Quick Presets:
               </span>
               <span className="text-[9px] font-mono text-slate-400">
-                Official Sets B-F
+                Sets B-F Official Allocations
               </span>
             </div>
             <select
@@ -186,8 +304,8 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
                 if (preset) {
                   setName(preset.name);
                   setCode(preset.code);
-                  setType(preset.type);
                   setCredits(preset.credits);
+                  handleQuickConvert(preset.type);
                 }
               }}
               defaultValue=""
@@ -202,7 +320,7 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
             </select>
           </div>
 
-          {/* Name */}
+          {/* Subject Name */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1.5">
               Subject Name
@@ -211,7 +329,7 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian-850 border border-white/10 text-white text-sm focus:border-cyan-500 focus:outline-none"
+              className="w-full px-3.5 py-2 rounded-xl bg-obsidian-850 border border-white/10 text-white text-sm focus:border-cyan-500 focus:outline-none"
               required
             />
           </div>
@@ -226,7 +344,7 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
                 type="text"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian-850 border border-white/10 text-white font-mono text-sm focus:border-cyan-500 focus:outline-none uppercase"
+                className="w-full px-3.5 py-2 rounded-xl bg-obsidian-850 border border-white/10 text-white font-mono text-sm focus:border-cyan-500 focus:outline-none uppercase"
                 required
               />
             </div>
@@ -238,18 +356,97 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
               <select
                 value={credits}
                 onChange={(e) => setCredits(parseFloat(e.target.value))}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian-850 border border-white/10 text-white font-mono text-sm focus:border-cyan-500 focus:outline-none cursor-pointer"
+                className="w-full px-3.5 py-2 rounded-xl bg-obsidian-850 border border-white/10 text-white font-mono text-sm focus:border-cyan-500 focus:outline-none cursor-pointer"
               >
                 <option value={1.0}>1.0 Credit</option>
                 <option value={2.0}>2.0 Credits</option>
                 <option value={3.0}>3.0 Credits (Standard Elective)</option>
-                <option value={4.0}>4.0 Credits</option>
+                <option value={4.0}>4.0 Credits (Core Theory)</option>
                 <option value={5.0}>5.0 Credits</option>
               </select>
             </div>
           </div>
 
-          {/* Additional Options */}
+          {/* Advanced / Custom Weightage Accordion */}
+          {type !== 'DirectGrade' && (
+            <div className="rounded-xl border border-white/10 bg-obsidian-850/60 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setShowCustomWeightage(!showCustomWeightage)}
+                className="w-full px-3.5 py-2.5 text-left flex items-center justify-between text-xs text-slate-300 hover:text-white transition-colors"
+              >
+                <span className="flex items-center gap-1.5 font-medium">
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Custom Weightage & External Exam Rules</span>
+                </span>
+                <span className="text-[10px] font-mono text-cyan-400 flex items-center gap-1">
+                  {showCustomWeightage ? 'Hide Custom Split' : 'Customize Split (e.g. 50/50)'}
+                  {showCustomWeightage ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </span>
+              </button>
+
+              {showCustomWeightage && (
+                <div className="p-3.5 pt-1 border-t border-white/5 space-y-3 animate-fadeIn">
+                  <div className="text-[11px] text-slate-400 leading-relaxed">
+                    If your section or elective follows a custom marks distribution, adjust the external exam weightage below. The internal weightage automatically adjusts to balance to 100%.
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div>
+                      <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                        External Exam Title
+                      </label>
+                      <input
+                        type="text"
+                        value={externalName}
+                        onChange={(e) => setExternalName(e.target.value)}
+                        placeholder="e.g. External Theory"
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-obsidian-900 border border-white/10 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                        External Max Marks
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={externalRawMax}
+                        onChange={(e) => setExternalRawMax(parseFloat(e.target.value) || 0)}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-obsidian-900 border border-white/10 text-xs font-mono text-cyan-300 focus:border-cyan-500 focus:outline-none text-center"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                        External Weightage (%)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={externalWeightage}
+                        onChange={(e) => setExternalWeightage(parseFloat(e.target.value) || 0)}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-obsidian-900 border border-white/10 text-xs font-mono text-cyan-300 focus:border-cyan-500 focus:outline-none text-center"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Calculated Balance Badge */}
+                  <div className="p-2 rounded-lg bg-obsidian-900 border border-white/5 flex items-center justify-between text-xs">
+                    <span className="text-slate-400">Calculated Assessment Split:</span>
+                    <span className="font-mono font-bold text-cyan-300">
+                      {calculatedInternalWeightage}% Internal + {externalWeightage}% External = 100%
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Additional Options (Disallow / Non-Graded) */}
           <div className="space-y-2 pt-1">
             <label className="flex items-center gap-2.5 cursor-pointer p-2.5 rounded-xl bg-obsidian-850 border border-white/5 hover:border-white/10">
               <input

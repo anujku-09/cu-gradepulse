@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   X, 
   Plus, 
@@ -11,7 +11,7 @@ import {
   Sliders
 } from 'lucide-react';
 import { Course, CourseType } from '../types';
-import { createNewBlankCourse } from '../data/courses';
+import { createNewBlankCourse, detectAssessmentSchemeFromCode } from '../data/courses';
 
 interface AddCustomCourseModalProps {
   isOpen: boolean;
@@ -32,6 +32,11 @@ export const AddCustomCourseModal: React.FC<AddCustomCourseModalProps> = ({
   const [type, setType] = useState<CourseType>('Theory');
   const [isNonGraded, setIsNonGraded] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-detect assessment scheme from code & name
+  const detectedType = useMemo(() => {
+    return detectAssessmentSchemeFromCode(code, name);
+  }, [code, name]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,6 +97,30 @@ export const AddCustomCourseModal: React.FC<AddCustomCourseModalProps> = ({
             </div>
           )}
 
+          {/* Smart Suggestion Banner */}
+          {detectedType !== type && (code.trim() || name.trim()) && (
+            <div className="p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 flex items-center justify-between gap-2 animate-fadeIn">
+              <div className="flex items-center gap-2 text-xs text-indigo-200">
+                <Sparkles className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+                <span>
+                  Code suggests: <strong>{
+                    detectedType === 'ContinuousEvaluation' ? '100% Continuous Internal' :
+                    detectedType === 'Hybrid' ? 'Hybrid PBL (70/30)' :
+                    detectedType === 'Practical' ? 'Practical Lab (60/40)' :
+                    detectedType === 'DirectGrade' ? 'Direct Grade NPTEL' : 'Theory (40/60)'
+                  }</strong>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setType(detectedType)}
+                className="px-2.5 py-1 rounded-lg bg-indigo-500/25 hover:bg-indigo-500/40 text-cyan-300 text-[11px] font-bold border border-indigo-500/40 transition-colors whitespace-nowrap"
+              >
+                Apply
+              </button>
+            </div>
+          )}
+
           {/* Subject Name */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1.5">
@@ -147,16 +176,16 @@ export const AddCustomCourseModal: React.FC<AddCustomCourseModalProps> = ({
             </div>
           </div>
 
-          {/* Evaluation Type */}
+          {/* Evaluation Type (All 5 CU schemes) */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-2">
               Evaluation & Assessment Type
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => setType('Theory')}
-                className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
                   type === 'Theory'
                     ? 'bg-cyan-950/60 border-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.2)]'
                     : 'bg-obsidian-850 border-white/10 text-slate-300 hover:border-white/20'
@@ -167,32 +196,68 @@ export const AddCustomCourseModal: React.FC<AddCustomCourseModalProps> = ({
                   {type === 'Theory' && <Check className="w-3.5 h-3.5 text-cyan-400" />}
                 </span>
                 <span className="text-[10px] text-slate-400 mt-1">
-                  MSTs, Quizzes, Attendance (40) + External Theory (60)
+                  40 Int / 60 End-Term Exam
                 </span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setType('Practical')}
-                className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
                   type === 'Practical'
                     ? 'bg-cyan-950/60 border-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.2)]'
                     : 'bg-obsidian-850 border-white/10 text-slate-300 hover:border-white/20'
                 }`}
               >
                 <span className="text-xs font-bold flex items-center justify-between">
-                  Practical Lab (60/40)
+                  Practical (60/40)
                   {type === 'Practical' && <Check className="w-3.5 h-3.5 text-cyan-400" />}
                 </span>
                 <span className="text-[10px] text-slate-400 mt-1">
-                  Lab experiments (60) + External Viva (40)
+                  60 Lab / 40 External Viva
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setType('Hybrid')}
+                className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                  type === 'Hybrid'
+                    ? 'bg-cyan-950/60 border-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.2)]'
+                    : 'bg-obsidian-850 border-white/10 text-slate-300 hover:border-white/20'
+                }`}
+              >
+                <span className="text-xs font-bold flex items-center justify-between">
+                  Hybrid (70/30)
+                  {type === 'Hybrid' && <Check className="w-3.5 h-3.5 text-cyan-400" />}
+                </span>
+                <span className="text-[10px] text-slate-400 mt-1">
+                  70 PBL / 30 End-Term
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setType('ContinuousEvaluation')}
+                className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                  type === 'ContinuousEvaluation'
+                    ? 'bg-emerald-950/60 border-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.2)]'
+                    : 'bg-obsidian-850 border-white/10 text-slate-300 hover:border-white/20'
+                }`}
+              >
+                <span className="text-xs font-bold flex items-center justify-between">
+                  100% Internal
+                  {type === 'ContinuousEvaluation' && <Check className="w-3.5 h-3.5 text-emerald-400" />}
+                </span>
+                <span className="text-[10px] text-slate-400 mt-1">
+                  100 Int / 0 External Exam
                 </span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setType('DirectGrade')}
-                className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
                   type === 'DirectGrade'
                     ? 'bg-indigo-950/60 border-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.2)]'
                     : 'bg-obsidian-850 border-white/10 text-slate-300 hover:border-white/20'
@@ -203,7 +268,7 @@ export const AddCustomCourseModal: React.FC<AddCustomCourseModalProps> = ({
                   {type === 'DirectGrade' && <Check className="w-3.5 h-3.5 text-indigo-400" />}
                 </span>
                 <span className="text-[10px] text-slate-400 mt-1">
-                  NPTEL / Swayam Exam certificate direct grade (O, A+, A...)
+                  NPTEL / Swayam Direct Grade
                 </span>
               </button>
             </div>

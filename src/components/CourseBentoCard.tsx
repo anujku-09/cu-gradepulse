@@ -17,7 +17,7 @@ import {
   Check,
   ClipboardPaste
 } from 'lucide-react';
-import { Course, CourseResult, GradeLevel } from '../types';
+import { Course, CourseResult, GradeLevel, CourseType } from '../types';
 import { GRADE_COLORS, GRADE_POINTS } from '../utils/gradeCalculations';
 import { CourseRegexPasteBox } from './CourseRegexPasteBox';
 import { Sliders, Settings2 } from 'lucide-react';
@@ -35,7 +35,7 @@ interface CourseBentoCardProps {
   onQuickPreset: (courseId: string, preset: 'full' | 'average' | 'reset') => void;
   onInspect: (courseId: string) => void;
   onOpenEditCourse?: (course: Course) => void;
-  onConvertCourseMode?: (courseId: string, targetType: 'Theory' | 'Practical' | 'DirectGrade') => void;
+  onConvertCourseMode?: (courseId: string, targetType: CourseType) => void;
 }
 
 export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
@@ -123,8 +123,21 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
               <span className="text-[11px] font-mono text-cyan-300 font-semibold">
                 {course.credits.toFixed(1)} Credits
               </span>
-              <span className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0.2 rounded bg-obsidian-850 text-slate-400 border border-white/5">
-                {course.type}
+              <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border ${
+                course.type === 'Hybrid'
+                  ? 'bg-purple-950/60 text-purple-300 border-purple-500/30'
+                  : course.type === 'ContinuousEvaluation'
+                  ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/30'
+                  : course.type === 'Practical'
+                  ? 'bg-amber-950/60 text-amber-300 border-amber-500/30'
+                  : course.type === 'DirectGrade'
+                  ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/30'
+                  : 'bg-cyan-950/60 text-cyan-300 border-cyan-500/30'
+              }`}>
+                {course.type === 'Hybrid' ? 'HYBRID 70/30' :
+                 course.type === 'ContinuousEvaluation' ? '100% INTERNAL' :
+                 course.type === 'Practical' ? 'PRACTICAL 60/40' :
+                 course.type === 'DirectGrade' ? 'DIRECT GRADE' : 'THEORY 40/60'}
               </span>
 
               {/* Allow / Disallow Contribution Toggle Button */}
@@ -525,93 +538,105 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
       {/* ============================================================== */}
       <div className="mt-4 pt-3 border-t border-white/[0.08] space-y-3">
         {course.type !== 'DirectGrade' && (
-          <div className="space-y-2">
-            {/* Title & Editable Number Box */}
-            <div className="flex items-center justify-between text-xs gap-2">
-              <span className="text-slate-200 font-semibold flex items-center gap-1 min-w-0">
-                <SlidersHorizontal className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
-                <span className="truncate">Step 2: External ({course.externalName})</span>
-              </span>
-              
-              <div className="flex items-center gap-1.5 font-mono flex-shrink-0">
+          course.type === 'ContinuousEvaluation' || course.externalRawMax === 0 ? (
+            <div className="p-3 rounded-xl bg-emerald-950/25 border border-emerald-500/25 text-xs space-y-1">
+              <div className="flex items-center gap-1.5 text-emerald-300 font-semibold">
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                <span>100% Continuous Internal Evaluation</span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                No end-term written external exam. Course grade is calculated 100% from internal milestone reviews, practical projects, viva, and continuous assessments.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {/* Title & Editable Number Box */}
+              <div className="flex items-center justify-between text-xs gap-2">
+                <span className="text-slate-200 font-semibold flex items-center gap-1 min-w-0">
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
+                  <span className="truncate">Step 2: External ({course.externalName})</span>
+                </span>
+                
+                <div className="flex items-center gap-1.5 font-mono flex-shrink-0">
+                  <input
+                    type="number"
+                    min="0"
+                    max={course.externalRawMax}
+                    step="0.5"
+                    value={course.externalTargetScore === 0 ? '' : course.externalTargetScore}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      onUpdateExternal(course.id, raw === '' ? 0 : (parseFloat(raw) || 0));
+                    }}
+                    placeholder="0"
+                    className="w-18 px-2 py-0.5 rounded-md text-center num-input text-xs font-bold text-cyan-400"
+                  />
+                  <span className="text-slate-400 text-xs whitespace-nowrap">/ {course.externalRawMax}</span>
+                </div>
+              </div>
+
+              {/* Slider Track with Live Tickmarks */}
+              <div className="relative">
                 <input
-                  type="number"
+                  type="range"
                   min="0"
                   max={course.externalRawMax}
                   step="0.5"
-                  value={course.externalTargetScore === 0 ? '' : course.externalTargetScore}
-                  onChange={(e) => {
-                    const raw = e.target.value;
-                    onUpdateExternal(course.id, raw === '' ? 0 : (parseFloat(raw) || 0));
-                  }}
-                  placeholder="0"
-                  className="w-18 px-2 py-0.5 rounded-md text-center num-input text-xs font-bold text-cyan-400"
+                  value={course.externalTargetScore}
+                  onChange={(e) => onUpdateExternal(course.id, parseFloat(e.target.value) || 0)}
+                  className="w-full h-2 bg-obsidian-800 rounded-lg slider-tactile appearance-none border border-white/10"
                 />
-                <span className="text-slate-400 text-xs whitespace-nowrap">/ {course.externalRawMax}</span>
+
+                {/* Tick marks on slider track for grade thresholds */}
+                {isDetailedView && (
+                  <div className="relative w-full h-3 mt-1">
+                    {targetRequirements.map((req) => {
+                      if (!req.possible && !req.alreadyAchieved) return null;
+                      const leftPercent = req.alreadyAchieved 
+                        ? 0 
+                        : (req.requiredExternalRaw / course.externalRawMax) * 100;
+                      
+                      if (leftPercent < 0 || leftPercent > 100) return null;
+
+                      return (
+                        <div
+                          key={req.grade}
+                          className="absolute -top-1 transform -translate-x-1/2 flex flex-col items-center pointer-events-none"
+                          style={{ left: `${leftPercent}%` }}
+                        >
+                          <div className="w-[1.5px] h-2 bg-slate-500/60" />
+                          <span className="text-[9px] font-mono text-slate-400 scale-90">
+                            {req.grade}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Target Hint */}
+              <div className="text-[11px] font-mono text-slate-400 flex flex-wrap items-center justify-between gap-1">
+                {nextTarget ? (
+                  <span className="text-cyan-300 flex items-center gap-1">
+                    <Flame className="w-3 h-3 text-amber-400 inline" />
+                    Target <strong className="text-cyan-200">{nextTarget.requiredExternalRaw}</strong> for <strong className="text-white">Grade {nextTarget.grade}</strong>
+                    <span className="text-[10px] text-slate-400">
+                      (~{result.gradeCutoffs[nextTarget.grade]}+ safe band)
+                    </span>
+                  </span>
+                ) : (
+                  <span className="text-emerald-400 font-medium">
+                    ✓ High-Percentile Safe Zone (A+ ~95+)
+                  </span>
+                )}
+
+                <span className="text-slate-500 text-[10px]" title="Relative curve: actual cutoff varies across sections">
+                  Cohort Relative
+                </span>
               </div>
             </div>
-
-            {/* Slider Track with Live Tickmarks */}
-            <div className="relative">
-              <input
-                type="range"
-                min="0"
-                max={course.externalRawMax}
-                step="0.5"
-                value={course.externalTargetScore}
-                onChange={(e) => onUpdateExternal(course.id, parseFloat(e.target.value) || 0)}
-                className="w-full h-2 bg-obsidian-800 rounded-lg slider-tactile appearance-none border border-white/10"
-              />
-
-              {/* Tick marks on slider track for grade thresholds */}
-              {isDetailedView && (
-                <div className="relative w-full h-3 mt-1">
-                  {targetRequirements.map((req) => {
-                    if (!req.possible && !req.alreadyAchieved) return null;
-                    const leftPercent = req.alreadyAchieved 
-                      ? 0 
-                      : (req.requiredExternalRaw / course.externalRawMax) * 100;
-                    
-                    if (leftPercent < 0 || leftPercent > 100) return null;
-
-                    return (
-                      <div
-                        key={req.grade}
-                        className="absolute -top-1 transform -translate-x-1/2 flex flex-col items-center pointer-events-none"
-                        style={{ left: `${leftPercent}%` }}
-                      >
-                        <div className="w-[1.5px] h-2 bg-slate-500/60" />
-                        <span className="text-[9px] font-mono text-slate-400 scale-90">
-                          {req.grade}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Target Hint */}
-            <div className="text-[11px] font-mono text-slate-400 flex flex-wrap items-center justify-between gap-1">
-              {nextTarget ? (
-                <span className="text-cyan-300 flex items-center gap-1">
-                  <Flame className="w-3 h-3 text-amber-400 inline" />
-                  Target <strong className="text-cyan-200">{nextTarget.requiredExternalRaw}</strong> for <strong className="text-white">Grade {nextTarget.grade}</strong>
-                  <span className="text-[10px] text-slate-400">
-                    (~{result.gradeCutoffs[nextTarget.grade]}+ safe band)
-                  </span>
-                </span>
-              ) : (
-                <span className="text-emerald-400 font-medium">
-                  ✓ High-Percentile Safe Zone (A+ ~95+)
-                </span>
-              )}
-
-              <span className="text-slate-500 text-[10px]" title="Relative curve: actual cutoff varies across sections">
-                Cohort Relative
-              </span>
-            </div>
-          </div>
+          )
         )}
 
         {/* Detailed Breakdown Button */}
