@@ -12,7 +12,8 @@ import {
   Gauge,
   Zap,
   Plus,
-  ChevronDown
+  ChevronDown,
+  Heart
 } from 'lucide-react';
 import { CurveMode, CohortTrackId } from '../types';
 import { COHORT_TRACKS_INFO } from '../data/courses';
@@ -32,6 +33,7 @@ interface NavbarProps {
   onOpenCutoffModal: () => void;
   onOpenCommandPalette: () => void;
   onOpenWizard?: () => void;
+  onOpenFeedback?: () => void;
   onResetAll: () => void;
 }
 
@@ -50,6 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCutoffModal,
   onOpenCommandPalette,
   onOpenWizard,
+  onOpenFeedback,
   onResetAll,
 }) => {
   const currentTrack = COHORT_TRACKS_INFO.find(t => t.id === currentTrackId) || COHORT_TRACKS_INFO[0];
@@ -228,6 +231,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-300" />
           </button>
+
+          {/* Support / Feedback Heart Button */}
+          {onOpenFeedback && (
+            <button
+              onClick={onOpenFeedback}
+              className="flex items-center justify-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 hover:border-rose-400/50 transition-all text-xs font-semibold shadow-[0_0_12px_rgba(244,63,94,0.15)] active:scale-95 touch-manipulation flex-shrink-0"
+              title="Support Creator & Send Feedback"
+            >
+              <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-500 animate-pulse" />
+              <span className="hidden md:inline font-sans">Love</span>
+            </button>
+          )}
 
           {/* Reset Marks Button */}
           <button

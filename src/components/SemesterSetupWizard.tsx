@@ -29,7 +29,8 @@ import {
   HelpCircle,
   Target,
   ChevronDown,
-  CheckCircle2
+  CheckCircle2,
+  Heart
 } from 'lucide-react';
 import { Course, CourseResult, GradeLevel, CurveMode, GradeCutoffs, CohortTrackId, CourseType } from '../types';
 import { GRADE_COLORS, GRADE_POINTS } from '../utils/gradeCalculations';
@@ -64,6 +65,7 @@ interface SemesterSetupWizardProps {
   onConvertCourseMode?: (courseId: string, targetType: CourseType) => void;
   globalCutoffs?: GradeCutoffs;
   onSaveCustomCutoffs?: (courseId: string, cutoffs: GradeCutoffs | undefined) => void;
+  onOpenFeedback?: () => void;
   onComplete: () => void;
 }
 
@@ -95,6 +97,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
   onConvertCourseMode,
   globalCutoffs,
   onSaveCustomCutoffs,
+  onOpenFeedback,
   onComplete,
 }) => {
   // Step 0: Track Mode (MNG vs Graded & Cohort Section)
@@ -1378,6 +1381,29 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                     </div>
                   );
                 })}
+              </div>
+
+              {/* Developer Motivation & Feedback Card */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-rose-950/40 via-purple-950/30 to-indigo-950/40 border border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.15)] flex flex-col sm:flex-row items-center justify-between gap-3 text-left mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.3)] flex-shrink-0">
+                    <Heart className="w-5 h-5 text-rose-400 fill-rose-500 animate-pulse" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white">Did GradePulse help you plan your semester?</h4>
+                    <p className="text-xs text-slate-400">Leave a heart or a quick motivational note for Anuj (Creator)!</p>
+                  </div>
+                </div>
+                {onOpenFeedback && (
+                  <button
+                    type="button"
+                    onClick={onOpenFeedback}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white font-bold text-xs shadow-[0_0_15px_rgba(244,63,94,0.3)] flex items-center gap-1.5 transition-all whitespace-nowrap active:scale-95 flex-shrink-0 cursor-pointer"
+                  >
+                    <Heart className="w-3.5 h-3.5 fill-white" />
+                    <span>Send Love & Feedback</span>
+                  </button>
+                )}
               </div>
 
               {/* Final Actions */}

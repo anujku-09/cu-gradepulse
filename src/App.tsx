@@ -14,7 +14,8 @@ import {
   BookOpen,
   Search,
   ExternalLink,
-  X
+  X,
+  Heart
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -43,6 +44,7 @@ import { GradeCutoffModal } from './components/GradeCutoffModal';
 import { CommandPalette } from './components/CommandPalette';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { SemesterSetupWizard } from './components/SemesterSetupWizard';
+import { FeedbackModal } from './components/FeedbackModal';
 import { CohortTrackModal } from './components/CohortTrackModal';
 import { AddCustomCourseModal } from './components/AddCustomCourseModal';
 import { EditCourseModal } from './components/EditCourseModal';
@@ -92,6 +94,7 @@ export const App: React.FC = () => {
   const [isTrackModalOpen, setIsTrackModalOpen] = useState(false);
   const [isAddCustomCourseOpen, setIsAddCustomCourseOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   // Setup Wizard starts OPEN on Step 0 so students always start from the start!
   const [isSetupWizardOpen, setIsSetupWizardOpen] = useState<boolean>(true);
@@ -406,6 +409,7 @@ export const App: React.FC = () => {
         onOpenCutoffModal={() => setIsCutoffModalOpen(true)}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         onOpenWizard={handleOpenWizard}
+        onOpenFeedback={() => setIsFeedbackOpen(true)}
         onResetAll={handleResetAll}
       />
 
@@ -629,9 +633,18 @@ export const App: React.FC = () => {
 
       {/* Footer */}
       <footer className="border-t border-white/[0.08] bg-obsidian-950 py-6 text-center text-xs text-slate-500 font-mono relative z-10">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <span>CU GradePulse • Chandigarh University (CSE) Academic Intelligence Workspace</span>
-          <span>Crafted with Deep Obsidian Spatial Glassmorphism</span>
+          <button
+            type="button"
+            onClick={() => setIsFeedbackOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 transition-all font-sans cursor-pointer shadow-sm active:scale-95"
+            title="Leave a heart or feedback note for Anuj"
+          >
+            <span>Crafted with</span>
+            <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-400 animate-pulse" />
+            <span>by Anuj Kumar • Send Love & Feedback</span>
+          </button>
         </div>
       </footer>
 
@@ -665,6 +678,7 @@ export const App: React.FC = () => {
           onConvertCourseMode={handleConvertCourseMode}
           globalCutoffs={globalCutoffs}
           onSaveCustomCutoffs={handleSaveCustomCutoffs}
+          onOpenFeedback={() => setIsFeedbackOpen(true)}
           onComplete={handleCompleteWizard}
         />
       )}
@@ -802,6 +816,13 @@ export const App: React.FC = () => {
         onOpenExportModal={() => setIsExportModalOpen(true)}
         onOpenCutoffModal={() => setIsCutoffModalOpen(true)}
         onOpenWizard={handleOpenWizard}
+      />
+
+      {/* Developer Love & Feedback Modal */}
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+        defaultSection={COHORT_TRACKS_INFO.find(t => t.id === currentTrackId)?.name || 'CU CSE 5th Sem'}
       />
 
     </div>
