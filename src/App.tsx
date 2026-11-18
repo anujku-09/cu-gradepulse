@@ -52,15 +52,21 @@ const STORAGE_KEY_CGPA = 'cuims_gradepulse_cgpa_v3';
 const STORAGE_KEY_CURVE = 'cuims_gradepulse_curve_v3';
 const STORAGE_KEY_VIEW = 'cuims_gradepulse_view_v3';
 const STORAGE_KEY_TRACK = 'cuims_gradepulse_track_v3';
+const STORAGE_KEY_CUSTOM_CUTOFFS = 'cuims_gradepulse_custom_cutoffs_v3';
 
 export const App: React.FC = () => {
   // 1. Course State (Persisted in localStorage, defaults to clean slate)
   const [courses, setCourses] = useState<Course[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_COURSES);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
     } catch (e) {
-      console.error(e);
+      console.error('Failed to parse saved courses from localStorage:', e);
     }
     return INITIAL_BLANK_COURSES;
   });
@@ -95,7 +101,7 @@ export const App: React.FC = () => {
     } catch (e) {}
   }, [isDetailedView]);
 
-  // 3. Global Curve Mode & Cutoffs
+  // 3. Global Curve Mode & Cutoffs (With persistence for custom cutoffs)
   const [curveMode, setCurveMode] = useState<CurveMode>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_CURVE);
@@ -104,20 +110,39 @@ export const App: React.FC = () => {
     return 'standard';
   });
 
-  const [globalCutoffs, setGlobalCutoffs] = useState<GradeCutoffs>(CURVE_PRESETS.standard);
+  const [globalCutoffs, setGlobalCutoffs] = useState<GradeCutoffs>(() => {
+    try {
+      const savedCurve = localStorage.getItem(STORAGE_KEY_CURVE);
+      const parsedCurve = savedCurve ? JSON.parse(savedCurve) : 'standard';
+      if (parsedCurve === 'custom') {
+        const savedCustom = localStorage.getItem(STORAGE_KEY_CUSTOM_CUTOFFS);
+        if (savedCustom) return JSON.parse(savedCustom);
+      }
+      return CURVE_PRESETS[parsedCurve as Exclude<CurveMode, 'custom'>] || CURVE_PRESETS.standard;
+    } catch (e) {
+      return CURVE_PRESETS.standard;
+    }
+  });
 
   useEffect(() => {
     if (curveMode !== 'custom') {
       setGlobalCutoffs(CURVE_PRESETS[curveMode]);
     }
-    localStorage.setItem(STORAGE_KEY_CURVE, JSON.stringify(curveMode));
+    try {
+      localStorage.setItem(STORAGE_KEY_CURVE, JSON.stringify(curveMode));
+    } catch (e) {}
   }, [curveMode]);
 
   // 4. CGPA Forecaster Preferences (Previous CGPA & Credits)
   const [cgpaPrefs, setCgpaPrefs] = useState<{ previousCgpa: number; previousCredits: number }>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_CGPA);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (typeof parsed?.previousCgpa === 'number' && typeof parsed?.previousCredits === 'number') {
+          return parsed;
+        }
+      }
     } catch (e) {}
     return { previousCgpa: 8.25, previousCredits: 76.0 };
   });
@@ -801,6 +826,9 @@ export const App: React.FC = () => {
           onSaveCutoffs={(cutoffs) => {
             setGlobalCutoffs(cutoffs);
             setCurveMode('custom');
+            try {
+              localStorage.setItem(STORAGE_KEY_CUSTOM_CUTOFFS, JSON.stringify(cutoffs));
+            } catch (e) {}
           }}
         />
       )}
