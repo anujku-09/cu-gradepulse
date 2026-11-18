@@ -35,6 +35,8 @@ interface CommandPaletteProps {
   onOpenCutoffModal: () => void;
   onOpenCommandPalette?: () => void;
   onOpenWizard?: () => void;
+  onOpenTrackModal?: () => void;
+  onOpenAddCustomCourse?: () => void;
   onClaimAllAttendance?: () => void;
   onToggleGlobalMng: () => void;
   onCurveChange: (mode: CurveMode) => void;
@@ -59,6 +61,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onOpenExportModal,
   onOpenCutoffModal,
   onOpenWizard,
+  onOpenTrackModal,
+  onOpenAddCustomCourse,
   onClaimAllAttendance,
   onToggleGlobalMng,
   onCurveChange,
@@ -97,6 +101,22 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         subtitle: 'Enter your 5th Sem marks card-by-card with smooth transitions',
         icon: <Zap className="w-4 h-4 text-cyan-400" />,
         run: () => onOpenWizard?.()
+      },
+      {
+        id: 'track-switch',
+        category: 'Section & Cohort',
+        title: 'Choose 5th Sem Section / Track (Apple, AI/ML, Cloud, Cyber, General)',
+        subtitle: 'Switch cohort electives (iOS Swift, Apple Lab, ML, etc.) preserving core marks',
+        icon: <Layers className="w-4 h-4 text-cyan-400" />,
+        run: () => onOpenTrackModal?.()
+      },
+      {
+        id: 'add-subject',
+        category: 'Section & Cohort',
+        title: '+ Add Custom Subject to Semester V',
+        subtitle: 'Configure custom subject name, code, credits & evaluation mode',
+        icon: <Sliders className="w-4 h-4 text-indigo-400" />,
+        run: () => onOpenAddCustomCourse?.()
       },
       {
         id: 'claim-att',

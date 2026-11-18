@@ -20,6 +20,7 @@ import {
 import { Course, CourseResult, GradeLevel } from '../types';
 import { GRADE_COLORS, GRADE_POINTS } from '../utils/gradeCalculations';
 import { CourseRegexPasteBox } from './CourseRegexPasteBox';
+import { Sliders, Settings2 } from 'lucide-react';
 
 interface CourseBentoCardProps {
   course: Course;
@@ -33,6 +34,8 @@ interface CourseBentoCardProps {
   onToggleCourseExcluded: (courseId: string) => void;
   onQuickPreset: (courseId: string, preset: 'full' | 'average' | 'reset') => void;
   onInspect: (courseId: string) => void;
+  onOpenEditCourse?: (course: Course) => void;
+  onConvertCourseMode?: (courseId: string, targetType: 'Theory' | 'Practical' | 'DirectGrade') => void;
 }
 
 export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
@@ -47,6 +50,8 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
   onToggleCourseExcluded,
   onQuickPreset,
   onInspect,
+  onOpenEditCourse,
+  onConvertCourseMode,
 }) => {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [showRegexBox, setShowRegexBox] = useState(false);
@@ -143,6 +148,19 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                   </>
                 )}
               </button>
+
+              {/* Configure Subject Modal Trigger */}
+              {onOpenEditCourse && (
+                <button
+                  type="button"
+                  onClick={() => onOpenEditCourse(course)}
+                  title="Configure subject name, code, credits, or change evaluation mode"
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-400 hover:text-cyan-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                >
+                  <Settings2 className="w-2.5 h-2.5" />
+                  <span>Config</span>
+                </button>
+              )}
             </div>
 
             <h3 className="font-semibold text-slate-100 text-sm leading-snug line-clamp-1" title={course.name}>
@@ -296,6 +314,16 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                   <ClipboardPaste className="w-2.5 h-2.5" />
                   <span>Paste</span>
                 </button>
+                {onConvertCourseMode && (
+                  <button
+                    type="button"
+                    onClick={() => onConvertCourseMode(course.id, 'DirectGrade')}
+                    className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-950/60 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/60 transition-colors"
+                    title="Switch this subject to Direct Grade (NPTEL / Certificate)"
+                  >
+                    ⇄ Direct Grade
+                  </button>
+                )}
               </div>
             </div>
 
@@ -453,9 +481,21 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
         {/* Group B Direct Grade Selector */}
         {course.type === 'DirectGrade' && (
           <div className="mt-4 p-3.5 rounded-xl bg-obsidian-850/70 border border-white/10 space-y-2">
-            <span className="text-xs font-semibold text-slate-200 block">
-              Step 1: Choose Your Expected Grade:
-            </span>
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-200">
+                Step 1: Choose Your Expected Grade:
+              </span>
+              {onConvertCourseMode && (
+                <button
+                  type="button"
+                  onClick={() => onConvertCourseMode(course.id, 'Theory')}
+                  className="text-[10px] font-mono text-cyan-400 hover:text-cyan-300 underline"
+                  title="Convert to standard 40 internal / 60 external theory evaluation"
+                >
+                  ⇄ Marks Mode (40/60)
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-4 gap-1.5">
               {gradePills.map(g => {
                 const isSelected = (course.directGrade || 'A') === g;

@@ -29,6 +29,8 @@ interface CourseDetailModalProps {
   onUpdateDirectGrade: (courseId: string, grade: GradeLevel) => void;
   onQuickPreset: (courseId: string, preset: 'full' | 'average' | 'reset') => void;
   onSaveCustomCutoffs: (courseId: string, cutoffs: GradeCutoffs | undefined) => void;
+  onOpenEditCourse?: (course: Course) => void;
+  onConvertCourseMode?: (courseId: string, targetType: 'Theory' | 'Practical' | 'DirectGrade') => void;
 }
 
 export const CourseDetailModal: React.FC<CourseDetailModalProps> = ({
@@ -41,6 +43,8 @@ export const CourseDetailModal: React.FC<CourseDetailModalProps> = ({
   onUpdateDirectGrade,
   onQuickPreset,
   onSaveCustomCutoffs,
+  onOpenEditCourse,
+  onConvertCourseMode,
 }) => {
   if (!course || !result) return null;
 
@@ -124,13 +128,28 @@ export const CourseDetailModal: React.FC<CourseDetailModalProps> = ({
               </h2>
             </div>
 
-            <button
-              onClick={onClose}
-              className="p-2 rounded-xl bg-obsidian-800 hover:bg-obsidian-700 text-slate-400 hover:text-white border border-white/10 transition-colors touch-manipulation flex-shrink-0"
-              title="Close inspector"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {onOpenEditCourse && (
+                <button
+                  onClick={() => {
+                    onClose();
+                    onOpenEditCourse(course);
+                  }}
+                  className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-xs font-mono flex items-center gap-1 transition-colors"
+                  title="Configure subject properties, code, credits, or change evaluation mode"
+                >
+                  <Sliders className="w-3.5 h-3.5 text-cyan-400" />
+                  <span className="hidden sm:inline">Config</span>
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="p-2 rounded-xl bg-obsidian-800 hover:bg-obsidian-700 text-slate-400 hover:text-white border border-white/10 transition-colors touch-manipulation flex-shrink-0"
+                title="Close inspector"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Quick Metrics Header Pill */}

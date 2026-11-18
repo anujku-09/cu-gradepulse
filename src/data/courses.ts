@@ -1,4 +1,78 @@
-import { Course } from '../types';
+import { Course, CourseType, CohortTrackId, CohortTrackInfo, AssessmentComponent, GradeLevel } from '../types';
+
+export function createStandardTheoryComponents(prefix: string, isSample = false): AssessmentComponent[] {
+  return [
+    {
+      id: `${prefix}-mst1`,
+      name: 'MST-1',
+      rawMax: 20,
+      weightage: 10,
+      rawObtained: isSample ? 17 : 0,
+      category: 'MST' as const,
+    },
+    {
+      id: `${prefix}-mst2`,
+      name: 'MST-2',
+      rawMax: 20,
+      weightage: 10,
+      rawObtained: isSample ? 16.5 : 0,
+      category: 'MST' as const,
+    },
+    {
+      id: `${prefix}-assign`,
+      name: 'Assignment / PBL',
+      rawMax: 10,
+      weightage: 10,
+      rawObtained: isSample ? 9 : 0,
+      category: 'Assignment' as const,
+    },
+    {
+      id: `${prefix}-surprise`,
+      name: 'Surprise Test',
+      rawMax: 12,
+      weightage: 4,
+      rawObtained: isSample ? 10.5 : 0,
+      category: 'Surprise Test' as const,
+    },
+    {
+      id: `${prefix}-quiz`,
+      name: 'Quiz',
+      rawMax: 4,
+      weightage: 4,
+      rawObtained: isSample ? 4 : 0,
+      category: 'Quiz' as const,
+    },
+    {
+      id: `${prefix}-att`,
+      name: 'Attendance Marks',
+      rawMax: 2,
+      weightage: 2,
+      rawObtained: isSample ? 2 : 0,
+      category: 'Attendance' as const,
+    }
+  ];
+}
+
+export function createStandardPracticalComponents(prefix: string, isSample = false): AssessmentComponent[] {
+  return [
+    ...Array.from({ length: 10 }, (_, i) => ({
+      id: `${prefix}-exp-${i + 1}`,
+      name: `Experiment / Worksheet ${i + 1}`,
+      rawMax: 30,
+      weightage: 4.5,
+      rawObtained: isSample ? 27 : 0,
+      category: 'Experiment' as const,
+    })),
+    {
+      id: `${prefix}-mst`,
+      name: 'Mid-Term Test',
+      rawMax: 15,
+      weightage: 15,
+      rawObtained: isSample ? 13 : 0,
+      category: 'MST' as const,
+    }
+  ];
+}
 
 export function getCoursesTemplate(isSample: boolean = false): Course[] {
   return [
@@ -516,6 +590,456 @@ export function getCoursesTemplate(isSample: boolean = false): Course[] {
       ]
     }
   ];
+}
+
+export const COHORT_TRACKS_INFO: CohortTrackInfo[] = [
+  {
+    id: 'general',
+    name: 'General CSE',
+    badge: 'Core Track',
+    icon: '🌐',
+    shortDesc: 'Web Dev (Marks) + NPTEL Direct Grade',
+    description: 'Standard 5th semester curriculum with Web Development Fundamentals (40 internal / 60 external) and NPTEL Swayam exam direct grade.',
+    electiveHighlight: 'Web Development (24CST-351) + NPTEL Elective (PE-5)',
+  },
+  {
+    id: 'apple',
+    name: 'Apple Specialization Section',
+    badge: 'Apple Cohort',
+    icon: '🍎',
+    shortDesc: 'iOS Swift Theory + Apple Frameworks Lab',
+    description: 'Dedicated Apple Lab cohort replacing generic electives with iOS Application Development with Swift and Apple Frameworks Lab.',
+    electiveHighlight: 'iOS App Dev with Swift (24CSH-352) + Apple Lab (24CSP-353)',
+  },
+  {
+    id: 'aiml',
+    name: 'AI & Machine Learning Section',
+    badge: 'Specialization',
+    icon: '🤖',
+    shortDesc: 'Machine Learning Theory + AI Lab',
+    description: 'Artificial Intelligence and Data Science cohort taking ML Foundations theory alongside hands-on AI Programming Lab.',
+    electiveHighlight: 'ML Foundations (24CST-354) + AI Applications Lab (24CSP-355)',
+  },
+  {
+    id: 'cloud',
+    name: 'Cloud Computing & DevOps',
+    badge: 'Specialization',
+    icon: '☁️',
+    shortDesc: 'Cloud Architecture + DevOps Lab',
+    description: 'Enterprise Cloud & DevOps cohort covering Cloud Virtualization, Docker, Kubernetes, and CI/CD automation.',
+    electiveHighlight: 'Cloud Architecture (24CST-356) + DevOps Lab (24CSP-357)',
+  },
+  {
+    id: 'cyber',
+    name: 'Cyber Security Section',
+    badge: 'Specialization',
+    icon: '🛡️',
+    shortDesc: 'Network Security + Cyber Lab',
+    description: 'Information & Cyber Security cohort focusing on Cryptography, Penetration Testing, and Cyber Defense Labs.',
+    electiveHighlight: 'Network Security (24CST-358) + Cyber Defense Lab (24CSP-359)',
+  },
+  {
+    id: 'dual-nptel',
+    name: 'Dual NPTEL / MOOC Track',
+    badge: 'Online Electives',
+    icon: '🎓',
+    shortDesc: 'Both Electives Direct Grade (Certificate)',
+    description: 'For sections or students who completed both professional electives through online NPTEL / Swayam examinations.',
+    electiveHighlight: 'NPTEL Elective-I (PE-5A) + NPTEL Elective-II (PE-5B)',
+  },
+  {
+    id: 'custom',
+    name: 'Custom / Other Section',
+    badge: 'Custom',
+    icon: '⚙️',
+    shortDesc: 'Custom Subjects, Codes & Credits',
+    description: 'Configure your own subjects, toggle marks vs direct grade, and adjust credits for any unique section requirements.',
+    electiveHighlight: 'User-configured custom elective slots',
+  },
+];
+
+export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): Course[] {
+  switch (trackId) {
+    case 'apple':
+      return [
+        {
+          id: 'course-apple-ios',
+          code: '24CSH-352',
+          name: 'iOS Application Development with Swift',
+          credits: 3.0,
+          type: 'Theory',
+          group: 'A',
+          externalName: 'External Theory / Project Exam',
+          externalRawMax: 60,
+          externalWeightage: 60,
+          externalTargetScore: isSample ? 49 : 0,
+          components: createStandardTheoryComponents('apple-ios', isSample)
+        },
+        {
+          id: 'course-apple-lab',
+          code: '24CSP-353',
+          name: 'Apple Frameworks & Swift Programming Lab',
+          credits: 3.0,
+          type: 'Practical',
+          group: 'A',
+          externalName: 'External Practical Viva / Evaluation',
+          externalRawMax: 40,
+          externalWeightage: 40,
+          externalTargetScore: isSample ? 35 : 0,
+          components: createStandardPracticalComponents('apple-lab', isSample)
+        }
+      ];
+
+    case 'aiml':
+      return [
+        {
+          id: 'course-aiml-theory',
+          code: '24CST-354',
+          name: 'Machine Learning Foundations',
+          credits: 3.0,
+          type: 'Theory',
+          group: 'A',
+          externalName: 'External Theory',
+          externalRawMax: 60,
+          externalWeightage: 60,
+          externalTargetScore: isSample ? 48 : 0,
+          components: createStandardTheoryComponents('aiml-th', isSample)
+        },
+        {
+          id: 'course-aiml-lab',
+          code: '24CSP-355',
+          name: 'Artificial Intelligence & Machine Learning Lab',
+          credits: 3.0,
+          type: 'Practical',
+          group: 'A',
+          externalName: 'External Viva / Voce',
+          externalRawMax: 40,
+          externalWeightage: 40,
+          externalTargetScore: isSample ? 34 : 0,
+          components: createStandardPracticalComponents('aiml-lab', isSample)
+        }
+      ];
+
+    case 'cloud':
+      return [
+        {
+          id: 'course-cloud-theory',
+          code: '24CST-356',
+          name: 'Cloud Architecture & Virtualization',
+          credits: 3.0,
+          type: 'Theory',
+          group: 'A',
+          externalName: 'External Theory',
+          externalRawMax: 60,
+          externalWeightage: 60,
+          externalTargetScore: isSample ? 50 : 0,
+          components: createStandardTheoryComponents('cloud-th', isSample)
+        },
+        {
+          id: 'course-cloud-lab',
+          code: '24CSP-357',
+          name: 'Cloud DevOps & Containerization Lab',
+          credits: 3.0,
+          type: 'Practical',
+          group: 'A',
+          externalName: 'External Viva / Voce',
+          externalRawMax: 40,
+          externalWeightage: 40,
+          externalTargetScore: isSample ? 36 : 0,
+          components: createStandardPracticalComponents('cloud-lab', isSample)
+        }
+      ];
+
+    case 'cyber':
+      return [
+        {
+          id: 'course-cyber-theory',
+          code: '24CST-358',
+          name: 'Network Security & Cryptography',
+          credits: 3.0,
+          type: 'Theory',
+          group: 'A',
+          externalName: 'External Theory',
+          externalRawMax: 60,
+          externalWeightage: 60,
+          externalTargetScore: isSample ? 47 : 0,
+          components: createStandardTheoryComponents('cyber-th', isSample)
+        },
+        {
+          id: 'course-cyber-lab',
+          code: '24CSP-359',
+          name: 'Cyber Defense & Ethical Hacking Lab',
+          credits: 3.0,
+          type: 'Practical',
+          group: 'A',
+          externalName: 'External Viva / Voce',
+          externalRawMax: 40,
+          externalWeightage: 40,
+          externalTargetScore: isSample ? 35 : 0,
+          components: createStandardPracticalComponents('cyber-lab', isSample)
+        }
+      ];
+
+    case 'dual-nptel':
+      return [
+        {
+          id: 'course-pe5a',
+          code: 'PE-5A',
+          name: 'Professional Elective-I (NPTEL / MOOC)',
+          credits: 3.0,
+          type: 'DirectGrade',
+          group: 'B',
+          externalName: 'NPTEL Certificate Score',
+          externalRawMax: 100,
+          externalWeightage: 100,
+          externalTargetScore: isSample ? 85 : 0,
+          directGrade: isSample ? 'A+' : 'A',
+          components: []
+        },
+        {
+          id: 'course-pe5b',
+          code: 'PE-5B',
+          name: 'Professional Elective-II (NPTEL / MOOC)',
+          credits: 3.0,
+          type: 'DirectGrade',
+          group: 'B',
+          externalName: 'NPTEL Certificate Score',
+          externalRawMax: 100,
+          externalWeightage: 100,
+          externalTargetScore: isSample ? 80 : 0,
+          directGrade: isSample ? 'A' : 'B+',
+          components: []
+        }
+      ];
+
+    case 'general':
+    default:
+      return [
+        {
+          id: 'course-wdf',
+          code: '24CST-351',
+          name: 'Web Development Fundamentals',
+          credits: 3.0,
+          type: 'Theory',
+          group: 'A',
+          externalName: 'External Theory',
+          externalRawMax: 60,
+          externalWeightage: 60,
+          externalTargetScore: isSample ? 50 : 0,
+          components: createStandardTheoryComponents('wdf', isSample)
+        },
+        {
+          id: 'course-pe5',
+          code: 'PE-5',
+          name: 'Professional Elective (Cloud / AI / Cyber / NPTEL)',
+          credits: 3.0,
+          type: 'DirectGrade',
+          group: 'B',
+          externalName: 'Target Assessment',
+          externalRawMax: 100,
+          externalWeightage: 100,
+          externalTargetScore: isSample ? 85 : 0,
+          directGrade: isSample ? 'A' : 'B',
+          components: []
+        }
+      ];
+  }
+}
+
+// Check if a course is considered an elective slot that switches between tracks
+export function isElectiveCourse(course: Course): boolean {
+  const electiveCodes = [
+    '24CST-351', 'PE-5', 'PE-5A', 'PE-5B',
+    '24CSH-352', '24CSP-353',
+    '24CST-354', '24CSP-355',
+    '24CST-356', '24CSP-357',
+    '24CST-358', '24CSP-359'
+  ];
+  return electiveCodes.includes(course.code) || 
+         course.id.startsWith('course-apple-') || 
+         course.id.startsWith('course-aiml-') ||
+         course.id.startsWith('course-cloud-') ||
+         course.id.startsWith('course-cyber-') ||
+         course.id.startsWith('course-pe5');
+}
+
+export function getCoursesForTrack(trackId: CohortTrackId, isSample = false): Course[] {
+  const allGeneral = getCoursesTemplate(isSample);
+  if (trackId === 'general') return allGeneral;
+
+  const coreOnly = allGeneral.filter(c => !isElectiveCourse(c));
+  const trackElectives = getElectivesForTrack(trackId, isSample);
+  return [...coreOnly, ...trackElectives];
+}
+
+export function detectTrackFromCourses(courses: Course[]): CohortTrackId {
+  const codes = courses.map(c => c.code.toUpperCase());
+  if (codes.includes('24CSH-352') || codes.includes('24CSP-353') || courses.some(c => c.name.toLowerCase().includes('apple') || c.name.toLowerCase().includes('ios'))) {
+    return 'apple';
+  }
+  if (codes.includes('24CST-354') || codes.includes('24CSP-355') || courses.some(c => c.name.toLowerCase().includes('machine learning'))) {
+    return 'aiml';
+  }
+  if (codes.includes('24CST-356') || codes.includes('24CSP-357') || courses.some(c => c.name.toLowerCase().includes('devops') || c.name.toLowerCase().includes('cloud arch'))) {
+    return 'cloud';
+  }
+  if (codes.includes('24CST-358') || codes.includes('24CSP-359') || courses.some(c => c.name.toLowerCase().includes('cyber security') || c.name.toLowerCase().includes('cryptography'))) {
+    return 'cyber';
+  }
+  if (codes.includes('PE-5A') && codes.includes('PE-5B')) {
+    return 'dual-nptel';
+  }
+  if (codes.includes('24CST-351') && codes.includes('PE-5')) {
+    return 'general';
+  }
+  return 'custom';
+}
+
+export function switchTrackPreservingMarks(currentCourses: Course[], newTrackId: CohortTrackId): Course[] {
+  if (newTrackId === 'custom') return currentCourses;
+
+  // 1. Keep all non-elective courses (e.g. P&S, Java PBL, CN, CC-2, FSD-2, SS-3, Apt-3 and any custom user added courses)
+  const nonElectives = currentCourses.filter(c => !isElectiveCourse(c));
+  
+  // 2. Get the new electives for the chosen track
+  const newElectives = getElectivesForTrack(newTrackId, false);
+
+  // 3. If the user previously had marks in elective slots, try to map into the new electives if types match
+  const oldElectives = currentCourses.filter(c => isElectiveCourse(c));
+  const mappedElectives = newElectives.map((newEl, idx) => {
+    const oldEl = oldElectives[idx];
+    if (!oldEl) return newEl;
+
+    // If both are DirectGrade, preserve direct grade
+    if (newEl.type === 'DirectGrade' && oldEl.type === 'DirectGrade' && oldEl.directGrade) {
+      return { ...newEl, directGrade: oldEl.directGrade };
+    }
+
+    // If both are marks-based with external, preserve externalTargetScore
+    if (newEl.externalRawMax === oldEl.externalRawMax && oldEl.externalTargetScore > 0) {
+      return { 
+        ...newEl, 
+        externalTargetScore: oldEl.externalTargetScore,
+        directInternalOverride: oldEl.directInternalOverride 
+      };
+    }
+
+    return newEl;
+  });
+
+  return [...nonElectives, ...mappedElectives];
+}
+
+export function createNewBlankCourse(
+  name: string,
+  code: string,
+  credits: number,
+  type: CourseType,
+  isNonGraded = false
+): Course {
+  const id = `custom-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+  
+  if (type === 'DirectGrade') {
+    return {
+      id,
+      code: code.trim().toUpperCase() || 'CUSTOM-DG',
+      name: name.trim() || 'Custom Direct Grade Subject',
+      credits: Number(credits) || 3.0,
+      type: 'DirectGrade',
+      group: 'B',
+      isCustom: true,
+      externalName: 'Direct Certificate Grade',
+      externalRawMax: 100,
+      externalWeightage: 100,
+      externalTargetScore: 0,
+      directGrade: 'A',
+      components: [],
+      isNonGraded
+    };
+  }
+
+  if (type === 'Practical') {
+    return {
+      id,
+      code: code.trim().toUpperCase() || 'CUSTOM-PRAC',
+      name: name.trim() || 'Custom Practical Subject',
+      credits: Number(credits) || 2.0,
+      type: 'Practical',
+      group: isNonGraded ? 'C' : 'A',
+      isCustom: true,
+      isNonGraded,
+      externalName: 'External Viva / Voce',
+      externalRawMax: 40,
+      externalWeightage: 40,
+      externalTargetScore: 0,
+      components: createStandardPracticalComponents(id, false)
+    };
+  }
+
+  // Default: Theory
+  return {
+    id,
+    code: code.trim().toUpperCase() || 'CUSTOM-TH',
+    name: name.trim() || 'Custom Theory Subject',
+    credits: Number(credits) || 3.0,
+    type: 'Theory',
+    group: isNonGraded ? 'C' : 'A',
+    isCustom: true,
+    isNonGraded,
+    externalName: 'External Theory Exam',
+    externalRawMax: 60,
+    externalWeightage: 60,
+    externalTargetScore: 0,
+    components: createStandardTheoryComponents(id, false)
+  };
+}
+
+export function convertCourseMode(course: Course, targetType: 'Theory' | 'Practical' | 'DirectGrade'): Course {
+  if (course.type === targetType) return course;
+
+  if (targetType === 'DirectGrade') {
+    return {
+      ...course,
+      type: 'DirectGrade',
+      group: 'B',
+      directGrade: course.directGrade || 'A',
+      externalName: 'Target Direct Grade',
+      externalRawMax: 100,
+      externalWeightage: 100,
+      externalTargetScore: 0,
+      components: [],
+      directInternalOverride: undefined,
+    };
+  }
+
+  if (targetType === 'Practical') {
+    return {
+      ...course,
+      type: 'Practical',
+      group: course.isNonGraded ? 'C' : 'A',
+      directGrade: undefined,
+      externalName: 'External Viva / Voce',
+      externalRawMax: 40,
+      externalWeightage: 40,
+      externalTargetScore: 0,
+      components: createStandardPracticalComponents(course.id, false),
+      directInternalOverride: undefined,
+    };
+  }
+
+  // Target Theory
+  return {
+    ...course,
+    type: 'Theory',
+    group: course.isNonGraded ? 'C' : 'A',
+    directGrade: undefined,
+    externalName: 'External Theory',
+    externalRawMax: 60,
+    externalWeightage: 60,
+    externalTargetScore: 0,
+    components: createStandardTheoryComponents(course.id, false),
+    directInternalOverride: undefined,
+  };
 }
 
 export const INITIAL_BLANK_COURSES = getCoursesTemplate(false);

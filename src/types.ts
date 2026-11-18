@@ -24,6 +24,18 @@ export interface GradeCutoffs {
 
 export type CurveMode = 'standard' | 'lenient' | 'strict' | 'custom';
 
+export type CohortTrackId = 'general' | 'apple' | 'aiml' | 'cloud' | 'cyber' | 'dual-nptel' | 'custom';
+
+export interface CohortTrackInfo {
+  id: CohortTrackId;
+  name: string;
+  badge: string;
+  icon: string;
+  shortDesc: string;
+  description: string;
+  electiveHighlight: string;
+}
+
 export interface Course {
   id: string;
   code: string;
@@ -46,6 +58,7 @@ export interface Course {
   isNonGraded?: boolean; // When true, MNG mode (Non-Graded, qualifying >= 40)
   isExcluded?: boolean; // When true, this subject is disallowed/excluded from contributing to SGPA & credits
   customCutoffs?: GradeCutoffs;
+  isCustom?: boolean; // When true, custom added subject
 }
 
 export interface CourseResult {

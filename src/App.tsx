@@ -18,8 +18,16 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-import { Course, CourseType, CurveMode, GradeCutoffs, GradeLevel, SemesterCalculation } from './types';
-import { INITIAL_BLANK_COURSES, SAMPLE_CSE_COURSES, INITIAL_COURSES } from './data/courses';
+import { Course, CourseType, CurveMode, GradeCutoffs, GradeLevel, SemesterCalculation, CohortTrackId } from './types';
+import { 
+  INITIAL_BLANK_COURSES, 
+  SAMPLE_CSE_COURSES, 
+  INITIAL_COURSES, 
+  COHORT_TRACKS_INFO, 
+  switchTrackPreservingMarks, 
+  detectTrackFromCourses, 
+  convertCourseMode 
+} from './data/courses';
 import { CURVE_PRESETS, calculateSemester, calculateCgpaForecast } from './utils/gradeCalculations';
 
 import { Navbar } from './components/Navbar';
@@ -35,11 +43,15 @@ import { GradeCutoffModal } from './components/GradeCutoffModal';
 import { CommandPalette } from './components/CommandPalette';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { SemesterSetupWizard } from './components/SemesterSetupWizard';
+import { CohortTrackModal } from './components/CohortTrackModal';
+import { AddCustomCourseModal } from './components/AddCustomCourseModal';
+import { EditCourseModal } from './components/EditCourseModal';
 
 const STORAGE_KEY_COURSES = 'cuims_gradepulse_courses_v3';
 const STORAGE_KEY_CGPA = 'cuims_gradepulse_cgpa_v3';
 const STORAGE_KEY_CURVE = 'cuims_gradepulse_curve_v3';
 const STORAGE_KEY_VIEW = 'cuims_gradepulse_view_v3';
+const STORAGE_KEY_TRACK = 'cuims_gradepulse_track_v3';
 
 export const App: React.FC = () => {
   // 1. Course State (Persisted in localStorage, defaults to clean slate)
@@ -52,6 +64,21 @@ export const App: React.FC = () => {
     }
     return INITIAL_BLANK_COURSES;
   });
+
+  // Track State (Apple Section, General CSE, AI/ML, Cloud, Cyber, etc.)
+  const [currentTrackId, setCurrentTrackId] = useState<CohortTrackId>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_TRACK);
+      if (saved) return saved as CohortTrackId;
+    } catch (e) {}
+    return detectTrackFromCourses(courses);
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_TRACK, currentTrackId);
+    } catch (e) {}
+  }, [currentTrackId]);
 
   // 2. View Mode (Simple vs Detailed)
   const [isDetailedView, setIsDetailedView] = useState<boolean>(() => {
@@ -117,6 +144,9 @@ export const App: React.FC = () => {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isCutoffModalOpen, setIsCutoffModalOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isTrackModalOpen, setIsTrackModalOpen] = useState(false);
+  const [isAddCustomCourseOpen, setIsAddCustomCourseOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [isSetupWizardOpen, setIsSetupWizardOpen] = useState<boolean>(() => {
     try {
       const completed = localStorage.getItem('cu_gradepulse_wizard_completed');
@@ -353,6 +383,31 @@ export const App: React.FC = () => {
     } catch (e) {}
   }, []);
 
+  const handleSelectTrack = useCallback((newTrackId: CohortTrackId) => {
+    setCurrentTrackId(newTrackId);
+    setCourses(prev => switchTrackPreservingMarks(prev, newTrackId));
+  }, []);
+
+  const handleAddCourse = useCallback((newCourse: Course) => {
+    setCourses(prev => [...prev, newCourse]);
+    setCurrentTrackId('custom');
+  }, []);
+
+  const handleUpdateCourse = useCallback((updatedCourse: Course) => {
+    setCourses(prev => prev.map(c => c.id === updatedCourse.id ? updatedCourse : c));
+  }, []);
+
+  const handleDeleteCourse = useCallback((courseId: string) => {
+    setCourses(prev => prev.filter(c => c.id !== courseId));
+  }, []);
+
+  const handleConvertCourseMode = useCallback((courseId: string, targetType: 'Theory' | 'Practical' | 'DirectGrade') => {
+    setCourses(prev => prev.map(c => {
+      if (c.id !== courseId) return c;
+      return convertCourseMode(c, targetType);
+    }));
+  }, []);
+
   const handleCompleteWizard = useCallback(() => {
     setIsSetupWizardOpen(false);
     setShowFlightPlanBanner(true);
@@ -404,6 +459,9 @@ export const App: React.FC = () => {
         onCurveChange={setCurveMode}
         isGlobalMng={isGlobalMng}
         onToggleGlobalMng={handleToggleGlobalMng}
+        currentTrackId={currentTrackId}
+        onOpenTrackModal={() => setIsTrackModalOpen(true)}
+        onOpenAddCustomCourse={() => setIsAddCustomCourseOpen(true)}
         onOpenOptimizer={() => setIsOptimizerOpen(true)}
         onOpenForecaster={() => setIsForecasterOpen(true)}
         onOpenPasteModal={() => setIsPasteModalOpen(true)}
@@ -476,6 +534,34 @@ export const App: React.FC = () => {
           onClaimAllAttendance={handleClaimAllAttendance}
         />
 
+        {/* Cohort Track Quick Bar & Add Subject */}
+        <div className="mb-4 p-3 rounded-2xl bg-obsidian-850/60 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-slate-400 font-medium">Cohort / Section:</span>
+            <button
+              onClick={() => setIsTrackModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-950/70 hover:bg-cyan-900/70 border border-cyan-500/40 text-cyan-300 text-xs font-semibold shadow-[0_0_12px_rgba(6,182,212,0.2)] transition-all"
+            >
+              <span>{COHORT_TRACKS_INFO.find(t => t.id === currentTrackId)?.icon || '🌐'}</span>
+              <span>{COHORT_TRACKS_INFO.find(t => t.id === currentTrackId)?.name || 'General CSE'}</span>
+              <span className="text-[10px] text-cyan-400 font-mono">(Switch)</span>
+            </button>
+            <span className="text-[11px] text-slate-400 hidden md:inline truncate max-w-sm">
+              • {COHORT_TRACKS_INFO.find(t => t.id === currentTrackId)?.electiveHighlight}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            <button
+              onClick={() => setIsAddCustomCourseOpen(true)}
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-900/50 to-violet-900/50 hover:from-indigo-800/60 hover:to-violet-800/60 text-indigo-200 border border-indigo-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(99,102,241,0.15)]"
+            >
+              <Plus className="w-3.5 h-3.5 text-indigo-400" />
+              <span>+ Add Custom Subject</span>
+            </button>
+          </div>
+        </div>
+
         {/* Section Header & Bento Filters */}
         <div id="course-matrix" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-5 scroll-mt-20">
           <div className="flex items-center gap-2 flex-wrap">
@@ -519,25 +605,25 @@ export const App: React.FC = () => {
                   filterGroup === 'ALL' ? 'bg-cyan-950 text-cyan-300 font-semibold border border-cyan-700/50' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                All (9)
+                All ({courses.length})
               </button>
               <button
                 onClick={() => setFilterGroup('A')}
                 className={`px-2.5 py-1 rounded-lg transition-all whitespace-nowrap ${
                   filterGroup === 'A' ? 'bg-cyan-950 text-cyan-300 font-semibold border border-cyan-700/50' : 'text-slate-400 hover:text-slate-200'
                 }`}
-                title="Group A: Core Marks-Based (16 Cr)"
+                title="Group A: Marks-Based Courses"
               >
-                Core (6)
+                Core ({courses.filter(c => c.group === 'A').length})
               </button>
               <button
                 onClick={() => setFilterGroup('B')}
                 className={`px-2.5 py-1 rounded-lg transition-all whitespace-nowrap ${
                   filterGroup === 'B' ? 'bg-cyan-950 text-cyan-300 font-semibold border border-cyan-700/50' : 'text-slate-400 hover:text-slate-200'
                 }`}
-                title="Group B: Direct Grade Elective (3 Cr)"
+                title="Group B: Direct Grade Elective (NPTEL / MOOC)"
               >
-                Elective (1)
+                Direct ({courses.filter(c => c.group === 'B').length})
               </button>
               <button
                 onClick={() => setFilterGroup('C')}
@@ -546,7 +632,7 @@ export const App: React.FC = () => {
                 }`}
                 title="Group C: Soft Skills & Aptitude (Dual-Mode)"
               >
-                Dual-Track (2)
+                Dual ({courses.filter(c => c.group === 'C').length})
               </button>
             </div>
           </div>
@@ -568,6 +654,8 @@ export const App: React.FC = () => {
               onToggleCourseExcluded={handleToggleCourseExcluded}
               onQuickPreset={handleQuickPreset}
               onInspect={(id) => setInspectCourseId(id)}
+              onOpenEditCourse={(c) => setEditingCourse(c)}
+              onConvertCourseMode={handleConvertCourseMode}
             />
           ))}
         </div>
@@ -622,6 +710,8 @@ export const App: React.FC = () => {
           onUpdateDirectGrade={handleUpdateDirectGrade}
           onQuickPreset={handleQuickPreset}
           onSaveCustomCutoffs={handleSaveCustomCutoffs}
+          onOpenEditCourse={(c) => setEditingCourse(c)}
+          onConvertCourseMode={handleConvertCourseMode}
         />
       )}
 
@@ -681,6 +771,31 @@ export const App: React.FC = () => {
         />
       )}
 
+      {/* Cohort Track Preset Switcher Modal */}
+      <CohortTrackModal
+        isOpen={isTrackModalOpen}
+        onClose={() => setIsTrackModalOpen(false)}
+        currentTrackId={currentTrackId}
+        onSelectTrack={handleSelectTrack}
+        onOpenAddCustomCourse={() => setIsAddCustomCourseOpen(true)}
+      />
+
+      {/* Add Custom Course Modal */}
+      <AddCustomCourseModal
+        isOpen={isAddCustomCourseOpen}
+        onClose={() => setIsAddCustomCourseOpen(false)}
+        onAddCourse={handleAddCourse}
+      />
+
+      {/* Edit Course Modal (Name, Code, Credits, Evaluation Mode) */}
+      <EditCourseModal
+        course={editingCourse}
+        isOpen={!!editingCourse}
+        onClose={() => setEditingCourse(null)}
+        onUpdateCourse={handleUpdateCourse}
+        onDeleteCourse={handleDeleteCourse}
+      />
+
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
@@ -692,6 +807,8 @@ export const App: React.FC = () => {
         onOpenExportModal={() => setIsExportModalOpen(true)}
         onOpenCutoffModal={() => setIsCutoffModalOpen(true)}
         onOpenWizard={handleOpenWizard}
+        onOpenTrackModal={() => setIsTrackModalOpen(true)}
+        onOpenAddCustomCourse={() => setIsAddCustomCourseOpen(true)}
         onClaimAllAttendance={handleClaimAllAttendance}
         onToggleGlobalMng={handleToggleGlobalMng}
         onCurveChange={setCurveMode}
@@ -716,6 +833,9 @@ export const App: React.FC = () => {
           totalGradedCredits={calculation.totalGradedCredits}
           isGlobalMng={isGlobalMng}
           curveMode={curveMode}
+          currentTrackId={currentTrackId}
+          onSelectTrack={handleSelectTrack}
+          onOpenTrackModal={() => setIsTrackModalOpen(true)}
           onCurveChange={setCurveMode}
           onOpenCutoffModal={() => setIsCutoffModalOpen(true)}
           onToggleGlobalMng={handleToggleGlobalMng}
@@ -728,6 +848,8 @@ export const App: React.FC = () => {
           onQuickPreset={handleQuickPreset}
           onToggleAttendance={handleToggleAttendance}
           onClaimAllAttendance={handleClaimAllAttendance}
+          onOpenEditCourse={(c) => setEditingCourse(c)}
+          onConvertCourseMode={handleConvertCourseMode}
           onComplete={handleCompleteWizard}
         />
       )}

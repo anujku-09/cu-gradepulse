@@ -37,8 +37,8 @@ export function parseCuimsText(rawText: string, courses: Course[]): ParseResult 
     }
 
     // 2. Check if line contains a course code or course name header
-    // Strict course code match: e.g. 24CST-302, 24CSH-301, 24CSP-305, 24CSP-304, 24SMT-341, 24CST-351, 24TDP-311, 24TDT-312, PE-5
-    const codeMatch = line.match(/(24[a-z]{3}[-_]?\d{3}|pe[-_]?5)/i);
+    // Strict course code match: e.g. 24CST-302, 24CSH-301, 24CSP-305, 24CSP-304, 24SMT-341, 24CST-351, 24CSH-352, 24CSP-353, 24TDP-311, 24TDT-312, PE-5, PE-5A
+    const codeMatch = line.match(/(24[a-z]{3}[-_]?\d{3}|pe[-_]?5[a-z]?)/i);
     if (codeMatch) {
       const cleanCode = codeMatch[0].toLowerCase().replace(/[^a-z0-9]/g, '');
       const found = courses.find(c => c.code.toLowerCase().replace(/[^a-z0-9]/g, '') === cleanCode);
@@ -56,12 +56,21 @@ export function parseCuimsText(rawText: string, courses: Course[]): ParseResult 
         for (const c of courses) {
           const cNameClean = c.name.toLowerCase();
           const lineClean = line.toLowerCase();
-          if (lineClean.includes(cNameClean) || (c.code === '24CST-302' && lineClean.includes('computer networks')) ||
+          if (lineClean.includes(cNameClean) || 
+              (c.code === '24CST-302' && lineClean.includes('computer networks')) ||
               (c.code === '24SMT-341' && lineClean.includes('probability')) ||
               (c.code === '24CSH-301' && lineClean.includes('project based learning in java')) ||
               (c.code === '24CSP-305' && lineClean.includes('competitive coding')) ||
               (c.code === '24CSP-304' && lineClean.includes('full stack')) ||
               (c.code === '24CST-351' && lineClean.includes('web development')) ||
+              (c.code === '24CSH-352' && (lineClean.includes('ios') || lineClean.includes('swift') || lineClean.includes('apple'))) ||
+              (c.code === '24CSP-353' && (lineClean.includes('apple') || lineClean.includes('frameworks') || lineClean.includes('swift lab'))) ||
+              (c.code === '24CST-354' && lineClean.includes('machine learning')) ||
+              (c.code === '24CSP-355' && (lineClean.includes('artificial intelligence') || lineClean.includes('ai lab'))) ||
+              (c.code === '24CST-356' && lineClean.includes('cloud')) ||
+              (c.code === '24CSP-357' && lineClean.includes('devops')) ||
+              (c.code === '24CST-358' && (lineClean.includes('network security') || lineClean.includes('cryptography'))) ||
+              (c.code === '24CSP-359' && lineClean.includes('cyber')) ||
               (c.code === '24TDP-311' && lineClean.includes('soft skills')) ||
               (c.code === '24TDT-312' && lineClean.includes('aptitude'))) {
             currentCourse = c;

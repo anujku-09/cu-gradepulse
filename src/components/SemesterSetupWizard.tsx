@@ -28,8 +28,9 @@ import {
   Sliders,
   HelpCircle
 } from 'lucide-react';
-import { Course, CourseResult, GradeLevel, CurveMode, GradeCutoffs } from '../types';
+import { Course, CourseResult, GradeLevel, CurveMode, GradeCutoffs, CohortTrackId } from '../types';
 import { GRADE_COLORS, GRADE_POINTS } from '../utils/gradeCalculations';
+import { COHORT_TRACKS_INFO } from '../data/courses';
 import { CourseRegexPasteBox } from './CourseRegexPasteBox';
 
 interface SemesterSetupWizardProps {
@@ -41,6 +42,9 @@ interface SemesterSetupWizardProps {
   totalGradedCredits: number;
   isGlobalMng: boolean;
   curveMode: CurveMode;
+  currentTrackId: CohortTrackId;
+  onSelectTrack: (trackId: CohortTrackId) => void;
+  onOpenTrackModal: () => void;
   onCurveChange: (mode: CurveMode) => void;
   onOpenCutoffModal: () => void;
   onToggleGlobalMng: () => void;
@@ -53,6 +57,8 @@ interface SemesterSetupWizardProps {
   onQuickPreset: (courseId: string, preset: 'full' | 'average' | 'reset') => void;
   onToggleAttendance: (courseId: string, full: boolean) => void;
   onClaimAllAttendance: () => void;
+  onOpenEditCourse?: (course: Course) => void;
+  onConvertCourseMode?: (courseId: string, targetType: 'Theory' | 'Practical' | 'DirectGrade') => void;
   onComplete: () => void;
 }
 
@@ -65,6 +71,9 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
   totalGradedCredits,
   isGlobalMng,
   curveMode,
+  currentTrackId,
+  onSelectTrack,
+  onOpenTrackModal,
   onCurveChange,
   onOpenCutoffModal,
   onToggleGlobalMng,
@@ -77,36 +86,69 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
   onQuickPreset,
   onToggleAttendance,
   onClaimAllAttendance,
+  onOpenEditCourse,
+  onConvertCourseMode,
   onComplete,
 }) => {
-  // Step 0: Track Mode (MNG vs Graded)
-  // Step 1..9: The 9 Semester V Courses
-  // Step 10: Celebration / Summary Deck
+  // Step 0: Track Mode (MNG vs Graded & Cohort Section)
+  // Step 1..totalCourseSteps: The Semester V Courses
+  // Step totalCourseSteps + 1: Celebration / Summary Deck
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(1); // 1 = forward, -1 = back
   const [showDetailedComponents, setShowDetailedComponents] = useState(false);
   const [showRegexBox, setShowRegexBox] = useState(false);
   const [allAttendanceClaimed, setAllAttendanceClaimed] = useState(false);
 
+  const currentTrack = COHORT_TRACKS_INFO.find(t => t.id === currentTrackId) || COHORT_TRACKS_INFO[0];
+
   // Ordered list of courses for the wizard:
-  // We prioritize high-credit courses first (P&S 4.0 Cr, PBL 3.0 Cr, Web Dev 3.0 Cr, CN 3.0 Cr, PE-5 3.0 Cr)
+  // Dynamically prioritizes core and specialization courses, including any custom added courses!
   const orderedCourses = useMemo(() => {
     const priorityCodes = [
       '24SMT-341', // Probability & Statistics (4.0 Cr)
       '24CSH-301', // PBL in Java (3.0 Cr)
+      '24CSH-352', // Apple iOS App Dev (3.0 Cr)
       '24CST-351', // Web Development Fundamentals (3.0 Cr)
-      '24CST-302', // Computer Networks (3.0 Cr)
+      '24CST-354', // ML Foundations (3.0 Cr)
+      '24CST-356', // Cloud Arch (3.0 Cr)
+      '24CST-358', // Network Security (3.0 Cr)
       'PE-5',      // Professional Elective (3.0 Cr)
+      'PE-5A',     // Dual NPTEL 1
+      'PE-5B',     // Dual NPTEL 2
+      '24CST-302', // Computer Networks (3.0 Cr)
+      '24CSP-353', // Apple Frameworks Lab (3.0 Cr)
+      '24CSP-355', // AI Lab (3.0 Cr)
+      '24CSP-357', // DevOps Lab (3.0 Cr)
+      '24CSP-359', // Cyber Lab (3.0 Cr)
       '24CSP-305', // Competitive Coding-II (2.0 Cr)
       '24CSP-304', // Full Stack Development - II (1.0 Cr)
       '24TDP-311', // Soft Skills-III (2.0 Cr)
       '24TDT-312', // Aptitude-III (2.0 Cr)
     ];
 
-    return priorityCodes
-      .map(code => courses.find(c => c.code === code))
-      .filter((c): c is Course => !!c);
+    const result: Course[] = [];
+    const addedIds = new Set<string>();
+
+    for (const code of priorityCodes) {
+      const match = courses.find(c => c.code.toUpperCase() === code && !addedIds.has(c.id));
+      if (match) {
+        result.push(match);
+        addedIds.add(match.id);
+      }
+    }
+
+    for (const c of courses) {
+      if (!addedIds.has(c.id)) {
+        result.push(c);
+        addedIds.add(c.id);
+      }
+    }
+
+    return result;
   }, [courses]);
+
+  const totalCourseSteps = orderedCourses.length;
+  const celebrationStep = totalCourseSteps + 1;
 
   // Keyboard navigation
   useEffect(() => {
@@ -114,7 +156,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
-      } else if (e.key === 'ArrowRight' && currentStep < 10) {
+      } else if (e.key === 'ArrowRight' && currentStep < celebrationStep) {
         setDirection(1);
         setCurrentStep(prev => prev + 1);
       } else if (e.key === 'ArrowLeft' && currentStep > 0) {
@@ -124,11 +166,11 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, currentStep, onClose]);
+  }, [isOpen, currentStep, celebrationStep, onClose]);
 
-  // When reaching step 10 (celebration), fire confetti
+  // When reaching celebration step, fire confetti
   useEffect(() => {
-    if (isOpen && currentStep === 10) {
+    if (isOpen && currentStep === celebrationStep) {
       try {
         confetti({
           particleCount: 80,
@@ -138,11 +180,11 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
         });
       } catch (e) {}
     }
-  }, [isOpen, currentStep]);
+  }, [isOpen, currentStep, celebrationStep]);
 
   if (!isOpen) return null;
 
-  const activeCourse = currentStep >= 1 && currentStep <= 9 ? orderedCourses[currentStep - 1] : null;
+  const activeCourse = currentStep >= 1 && currentStep <= totalCourseSteps ? orderedCourses[currentStep - 1] : null;
   const activeResult = activeCourse ? results[activeCourse.id] : null;
 
   // Check if course is unentered (0 marks entered yet)
@@ -170,7 +212,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
   };
 
   const handleNext = () => {
-    if (currentStep < 10) {
+    if (currentStep < celebrationStep) {
       setDirection(1);
       setCurrentStep(prev => prev + 1);
       setShowDetailedComponents(false);
@@ -272,16 +314,27 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                 </span>
               </div>
               <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium">
-                {currentStep === 0 && 'Step 0: Choose Evaluation Track'}
-                {currentStep >= 1 && currentStep <= 9 && `Subject ${currentStep} of 9: ${activeCourse?.code}`}
-                {currentStep === 10 && 'Final Step: Academic Flight Plan'}
+                {currentStep === 0 && 'Step 0: Choose Section & Evaluation Track'}
+                {currentStep >= 1 && currentStep <= totalCourseSteps && `Subject ${currentStep} of ${totalCourseSteps}: ${activeCourse?.code}`}
+                {currentStep === celebrationStep && 'Final Step: Academic Flight Plan'}
               </p>
             </div>
           </div>
 
-          {/* Right: Live SGPA badge & Cutoff Curve & Global Attendance & Close */}
+          {/* Right: Live SGPA badge & Cutoff Curve & Cohort Pill & Global Attendance & Close */}
           <div className="flex items-center gap-1.5 sm:gap-2 ml-auto sm:ml-0 flex-wrap sm:flex-nowrap justify-end">
             
+            {/* Cohort Section Pill in Wizard Header */}
+            <button
+              type="button"
+              onClick={onOpenTrackModal}
+              title="Click to switch your 5th Sem section (Apple, AI/ML, Cloud, Cyber, General)"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 text-xs font-semibold transition-all shadow-[0_0_10px_rgba(6,182,212,0.15)]"
+            >
+              <span>{currentTrack.icon}</span>
+              <span className="hidden xs:inline">{currentTrack.name}</span>
+            </button>
+
             {/* Cutoff Line / Curve Mode Option in Wizard Nav */}
             <div className="flex items-center gap-1 sm:gap-1.5 px-2 py-1 rounded-xl bg-obsidian-900 border border-white/10 text-xs">
               <span className="text-[10px] font-mono text-slate-400 hidden lg:inline">Cutoff:</span>
@@ -349,14 +402,14 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
           <motion.div
             className="h-full bg-gradient-to-r from-cyan-500 via-indigo-500 to-violet-500"
             initial={{ width: 0 }}
-            animate={{ width: `${(currentStep / 10) * 100}%` }}
+            animate={{ width: `${(currentStep / celebrationStep) * 100}%` }}
             transition={{ ease: 'easeInOut', duration: 0.3 }}
           />
         </div>
 
         {/* Step Navigation Dots (Clickable) */}
         <div className="flex items-center justify-between px-1 overflow-x-auto no-scrollbar py-1">
-          {Array.from({ length: 11 }, (_, i) => {
+          {Array.from({ length: celebrationStep + 1 }, (_, i) => {
             const isCompleted = i < currentStep;
             const isCurrent = i === currentStep;
             return (
@@ -371,7 +424,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                     : 'text-slate-600 hover:text-slate-400'
                 }`}
               >
-                <span>{i === 0 ? 'Track' : i === 10 ? 'Done' : orderedCourses[i - 1]?.code.split('-')[0]}</span>
+                <span>{i === 0 ? 'Track' : i === celebrationStep ? 'Done' : orderedCourses[i - 1]?.code.split('-')[0]}</span>
                 {isCompleted && <Check className="w-2.5 h-2.5 text-emerald-400" />}
               </button>
             );
@@ -406,10 +459,70 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                   Chandigarh University • CSE Semester V
                 </span>
                 <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-                  How does your batch evaluate Aptitude & Soft Skills?
+                  Configure Your 5th Sem Setup
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
-                  In Chandigarh University, colleges often configure Soft Skills-III (<code className="font-mono text-cyan-300">24TDP-311</code>) and Aptitude-III (<code className="font-mono text-cyan-300">24TDT-312</code>) as either Non-Graded (MNG) or Graded.
+                  Select your specialization cohort (Apple, AI/ML, Cloud, Cyber, General) and Aptitude/Soft Skills evaluation track.
+                </p>
+              </div>
+
+              {/* 1. CHOOSE YOUR COHORT / SPECIALIZATION SECTION */}
+              <div className="space-y-2 mb-6 text-left">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                    <span>1. Select Your 5th Sem Cohort / Section:</span>
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800/60 font-semibold">
+                    Universal Cohort Presets
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {COHORT_TRACKS_INFO.map(track => {
+                    const isSelected = track.id === currentTrackId;
+                    return (
+                      <button
+                        key={track.id}
+                        type="button"
+                        onClick={() => onSelectTrack(track.id)}
+                        className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2.5 ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-cyan-950/80 to-indigo-950/80 border-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.25)] ring-1 ring-cyan-500/50'
+                            : 'bg-obsidian-900/80 hover:bg-obsidian-850 border-white/10 text-slate-300'
+                        }`}
+                      >
+                        <span className="text-xl flex-shrink-0">{track.icon}</span>
+                        <div className="min-w-0">
+                          <span className={`text-xs font-bold block truncate ${isSelected ? 'text-cyan-300' : 'text-slate-200'}`}>
+                            {track.name}
+                          </span>
+                          <span className="text-[10px] text-slate-400 block truncate font-mono">
+                            {track.badge}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-obsidian-850/80 border border-white/10 text-[11px] text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="text-cyan-400 font-mono font-semibold">Electives:</span>
+                    <span className="text-slate-200 font-medium truncate">{currentTrack.electiveHighlight}</span>
+                  </div>
+                  <span className="text-[10px] text-emerald-400 font-medium flex-shrink-0">
+                    ✓ Core Marks Preserved
+                  </span>
+                </div>
+              </div>
+
+              {/* 2. CHOOSE APTITUDE & SOFT SKILLS EVALUATION */}
+              <div className="space-y-2 mb-6 text-left">
+                <span className="text-xs font-bold text-slate-200 block">
+                  2. How does your batch evaluate Aptitude & Soft Skills?
+                </span>
+                <p className="text-[11px] text-slate-400">
+                  In Chandigarh University, Soft Skills-III (<code className="font-mono text-cyan-300">24TDP-311</code>) and Aptitude-III (<code className="font-mono text-cyan-300">24TDT-312</code>) are evaluated as Non-Graded (MNG) or Graded.
                 </p>
               </div>
 
@@ -502,9 +615,9 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
           )}
 
           {/* ============================================================ */}
-          {/* CARDS 1 THROUGH 9: THE 9 SEMESTER V SUBJECTS                 */}
+          {/* CARDS 1 THROUGH N: THE SEMESTER V SUBJECTS                   */}
           {/* ============================================================ */}
-          {currentStep >= 1 && currentStep <= 9 && activeCourse && activeResult && (
+          {currentStep >= 1 && currentStep <= totalCourseSteps && activeCourse && activeResult && (
             <motion.div
               key={`step-${currentStep}-${activeCourse.id}`}
               custom={direction}
@@ -531,6 +644,41 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                       <span className="text-[10px] font-semibold text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/40">
                         ⚡ Core Impact
                       </span>
+                    )}
+
+                    {/* Configure Subject Button */}
+                    {onOpenEditCourse && (
+                      <button
+                        type="button"
+                        onClick={() => onOpenEditCourse(activeCourse)}
+                        title="Configure subject name, code, credits, or change evaluation mode"
+                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-300 hover:text-cyan-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                      >
+                        <Sliders className="w-2.5 h-2.5 text-cyan-400" />
+                        <span>Config</span>
+                      </button>
+                    )}
+
+                    {/* 1-Click Evaluation Mode Swapper */}
+                    {onConvertCourseMode && activeCourse.type === 'DirectGrade' && (
+                      <button
+                        type="button"
+                        onClick={() => onConvertCourseMode(activeCourse.id, 'Theory')}
+                        title="Switch to 40 internal / 60 external theory marks evaluation"
+                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-cyan-300 bg-cyan-950/60 border border-cyan-500/40 hover:bg-cyan-900/60 transition-colors"
+                      >
+                        ⇄ Marks Mode (40/60)
+                      </button>
+                    )}
+                    {onConvertCourseMode && activeCourse.type !== 'DirectGrade' && (
+                      <button
+                        type="button"
+                        onClick={() => onConvertCourseMode(activeCourse.id, 'DirectGrade')}
+                        title="Switch to direct grade (NPTEL / MOOC / Certificate)"
+                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-indigo-300 bg-indigo-950/60 border border-indigo-500/40 hover:bg-indigo-900/60 transition-colors"
+                      >
+                        ⇄ Direct Grade (NPTEL)
+                      </button>
                     )}
                   </div>
                   <h3 className="text-lg sm:text-xl font-bold text-white">
@@ -929,7 +1077,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                     onClick={handleNext}
                     className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white text-xs font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all flex items-center gap-1.5"
                   >
-                    <span>{currentStep === 9 ? 'Finish & View Flight Plan' : 'Next Subject'}</span>
+                    <span>{currentStep === totalCourseSteps ? 'Finish & View Flight Plan' : 'Next Subject'}</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -938,11 +1086,11 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
           )}
 
           {/* ============================================================ */}
-          {/* CARD 10: CELEBRATION & SEMESTER V FLIGHT PLAN                */}
+          {/* CELEBRATION & SEMESTER V FLIGHT PLAN                         */}
           {/* ============================================================ */}
-          {currentStep === 10 && (
+          {currentStep === celebrationStep && (
             <motion.div
-              key="step-10-summary"
+              key="celebration-summary"
               custom={direction}
               variants={slideVariants}
               initial="enter"
@@ -960,7 +1108,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                   Your Semester V Flight Plan is Ready!
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
-                  All 9 Chandigarh University subjects are calibrated with your marks and targets.
+                  All {totalCourseSteps} subjects for {currentTrack.name} are calibrated with your marks and targets.
                 </p>
               </div>
 
