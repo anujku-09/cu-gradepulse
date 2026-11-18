@@ -38,8 +38,65 @@ export const QuickStartGuide: React.FC<QuickStartGuideProps> = ({
 
   return (
     <div className="mb-6 space-y-3">
-      {/* Top Quick Actions Bar (Responsive across all screens) */}
-      <div className="p-3 sm:p-3.5 rounded-2xl glass-card border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Mobile Quick Action Strip (< 640px): Smooth Horizontal Swipeable Chips */}
+      <div className="sm:hidden glass-card rounded-2xl p-2 border border-white/10 overflow-hidden">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 px-0.5">
+          {onOpenWizard && (
+            <button
+              onClick={onOpenWizard}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-cyan-500/20 via-indigo-500/20 to-violet-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_12px_rgba(6,182,212,0.25)] flex items-center gap-1.5 flex-shrink-0 active:scale-95 touch-manipulation"
+            >
+              <Zap className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Card Flow ⚡</span>
+            </button>
+          )}
+
+          {onClaimAllAttendance && (
+            <button
+              onClick={onClaimAllAttendance}
+              className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-700/50 flex items-center gap-1.5 flex-shrink-0 active:scale-95 touch-manipulation"
+            >
+              <CalendarCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Attendance</span>
+            </button>
+          )}
+
+          <button
+            onClick={onOpenPasteModal}
+            className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-950/80 text-indigo-200 border border-indigo-700/60 flex items-center gap-1.5 flex-shrink-0 active:scale-95 touch-manipulation"
+          >
+            <ClipboardPaste className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Paste CUIMS</span>
+          </button>
+
+          <button
+            onClick={onLoadSample}
+            className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-cyan-950/70 text-cyan-300 border border-cyan-700/60 flex items-center gap-1.5 flex-shrink-0 active:scale-95 touch-manipulation"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Load Sample</span>
+          </button>
+
+          <button
+            onClick={onStartBlank}
+            className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-obsidian-850 text-slate-300 border border-white/10 flex items-center gap-1.5 flex-shrink-0 active:scale-95 touch-manipulation"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-rose-400" />
+            <span>Reset</span>
+          </button>
+
+          <button
+            onClick={onToggleDetailedView}
+            className="px-2.5 py-1.5 rounded-xl text-xs font-mono font-medium text-slate-300 bg-obsidian-850 border border-white/10 flex items-center gap-1.5 flex-shrink-0 active:scale-95 touch-manipulation"
+          >
+            <Eye className="w-3.5 h-3.5 text-cyan-400" />
+            <span>{isDetailedView ? 'Detailed' : 'Simple'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Desktop Quick Actions Bar (>= 640px - hidden sm:flex) */}
+      <div className="hidden sm:flex p-3 sm:p-3.5 rounded-2xl glass-card border border-white/10 flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Left: Mode description & quick setup */}
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1.5 mr-1">

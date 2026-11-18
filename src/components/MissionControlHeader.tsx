@@ -136,8 +136,114 @@ export const MissionControlHeader: React.FC<MissionControlHeaderProps> = ({
         </div>
       )}
 
-      {/* Spatial Bento Grid Hero */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
+      {/* ============================================================== */}
+      {/* MOBILE HERO (< 768px): Compact, High-Impact, 60% Less Height    */}
+      {/* ============================================================== */}
+      <div className="md:hidden space-y-3">
+        {/* Mobile SGPA Hero Card */}
+        <div className={`glass-card rounded-2xl p-4 relative overflow-hidden flex flex-col justify-between ${sgpaTheme.glow} ${sgpaTheme.border} transition-all`}>
+          <div className="absolute -top-10 -right-10 w-36 h-36 bg-gradient-to-br from-cyan-500/10 to-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+
+          <div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-1.5 whitespace-nowrap">
+                <Award className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
+                Live Predicted SGPA
+              </span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border tracking-wide uppercase whitespace-nowrap ${sgpaTheme.badgeBg}`}>
+                {sgpaTheme.title}
+              </span>
+            </div>
+
+            <div className="mt-2.5 flex items-baseline gap-2">
+              <span className={`text-5xl font-extrabold font-mono tracking-tight ${sgpaTheme.color} drop-shadow-md`}>
+                {isUnentered ? '--' : sgpa.toFixed(2)}
+              </span>
+              <span className="text-base font-mono text-slate-400">/ 10.0</span>
+            </div>
+
+            <p className="mt-1 text-xs text-slate-300">
+              {sgpaTheme.description}
+            </p>
+          </div>
+
+          <div className="mt-3.5 pt-2.5 border-t border-white/[0.08] flex items-center justify-between gap-2 text-xs text-slate-400 font-mono">
+            <div className="flex items-center gap-2">
+              <span>Pts: <strong className="text-slate-100 font-semibold">{totalEarnedGradePoints.toFixed(1)}</strong></span>
+              <span>•</span>
+              <span>Cr: <strong className="text-slate-100 font-semibold">{totalGradedCredits.toFixed(1)}</strong></span>
+            </div>
+            <button
+              onClick={onOpenOptimizer}
+              className="text-cyan-400 hover:text-cyan-300 font-sans font-semibold text-[11px] flex items-center gap-1 transition-colors active:scale-95"
+            >
+              <Sparkles className="w-3 h-3" />
+              <span>Target Plan</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 2-Column Compact Metric Row */}
+        <div className="grid grid-cols-2 gap-2.5">
+          {/* Tile A: Weighted Internals */}
+          <div className="glass-card rounded-2xl p-3 flex flex-col justify-between border-white/10">
+            <div>
+              <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+                <span>Internals</span>
+              </span>
+              <div className="mt-1.5 text-2xl font-bold font-mono text-emerald-400">
+                {isUnentered ? '0.0%' : `${overallInternalPercentage.toFixed(1)}%`}
+              </div>
+              <div className="mt-1.5 w-full bg-obsidian-800 h-1.5 rounded-full overflow-hidden border border-white/5">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
+                  style={{ width: `${Math.min(100, overallInternalPercentage)}%` }}
+                />
+              </div>
+            </div>
+            <div className="mt-2 text-[10px] text-slate-400 font-mono truncate">
+              {totalInternalEarned.toFixed(1)} / {totalInternalMax.toFixed(1)} wt
+            </div>
+          </div>
+
+          {/* Tile B: CGPA Shift */}
+          <div 
+            onClick={onOpenForecaster}
+            className="glass-card rounded-2xl p-3 flex flex-col justify-between border-cyan-500/20 active:border-cyan-500/50 cursor-pointer active:scale-98"
+          >
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-1">
+                  <TrendingUp className="w-3 h-3 text-cyan-400 flex-shrink-0" />
+                  <span>CGPA Shift</span>
+                </span>
+                <span className="text-[9px] text-cyan-400 font-sans">Open →</span>
+              </div>
+              <div className="mt-1.5 flex items-baseline gap-1.5">
+                <span className="text-2xl font-bold font-mono text-white">
+                  {cgpaForecast.predictedCgpa.toFixed(2)}
+                </span>
+                <span className={`px-1 py-0.2 rounded font-bold font-mono text-[9px] ${
+                  isUnentered 
+                    ? 'bg-obsidian-800 text-slate-400' 
+                    : cgpaForecast.cgpaDelta >= 0 ? 'bg-emerald-950/80 text-emerald-400' : 'bg-rose-950/80 text-rose-400'
+                }`}>
+                  {isUnentered ? '±0.0' : cgpaForecast.cgpaDelta >= 0 ? `+${cgpaForecast.cgpaDelta.toFixed(2)}` : cgpaForecast.cgpaDelta.toFixed(2)}
+                </span>
+              </div>
+            </div>
+            <div className="mt-2 text-[10px] text-slate-400 font-mono truncate">
+              From {cgpaForecast.previousCgpa.toFixed(2)} baseline
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================================== */}
+      {/* DESKTOP BENTO GRID HERO (>= 768px - hidden md:grid)            */}
+      {/* ============================================================== */}
+      <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-12 gap-4">
         
         {/* Bento 1: Real-Time SGPA Gauge (5 cols) */}
         <div className={`lg:col-span-5 glass-card rounded-2xl p-4 sm:p-6 relative overflow-hidden flex flex-col justify-between ${sgpaTheme.glow} ${sgpaTheme.border} transition-all`}>

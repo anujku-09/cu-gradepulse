@@ -60,14 +60,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   const currentTrack = COHORT_TRACKS_INFO.find(t => t.id === currentTrackId) || COHORT_TRACKS_INFO[0];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-white/[0.08] bg-obsidian-950/92 backdrop-blur-xl transition-all select-none">
+    <header className="sticky top-0 z-40 w-full max-w-[100vw] overflow-x-hidden border-b border-white/[0.08] bg-obsidian-950/92 backdrop-blur-xl transition-all select-none">
       {/* Unified Single Navbar: h-14 (56px) on mobile/tablet, h-16 (64px) on desktop */}
       <div className="w-full max-w-[1700px] mx-auto px-2 sm:px-4 lg:px-6 h-14 sm:h-16 flex items-center justify-between gap-1 sm:gap-2">
         
         {/* ============================================================== */}
         {/* LEFT: Brand Logo + Title + Cohort Section Pill                 */}
         {/* ============================================================== */}
-        <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-shrink">
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-shrink">
           {/* Logo Icon */}
           <div className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-cyan-500/20 via-indigo-500/20 to-violet-500/20 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.25)] flex-shrink-0">
             <Gauge className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
@@ -77,21 +77,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             </span>
           </div>
 
-          {/* Title */}
+          {/* Title (Adaptive for mobile screens: CU Pulse on < 390px, CU GradePulse on >= 390px) */}
           <div className="flex items-center gap-1 whitespace-nowrap min-w-0 flex-shrink">
             <span className="text-xs sm:text-sm md:text-base font-extrabold tracking-tight text-white">
-              CU&nbsp;<span className="text-cyan-400">GradePulse</span>
+              <span className="inline min-[390px]:hidden">CU&nbsp;<span className="text-cyan-400">Pulse</span></span>
+              <span className="hidden min-[390px]:inline">CU&nbsp;<span className="text-cyan-400">GradePulse</span></span>
             </span>
             <span className="hidden md:inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold tracking-wider bg-cyan-950/80 text-cyan-300 border border-cyan-800/60 uppercase">
               CSE v2.4
             </span>
           </div>
 
-          {/* Cohort Section Selector Pill (Always visible across all devices, auto-shrinks on mobile) */}
+          {/* Cohort Section Selector Pill (Auto-adapts width for small screens) */}
           <button
             onClick={onOpenTrackModal}
             title={`Current Cohort: ${currentTrack.name} (Click to switch section)`}
-            className="flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded-xl text-[11px] sm:text-xs font-semibold text-cyan-300 hover:text-white bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/40 transition-all whitespace-nowrap shadow-[0_0_10px_rgba(6,182,212,0.15)] active:scale-95 touch-manipulation min-w-0 max-w-[85px] sm:max-w-[140px] flex-shrink"
+            className="flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded-xl text-[11px] sm:text-xs font-semibold text-cyan-300 hover:text-white bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/40 transition-all whitespace-nowrap shadow-[0_0_10px_rgba(6,182,212,0.15)] active:scale-95 touch-manipulation min-w-0 max-w-[72px] min-[380px]:max-w-[100px] sm:max-w-[150px] flex-shrink"
           >
             <span className="text-xs sm:text-sm flex-shrink-0">{currentTrack.icon}</span>
             <span className="truncate font-sans min-w-0">
@@ -180,7 +181,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Cutoff Quick Pill for Mobile (< 640px) */}
           <button
             onClick={onOpenCutoffModal}
-            className="sm:hidden flex items-center gap-1 px-1.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-cyan-300 active:scale-95 transition-all text-xs font-mono"
+            className="sm:hidden flex items-center gap-1 px-1.5 py-1 rounded-lg bg-obsidian-900 border border-white/10 text-cyan-300 active:scale-95 transition-all text-xs font-mono flex-shrink-0"
             title={`Cutoff Curve: ${curveMode} (Tap to change)`}
           >
             <Sliders className="w-3 h-3 text-cyan-400 flex-shrink-0" />
@@ -198,11 +199,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
           </button>
 
-          {/* Guided Wizard Button (Hero Primary Action across all devices) */}
+          {/* Guided Wizard Button (Hidden on tiny screens < 380px because bottom nav already has prominent Cards button) */}
           {onOpenWizard && (
             <button
               onClick={onOpenWizard}
-              className="flex items-center justify-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-cyan-500/20 via-indigo-500/20 to-violet-500/20 hover:from-cyan-500/30 hover:to-indigo-500/30 text-cyan-300 border border-cyan-500/40 transition-all shadow-[0_0_12px_rgba(6,182,212,0.2)] active:scale-95 touch-manipulation flex-shrink-0"
+              className="hidden min-[380px]:flex items-center justify-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-cyan-500/20 via-indigo-500/20 to-violet-500/20 hover:from-cyan-500/30 hover:to-indigo-500/30 text-cyan-300 border border-cyan-500/40 transition-all shadow-[0_0_12px_rgba(6,182,212,0.2)] active:scale-95 touch-manipulation flex-shrink-0"
               title="Launch Step-by-Step Card Flow (Setup Wizard)"
             >
               <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-cyan-400 flex-shrink-0" />
@@ -250,7 +251,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {onOpenFeedback && (
             <button
               onClick={onOpenFeedback}
-              className="flex items-center justify-center gap-1 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 hover:border-rose-400/50 transition-all text-xs font-semibold shadow-[0_0_12px_rgba(244,63,94,0.15)] active:scale-95 touch-manipulation flex-shrink-0"
+              className="flex items-center justify-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 hover:border-rose-400/50 transition-all text-xs font-semibold shadow-[0_0_12px_rgba(244,63,94,0.15)] active:scale-95 touch-manipulation flex-shrink-0"
               title={`Support Creator (${globalHearts && globalHearts > 0 ? `${globalHearts} Hearts Received` : 'Send Love & Feedback'})`}
             >
               <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-500 animate-pulse" />
@@ -263,7 +264,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Reset Marks Button (All devices) */}
           <button
             onClick={onResetAll}
-            className="flex items-center justify-center p-1 sm:p-2 rounded-lg bg-obsidian-850 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-white/10 transition-all active:scale-95 touch-manipulation flex-shrink-0"
+            className="flex items-center justify-center p-1.5 sm:p-2 rounded-lg bg-obsidian-850 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-white/10 transition-all active:scale-95 touch-manipulation flex-shrink-0"
             title="Reset All Marks to Zero"
           >
             <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

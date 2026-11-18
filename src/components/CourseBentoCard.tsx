@@ -90,7 +90,7 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
   return (
     <div
       id={`course-${course.id}`}
-      className={`glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden transition-all duration-300 border ${
+      className={`glass-card rounded-2xl p-3.5 sm:p-5 flex flex-col justify-between relative overflow-hidden transition-all duration-300 border ${
         isExcluded 
           ? 'opacity-65 border-white/10 hover:opacity-100' 
           : result.isBacklog ? 'border-rose-500/50 shadow-[0_0_25px_rgba(239,68,68,0.25)]' : theme.border
@@ -413,7 +413,7 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                   }}
                   placeholder="0.0"
                   title="Directly enter your total weighted internal marks"
-                  className="w-20 px-2 py-1 rounded-md text-center num-input text-sm font-bold text-cyan-300 tracking-wide"
+                  className="w-20 px-2 py-1 rounded-md text-center num-input text-base sm:text-sm font-bold text-cyan-300 tracking-wide min-h-[38px]"
                 />
                 <span className="text-xs font-mono text-slate-400 whitespace-nowrap">/ {maxInternalWeightage.toFixed(1)}</span>
               </div>
@@ -582,7 +582,7 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                       onUpdateExternal(course.id, raw === '' ? 0 : (parseFloat(raw) || 0));
                     }}
                     placeholder="0"
-                    className="w-18 px-2 py-0.5 rounded-md text-center num-input text-xs font-bold text-cyan-400"
+                    className="w-18 px-2 py-1 rounded-md text-center num-input text-base sm:text-xs font-bold text-cyan-400 min-h-[36px]"
                   />
                   <span className="text-slate-400 text-xs whitespace-nowrap">/ {course.externalRawMax}</span>
                 </div>

@@ -325,8 +325,89 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
       {/* ============================================================== */}
       <div className="w-full max-w-4xl mx-auto flex flex-col gap-1.5 sm:gap-2 flex-shrink-0">
         
-        {/* Unified Top Navigation Bar (Single Row: h-12 / 48px) */}
-        <div className="flex items-center justify-between gap-1.5 sm:gap-2.5 h-12 bg-obsidian-900/90 px-2.5 sm:px-4 rounded-2xl border border-white/10 shadow-lg">
+        {/* Mobile Header (< 640px): Ergonomic, Non-Crowded, Zero Overflow */}
+        <div className="sm:hidden flex flex-col gap-1.5 w-full bg-obsidian-900/95 px-3 py-2 rounded-2xl border border-white/10 shadow-lg">
+          <div className="flex items-center justify-between gap-2">
+            {/* Left: Sparkles + Jump Selector */}
+            <div className="flex items-center gap-1.5 min-w-0 flex-1">
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-cyan-500/20 via-indigo-500/20 to-violet-500/20 border border-cyan-500/30 flex items-center justify-center shadow-[0_0_10px_rgba(6,182,212,0.3)] flex-shrink-0">
+                <Sparkles className="w-3 h-3 text-cyan-400" />
+              </div>
+              <select
+                value={currentStep}
+                onChange={(e) => handleJumpToStep(parseInt(e.target.value))}
+                className="bg-obsidian-850 text-xs font-bold text-white rounded-lg px-2 py-1 border border-white/10 focus:border-cyan-400 focus:outline-none cursor-pointer max-w-[155px] min-[390px]:max-w-[190px] truncate"
+                title="Jump directly to any subject"
+              >
+                <option value={0}>⚙️ Step 0: Track Setup</option>
+                {orderedCourses.map((c, idx) => {
+                  const stepNum = idx + 1;
+                  const res = results[c.id];
+                  const gradeBadge = res?.predictedGrade ? `[${res.predictedGrade}]` : '';
+                  return (
+                    <option key={c.id} value={stepNum}>
+                      {stepNum}. {c.code} {gradeBadge}
+                    </option>
+                  );
+                })}
+                <option value={celebrationStep}>🎉 Done: Flight Plan</option>
+              </select>
+            </div>
+
+            {/* Right: Section Pill + SGPA + Exit */}
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <button
+                type="button"
+                onClick={onOpenTrackModal}
+                title="Switch section"
+                className="p-1 rounded-lg bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 text-xs"
+              >
+                <span>{currentTrack.icon}</span>
+              </button>
+
+              <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg bg-obsidian-850 border border-white/10">
+                <span className="text-[9px] font-mono text-slate-400">SGPA:</span>
+                <span className={`text-xs font-extrabold font-mono ${
+                  liveSgpa >= 9.0 ? 'text-emerald-400' : liveSgpa >= 8.0 ? 'text-cyan-300' : liveSgpa >= 7.0 ? 'text-indigo-300' : liveSgpa > 0 ? 'text-amber-400' : 'text-slate-400'
+                }`}>
+                  {liveSgpa > 0 ? liveSgpa.toFixed(2) : '--'}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSkipToDashboard}
+                className="p-1 rounded-lg text-slate-400 hover:text-white bg-obsidian-800 border border-white/10 active:scale-95"
+                title="Close setup wizard"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Animated Progress Bar */}
+          <div className="w-full bg-obsidian-950 h-1.5 rounded-full overflow-hidden border border-white/5 relative">
+            <motion.div
+              className="h-full bg-gradient-to-r from-cyan-500 via-indigo-500 to-violet-500"
+              initial={{ width: 0 }}
+              animate={{ width: `${(currentStep / celebrationStep) * 100}%` }}
+              transition={{ ease: 'easeInOut', duration: 0.3 }}
+            />
+          </div>
+
+          {/* Step Helper Status */}
+          <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 px-0.5">
+            <span className="text-cyan-300 font-bold">
+              {currentStep === 0 ? 'Step 0: Track Setup' : currentStep === celebrationStep ? 'Flight Plan' : `Subject ${currentStep} of ${totalCourseSteps}`}
+            </span>
+            <span className="text-slate-400 truncate max-w-[160px] text-right">
+              {currentStep === 0 ? currentTrack.name : currentStep === celebrationStep ? 'Ready' : activeCourse?.name}
+            </span>
+          </div>
+        </div>
+
+        {/* Desktop Header Bar (Single Row: h-12 / 48px - hidden sm:flex) */}
+        <div className="hidden sm:flex items-center justify-between gap-1.5 sm:gap-2.5 h-12 bg-obsidian-900/90 px-2.5 sm:px-4 rounded-2xl border border-white/10 shadow-lg">
           
           {/* Left: Brand + Subject Jump Selector */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
@@ -417,8 +498,8 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
           </div>
         </div>
 
-        {/* Animated Progress Bar */}
-        <div className="w-full bg-obsidian-900 h-1.5 rounded-full overflow-hidden border border-white/5 relative">
+        {/* Animated Progress Bar (Desktop) */}
+        <div className="hidden sm:block w-full bg-obsidian-900 h-1.5 rounded-full overflow-hidden border border-white/5 relative">
           <motion.div
             className="h-full bg-gradient-to-r from-cyan-500 via-indigo-500 to-violet-500"
             initial={{ width: 0 }}
@@ -427,8 +508,8 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
           />
         </div>
 
-        {/* Step Navigation Dots (Clickable with short code & grade pill) */}
-        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
+        {/* Step Navigation Dots (Desktop Only - hidden sm:flex) */}
+        <div className="hidden sm:flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
           {Array.from({ length: celebrationStep + 1 }, (_, i) => {
             const isCompleted = i < currentStep;
             const isCurrent = i === currentStep;
@@ -512,7 +593,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2">
                   {COHORT_TRACKS_INFO.map(track => {
                     const isSelected = track.id === currentTrackId;
                     return (
@@ -520,18 +601,18 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                         key={track.id}
                         type="button"
                         onClick={() => onSelectTrack(track.id)}
-                        className={`p-2 sm:p-2.5 rounded-xl border text-left transition-all flex items-center gap-2 sm:gap-2.5 ${
+                        className={`p-2 sm:p-2.5 rounded-xl border text-left transition-all flex items-center gap-2 sm:gap-2.5 active:scale-95 touch-manipulation ${
                           isSelected
                             ? 'bg-gradient-to-r from-cyan-950/80 to-indigo-950/80 border-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.25)] ring-1 ring-cyan-500/50'
                             : 'bg-obsidian-900/80 hover:bg-obsidian-850 border-white/10 text-slate-300'
                         }`}
                       >
-                        <span className="text-lg sm:text-xl flex-shrink-0">{track.icon}</span>
+                        <span className="text-base sm:text-xl flex-shrink-0">{track.icon}</span>
                         <div className="min-w-0 flex-1">
-                          <span className={`text-xs font-bold block leading-tight truncate ${isSelected ? 'text-cyan-300' : 'text-slate-200'}`}>
+                          <span className={`text-[11px] sm:text-xs font-bold block leading-tight truncate ${isSelected ? 'text-cyan-300' : 'text-slate-200'}`}>
                             {track.name}
                           </span>
-                          <span className="text-[10px] text-slate-400 block truncate font-mono mt-0.5">
+                          <span className="text-[9px] sm:text-[10px] text-slate-400 block truncate font-mono mt-0.5">
                             {track.badge}
                           </span>
                         </div>
@@ -671,8 +752,115 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
               exit="exit"
               className="glass-card rounded-2xl p-5 sm:p-6 border border-white/15 shadow-2xl relative overflow-hidden"
             >
-              {/* Top Subject Identity Header */}
-              <div className="flex items-start justify-between gap-3 pb-3 border-b border-white/10">
+              {/* Mobile Subject Identity Header (< 640px) */}
+              <div className="sm:hidden space-y-2 pb-3 border-b border-white/10">
+                {/* Row 1: Badges Left, Grade Right */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-white/[0.08] text-white border border-white/10">
+                      {activeCourse.code}
+                    </span>
+                    <span className="text-xs font-mono font-bold text-cyan-300">
+                      {activeCourse.credits.toFixed(1)} Cr
+                    </span>
+                    <span className={`text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded border ${
+                      activeCourse.type === 'Hybrid'
+                        ? 'bg-purple-950/60 text-purple-300 border-purple-500/30'
+                        : activeCourse.type === 'ContinuousEvaluation'
+                        ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/30'
+                        : activeCourse.type === 'Practical'
+                        ? 'bg-amber-950/60 text-amber-300 border-amber-500/30'
+                        : activeCourse.type === 'DirectGrade'
+                        ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/30'
+                        : 'bg-cyan-950/60 text-cyan-300 border-cyan-500/30'
+                    }`}>
+                      {activeCourse.type === 'ContinuousEvaluation' ? '100% INT' : activeCourse.type === 'DirectGrade' ? 'DIRECT' : activeCourse.type.toUpperCase()}
+                    </span>
+                  </div>
+
+                  {/* Live Grade Badge */}
+                  <div className="flex-shrink-0">
+                    {activeCourse.isExcluded ? (
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-rose-950/70 text-rose-300 border border-rose-500/30">
+                        Excluded
+                      </span>
+                    ) : isActiveCourseUnentered ? (
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-medium border border-white/10 bg-obsidian-850 text-slate-400">
+                        Awaiting
+                      </span>
+                    ) : activeCourse.isNonGraded ? (
+                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-bold border ${
+                        activeResult.isQualified
+                          ? 'bg-emerald-950 text-emerald-300 border-emerald-500/50'
+                          : 'bg-rose-950 text-rose-300 border-rose-500/50'
+                      }`}>
+                        {activeResult.isQualified ? 'PASS' : 'FAIL'}
+                      </span>
+                    ) : (
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold font-mono border ${
+                        GRADE_COLORS[activeResult.predictedGrade]?.bg || 'bg-obsidian-850'
+                      } ${GRADE_COLORS[activeResult.predictedGrade]?.text || 'text-cyan-300'} ${
+                        GRADE_COLORS[activeResult.predictedGrade]?.border || 'border-cyan-500/30'
+                      }`}>
+                        {activeResult.predictedGrade} ({activeResult.gradePoint} GP)
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Row 2: Subject Title */}
+                <h3 className="text-base font-bold text-white leading-snug">
+                  {activeCourse.name}
+                </h3>
+
+                {/* Row 3: Action Strip (Config, Cycle, Exclude) */}
+                <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                  {onOpenEditCourse && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenEditCourse(activeCourse)}
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold text-cyan-300 bg-cyan-950/50 border border-cyan-500/30 active:scale-95"
+                    >
+                      <Sliders className="w-2.5 h-2.5 text-cyan-400" />
+                      <span>Config</span>
+                    </button>
+                  )}
+                  {onConvertCourseMode && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nextMode: CourseType = 
+                          activeCourse.type === 'Theory' ? 'Practical' :
+                          activeCourse.type === 'Practical' ? 'Hybrid' :
+                          activeCourse.type === 'Hybrid' ? 'ContinuousEvaluation' :
+                          activeCourse.type === 'ContinuousEvaluation' ? 'DirectGrade' : 'Theory';
+                        onConvertCourseMode(activeCourse.id, nextMode);
+                      }}
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-300 bg-white/5 border border-white/10 active:scale-95"
+                    >
+                      <span>⇄ Mode</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => onToggleCourseExcluded(activeCourse.id)}
+                    className={`flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full border active:scale-95 ${
+                      activeCourse.isExcluded
+                        ? 'bg-rose-950/60 text-rose-300 border-rose-500/40'
+                        : 'bg-obsidian-800 text-slate-400 border-white/10'
+                    }`}
+                  >
+                    {activeCourse.isExcluded ? <EyeOff className="w-2.5 h-2.5 text-rose-400" /> : <Eye className="w-2.5 h-2.5" />}
+                    <span>{activeCourse.isExcluded ? 'Excluded' : 'Exclude'}</span>
+                  </button>
+                  <span className="text-[10px] font-mono text-slate-400 ml-auto">
+                    {isActiveCourseUnentered ? '0.0/100' : `${activeResult.totalWeightedScore.toFixed(1)}/100`}
+                  </span>
+                </div>
+              </div>
+
+              {/* Desktop Subject Identity Header (>= 640px) */}
+              <div className="hidden sm:flex items-start justify-between gap-3 pb-3 border-b border-white/10">
                 <div>
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-white/[0.08] text-white border border-white/10">
@@ -777,8 +965,8 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                 </div>
               </div>
 
-              {/* Course Exclude / Include Option */}
-              <div className="flex items-center justify-between py-2 text-xs">
+              {/* Course Exclude / Include Option (Desktop) */}
+              <div className="hidden sm:flex items-center justify-between py-2 text-xs">
                 <span className="text-slate-400">
                   {activeCourse.isExcluded 
                     ? '⚠️ This course is currently excluded from SGPA calculations.' 
@@ -1141,7 +1329,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-2 xs:grid-cols-4 sm:grid-cols-7 gap-1.5">
+                      <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
                         {activeResult.targetRequirements.map((req) => {
                           const isCurrentGrade = activeResult.predictedGrade === req.grade;
                           const gTheme = GRADE_COLORS[req.grade] || GRADE_COLORS['C'];
@@ -1278,43 +1466,85 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
               </div>
 
               {/* CARD FOOTER CONTROLS */}
-              <div className="flex items-center justify-between gap-2 pt-3 border-t border-white/10 flex-wrap sm:flex-nowrap">
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  className="px-3 sm:px-4 py-2 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 text-slate-300 text-xs font-semibold border border-white/10 transition-colors flex items-center gap-1.5"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>Back</span>
-                </button>
+              <div className="pt-3 border-t border-white/10 space-y-2 sm:space-y-0">
+                {/* Mobile Controls (< 640px): Large, Comfortable Touch Targets */}
+                <div className="sm:hidden space-y-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleBack}
+                      className="flex-1 py-3 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 text-slate-300 text-xs font-bold border border-white/10 transition-colors flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      <span>Back</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className="flex-[2] py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white text-xs font-extrabold shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all flex items-center justify-center gap-1.5 active:scale-95 touch-manipulation"
+                    >
+                      <span>{currentStep === totalCourseSteps ? 'Finish & Flight Plan' : 'Next Subject'}</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowSingleSubjectModal(true)}
+                      className="flex-1 py-2 rounded-xl bg-cyan-950/60 text-cyan-300 text-[11px] font-semibold border border-cyan-500/30 flex items-center justify-center gap-1 active:scale-95"
+                    >
+                      <Sparkles className="w-3 h-3 text-cyan-400" />
+                      <span>Single Subject Report</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSkipToDashboard}
+                      className="flex-1 py-2 rounded-xl bg-obsidian-850 text-slate-400 text-[11px] font-semibold border border-white/10 flex items-center justify-center active:scale-95"
+                    >
+                      <span>Skip to Dashboard</span>
+                    </button>
+                  </div>
+                </div>
 
-                {/* Center: Single Subject Report button */}
-                <button
-                  type="button"
-                  onClick={() => setShowSingleSubjectModal(true)}
-                  className="px-3 py-2 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/60 text-cyan-300 hover:text-white text-xs font-semibold border border-cyan-500/40 transition-all flex items-center gap-1.5 shadow-[0_0_12px_rgba(6,182,212,0.15)] order-3 sm:order-2 w-full sm:w-auto justify-center active:scale-95"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Single Subject Report</span>
-                </button>
-
-                <div className="flex items-center gap-2 order-2 sm:order-3 ml-auto sm:ml-0">
+                {/* Desktop Controls (>= 640px) */}
+                <div className="hidden sm:flex items-center justify-between gap-2">
                   <button
                     type="button"
-                    onClick={handleSkipToDashboard}
-                    className="px-3 py-2 rounded-xl text-xs font-mono text-slate-400 hover:text-slate-200 transition-colors hidden xs:inline-block"
-                    title="Exit wizard and jump straight to the mission control dashboard"
+                    onClick={handleBack}
+                    className="px-3 sm:px-4 py-2 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 text-slate-300 text-xs font-semibold border border-white/10 transition-colors flex items-center gap-1.5"
                   >
-                    Skip to Dashboard
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>Back</span>
                   </button>
+
+                  {/* Center: Single Subject Report button */}
                   <button
                     type="button"
-                    onClick={handleNext}
-                    className="px-4 sm:px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white text-xs font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all flex items-center gap-1.5"
+                    onClick={() => setShowSingleSubjectModal(true)}
+                    className="px-3 py-2 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/60 text-cyan-300 hover:text-white text-xs font-semibold border border-cyan-500/40 transition-all flex items-center gap-1.5 shadow-[0_0_12px_rgba(6,182,212,0.15)] order-3 sm:order-2 w-full sm:w-auto justify-center active:scale-95"
                   >
-                    <span>{currentStep === totalCourseSteps ? 'Finish & Flight Plan' : 'Next Subject'}</span>
-                    <ChevronRight className="w-4 h-4" />
+                    <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Single Subject Report</span>
                   </button>
+
+                  <div className="flex items-center gap-2 order-2 sm:order-3 ml-auto sm:ml-0">
+                    <button
+                      type="button"
+                      onClick={handleSkipToDashboard}
+                      className="px-3 py-2 rounded-xl text-xs font-mono text-slate-400 hover:text-slate-200 transition-colors hidden xs:inline-block"
+                      title="Exit wizard and jump straight to the mission control dashboard"
+                    >
+                      Skip to Dashboard
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className="px-4 sm:px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white text-xs font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all flex items-center gap-1.5"
+                    >
+                      <span>{currentStep === totalCourseSteps ? 'Finish & Flight Plan' : 'Next Subject'}</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>
