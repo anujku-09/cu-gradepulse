@@ -122,6 +122,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
       '24CST-354', // ML Foundations (3.0 Cr)
       '24CST-356', // Cloud Arch (3.0 Cr)
       '24CST-358', // Network Security (3.0 Cr)
+      '24CST-360', // IoT Network Architecture (3.0 Cr)
       'PE-2',      // Professional Elective-II (3.0 Cr)
       'PE-3',      // Professional Elective-III (3.0 Cr)
       'PE-5',      // Legacy Professional Elective (3.0 Cr)
@@ -492,7 +493,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                   Configure Your 5th Sem Setup
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
-                  Select your specialization cohort (Apple, AI/ML, Cloud, Cyber, General) and Aptitude/Soft Skills evaluation track.
+                  Select your 5th Sem Elective Set (Set F Core, Set B Apple, Set D ML/AI, Set C IoT, Set E Industry) and Aptitude/Soft Skills track.
                 </p>
               </div>
 
@@ -500,10 +501,10 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
               <div className="space-y-2 mb-6 text-left">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                    <span>1. Select Your 5th Sem Cohort / Section:</span>
+                    <span>1. Select Your 5th Sem Elective Set / Cohort:</span>
                   </span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800/60 font-semibold">
-                    Universal Cohort Presets
+                    CU 5th Sem Elective Sets
                   </span>
                 </div>
 

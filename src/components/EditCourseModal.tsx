@@ -13,7 +13,7 @@ import {
   Save
 } from 'lucide-react';
 import { Course, CourseType, GradeLevel } from '../types';
-import { convertCourseMode } from '../data/courses';
+import { convertCourseMode, CU_5TH_SEM_ELECTIVE_PRESETS } from '../data/courses';
 
 interface EditCourseModalProps {
   course: Course | null;
@@ -168,6 +168,38 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
                 </span>
               </button>
             </div>
+          </div>
+
+          {/* Quick Elective Preset (Optional 1-Click Fill from Official 5th Sem Allocations) */}
+          <div className="p-2.5 rounded-xl bg-cyan-950/30 border border-cyan-500/20 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-cyan-300">
+                CU 5th Sem Elective Quick Presets:
+              </span>
+              <span className="text-[9px] font-mono text-slate-400">
+                Official Sets B-F
+              </span>
+            </div>
+            <select
+              onChange={(e) => {
+                const preset = CU_5TH_SEM_ELECTIVE_PRESETS.find(p => p.name === e.target.value);
+                if (preset) {
+                  setName(preset.name);
+                  setCode(preset.code);
+                  setType(preset.type);
+                  setCredits(preset.credits);
+                }
+              }}
+              defaultValue=""
+              className="w-full px-2.5 py-1.5 rounded-lg bg-obsidian-900 border border-white/10 text-xs text-slate-200 focus:border-cyan-500 focus:outline-none cursor-pointer"
+            >
+              <option value="" disabled>-- Or pick from official 5th Sem electives --</option>
+              {CU_5TH_SEM_ELECTIVE_PRESETS.map((p, idx) => (
+                <option key={idx} value={p.name}>
+                  [{p.set}] {p.name} ({p.type})
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Name */}

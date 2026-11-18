@@ -24,7 +24,7 @@ export interface GradeCutoffs {
 
 export type CurveMode = 'standard' | 'lenient' | 'strict' | 'custom';
 
-export type CohortTrackId = 'general' | 'apple' | 'aiml' | 'cloud' | 'cyber' | 'dual-nptel' | 'custom';
+export type CohortTrackId = 'general' | 'apple' | 'aiml' | 'iot' | 'industry' | 'cloud' | 'cyber' | 'dual-nptel' | 'custom';
 
 export interface CohortTrackInfo {
   id: CohortTrackId;

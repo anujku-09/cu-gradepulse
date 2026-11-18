@@ -105,8 +105,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       {
         id: 'track-switch',
         category: 'Section & Cohort',
-        title: 'Choose 5th Sem Section / Track (Apple, AI/ML, Cloud, Cyber, General)',
-        subtitle: 'Switch cohort electives (iOS Swift, Apple Lab, ML, etc.) preserving core marks',
+        title: 'Choose 5th Sem Elective Set (Set F Core, Set B Apple, Set D AI/ML, Set C IoT, Set E Industry)',
+        subtitle: 'Switch elective sets and specialization tracks with zero data loss',
         icon: <Layers className="w-4 h-4 text-cyan-400" />,
         run: () => onOpenTrackModal?.()
       },

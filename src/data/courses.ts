@@ -292,11 +292,11 @@ export function getCoursesTemplate(isSample: boolean = false): Course[] {
       ]
     },
 
-    // 5. Web Development Fundamentals (PE-II)
+    // 5. Web Development Fundamentals (PE-III Offline Elective)
     {
       id: 'course-wdf',
       code: '24CST-351',
-      name: 'PE-II: Web Development Fundamentals',
+      name: 'PE-III: Web Development Fundamentals (Offline)',
       credits: 3.0,
       type: 'Theory',
       group: 'A',
@@ -420,11 +420,11 @@ export function getCoursesTemplate(isSample: boolean = false): Course[] {
       ]
     },
 
-    // 7. Professional Elective (PE-III)
+    // 7. Professional Elective (PE-II NPTEL)
     {
-      id: 'course-pe3',
-      code: 'PE-3',
-      name: 'PE-III: NPTEL / Elective (Configurable)',
+      id: 'course-pe2',
+      code: 'PE-2',
+      name: 'PE-II: Big Data / Cyber Threat (NPTEL)',
       credits: 3.0,
       type: 'DirectGrade',
       group: 'B',
@@ -595,35 +595,53 @@ export function getCoursesTemplate(isSample: boolean = false): Course[] {
 export const COHORT_TRACKS_INFO: CohortTrackInfo[] = [
   {
     id: 'general',
-    name: 'General CSE',
-    badge: 'Core + 2 Electives',
+    name: 'Set F: Core Electives',
+    badge: 'Rest Sections',
     icon: '🌐',
-    shortDesc: 'PE-II (Web Dev) + PE-III (NPTEL / Elective)',
-    description: 'Standard 5th semester curriculum with 7 Core subjects + PE-II (Web Development / NPTEL) and PE-III (NPTEL / Customizable Elective).',
-    electiveHighlight: 'PE-II (Web Dev 24CST-351) + PE-III (NPTEL / Elective PE-3)',
+    shortDesc: 'PE-II NPTEL + PE-III Web Dev / Offline Electives',
+    description: 'Set F (Rest remaining sections): PE-II NPTEL (Big Data / Cyber Threat) and PE-III Offline Theory (Web Dev, Mobile UX, Data Mining, Digital Image Processing, Business Analytics, VAPT).',
+    electiveHighlight: 'PE-II: NPTEL (Big Data / Cyber) + PE-III: Web Dev (24CST-351)',
   },
   {
     id: 'apple',
-    name: 'Apple Specialization Section',
-    badge: 'Apple Cohort',
+    name: 'Set B: Apple Track',
+    badge: 'Apple Sections',
     icon: '🍎',
-    shortDesc: 'iOS Swift Theory + Apple Frameworks Lab',
-    description: 'Dedicated Apple Lab cohort replacing generic electives with iOS Application Development with Swift and Apple Frameworks Lab.',
-    electiveHighlight: 'iOS App Dev with Swift (24CSH-352) + Apple Lab (24CSP-353)',
+    shortDesc: 'Swift Programming (Offline) + iOS App Design (Offline)',
+    description: 'Set B for Apple sections: Programming in Swift (Offline Mandatory) and Application Design & Development for iOS (Offline).',
+    electiveHighlight: 'PE-II: Swift (Offline) + PE-III: iOS App Design (Offline)',
   },
   {
     id: 'aiml',
-    name: 'AI & Machine Learning Section',
-    badge: 'Specialization',
+    name: 'Set D: ML & AI Track',
+    badge: 'AI Lab Sections',
     icon: '🤖',
-    shortDesc: 'Machine Learning Theory + AI Lab',
-    description: 'Artificial Intelligence and Data Science cohort taking ML Foundations theory alongside hands-on AI Programming Lab.',
-    electiveHighlight: 'ML Foundations (24CST-354) + AI Applications Lab (24CSP-355)',
+    shortDesc: 'Optimization for AI (Offline) + ML Computer Vision (Offline)',
+    description: 'Set D for ML & AI sections: Optimization Techniques for AI (Offline Mandatory) and Machine Learning for Computer Vision (Offline).',
+    electiveHighlight: 'PE-II: AI Optimization + PE-III: ML Computer Vision',
+  },
+  {
+    id: 'iot',
+    name: 'Set C: IoT Track',
+    badge: 'IoT Sections',
+    icon: '📡',
+    shortDesc: 'PE-II NPTEL + PE-III IoT Network Protocols (Offline)',
+    description: 'Set C for IoT sections: PE-II NPTEL (Big Data / Cyber Threat) and PE-III IoT Network Architecture & Communication Protocols (Offline).',
+    electiveHighlight: 'PE-II: NPTEL + PE-III: IoT Network Protocols (Offline)',
+  },
+  {
+    id: 'industry',
+    name: 'Set E: Industry Integration',
+    badge: 'Industry Skills',
+    icon: '🏢',
+    shortDesc: 'PE-II NPTEL + PE-III KPIT / Salesforce / SAP / IBM',
+    description: 'Set E for Industry Skill Integration: PE-II NPTEL and PE-III Offline Specialization (KPIT C, Virtusa Testing, Salesforce, SAP, ServiceNow, Tech Mahindra, IBM MLOps).',
+    electiveHighlight: 'PE-II: NPTEL + PE-III: Industry Specialization (Offline)',
   },
   {
     id: 'cloud',
-    name: 'Cloud Computing & DevOps',
-    badge: 'Specialization',
+    name: 'Cloud & DevOps Track',
+    badge: 'Cloud Specialization',
     icon: '☁️',
     shortDesc: 'Cloud Architecture + DevOps Lab',
     description: 'Enterprise Cloud & DevOps cohort covering Cloud Virtualization, Docker, Kubernetes, and CI/CD automation.',
@@ -631,8 +649,8 @@ export const COHORT_TRACKS_INFO: CohortTrackInfo[] = [
   },
   {
     id: 'cyber',
-    name: 'Cyber Security Section',
-    badge: 'Specialization',
+    name: 'Cyber Security Track',
+    badge: 'Cyber Specialization',
     icon: '🛡️',
     shortDesc: 'Network Security + Cyber Lab',
     description: 'Information & Cyber Security cohort focusing on Cryptography, Penetration Testing, and Cyber Defense Labs.',
@@ -640,12 +658,12 @@ export const COHORT_TRACKS_INFO: CohortTrackInfo[] = [
   },
   {
     id: 'dual-nptel',
-    name: 'Dual NPTEL / MOOC Track',
+    name: 'Dual NPTEL MOOC Track',
     badge: 'Online Electives',
     icon: '🎓',
-    shortDesc: 'Both Electives Direct Grade (PE-2 + PE-3)',
+    shortDesc: 'Both Electives Direct Grade (Certificate)',
     description: 'For sections or students who completed both professional electives through online NPTEL / Swayam examinations.',
-    electiveHighlight: 'PE-II NPTEL (PE-2) + PE-III NPTEL (PE-3)',
+    electiveHighlight: 'PE-II: NPTEL (Big Data) + PE-III: NPTEL (Cyber Threat)',
   },
   {
     id: 'custom',
@@ -658,27 +676,69 @@ export const COHORT_TRACKS_INFO: CohortTrackInfo[] = [
   },
 ];
 
+export interface ElectivePreset {
+  name: string;
+  code: string;
+  type: CourseType;
+  credits: number;
+  set: string;
+}
+
+export const CU_5TH_SEM_ELECTIVE_PRESETS: ElectivePreset[] = [
+  // Set F (Rest remaining sections)
+  { name: 'PE-III: Web Development Fundamentals (TPP only)', code: '24CST-351', type: 'Theory', credits: 3.0, set: 'Set F' },
+  { name: 'PE-III: Mobile App User Experience Design', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set F' },
+  { name: 'PE-III: Introduction to Digital Image Processing', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set F' },
+  { name: 'PE-III: Data Mining', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set F' },
+  { name: 'PE-III: Business Analytics and Visualization', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set F' },
+  { name: 'PE-III: Vulnerability Assessment & Pen-Testing (IIFON)', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set F' },
+  
+  // Set E (Industry Skill Integration)
+  { name: 'PE-III: KPIT: Advanced C Programming', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set E' },
+  { name: 'PE-III: Virtusa: Software Testing', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set E' },
+  { name: 'PE-III: Salesforce: Salesforce-1', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set E' },
+  { name: 'PE-III: SAP: SAP-1', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set E' },
+  { name: 'PE-III: ServiceNow: ServiceNow-1', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set E' },
+  { name: 'PE-III: Tech Mahindra: Cyber Security-1', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set E' },
+  { name: 'PE-III: IBM: MLOps-1', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set E' },
+
+  // Set C (IoT)
+  { name: 'PE-III: IoT Network Architecture & Protocols', code: '24CST-360', type: 'Theory', credits: 3.0, set: 'Set C' },
+
+  // Set B (Apple)
+  { name: 'PE-II: Programming in Swift (Offline)', code: '24CSH-352', type: 'Theory', credits: 3.0, set: 'Set B' },
+  { name: 'PE-III: Application Design & Dev for iOS (Offline)', code: '24CSP-353', type: 'Practical', credits: 3.0, set: 'Set B' },
+
+  // Set D (ML & AI)
+  { name: 'PE-II: Optimization Techniques for AI (Offline)', code: '24CST-354', type: 'Theory', credits: 3.0, set: 'Set D' },
+  { name: 'PE-III: Machine Learning for Computer Vision (Offline)', code: '24CSP-355', type: 'Practical', credits: 3.0, set: 'Set D' },
+
+  // NPTEL Electives (for PE-II and Dual NPTEL)
+  { name: 'PE-II: Big Data Fundamentals (NPTEL)', code: 'PE-2', type: 'DirectGrade', credits: 3.0, set: 'NPTEL' },
+  { name: 'PE-II: Cyber Threat Intelligence (NPTEL)', code: 'PE-2', type: 'DirectGrade', credits: 3.0, set: 'NPTEL' },
+];
+
 export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): Course[] {
   switch (trackId) {
     case 'apple':
       return [
         {
-          id: 'course-apple-ios',
+          id: 'course-apple-swift',
           code: '24CSH-352',
-          name: 'iOS Application Development with Swift',
+          name: 'PE-II: Programming in Swift (Offline)',
           credits: 3.0,
           type: 'Theory',
           group: 'A',
-          externalName: 'External Theory / Project Exam',
+          externalName: 'External Theory Exam',
           externalRawMax: 60,
           externalWeightage: 60,
           externalTargetScore: isSample ? 49 : 0,
-          components: createStandardTheoryComponents('apple-ios', isSample)
+          components: createStandardTheoryComponents('apple-swift', isSample)
         },
         {
-          id: 'course-apple-lab',
+          id: 'course-apple-ios',
           code: '24CSP-353',
-          name: 'Apple Frameworks & Swift Programming Lab',
+          name: 'PE-III: Application Design & Dev for iOS (Offline)',
           credits: 3.0,
           type: 'Practical',
           group: 'A',
@@ -686,16 +746,16 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
           externalRawMax: 40,
           externalWeightage: 40,
           externalTargetScore: isSample ? 35 : 0,
-          components: createStandardPracticalComponents('apple-lab', isSample)
+          components: createStandardPracticalComponents('apple-ios', isSample)
         }
       ];
 
     case 'aiml':
       return [
         {
-          id: 'course-aiml-theory',
+          id: 'course-aiml-opt',
           code: '24CST-354',
-          name: 'Machine Learning Foundations',
+          name: 'PE-II: Optimization Techniques for AI (Offline)',
           credits: 3.0,
           type: 'Theory',
           group: 'A',
@@ -703,20 +763,82 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
           externalRawMax: 60,
           externalWeightage: 60,
           externalTargetScore: isSample ? 48 : 0,
-          components: createStandardTheoryComponents('aiml-th', isSample)
+          components: createStandardTheoryComponents('aiml-opt', isSample)
         },
         {
-          id: 'course-aiml-lab',
+          id: 'course-aiml-cv',
           code: '24CSP-355',
-          name: 'Artificial Intelligence & Machine Learning Lab',
+          name: 'PE-III: Machine Learning for Computer Vision (Offline)',
           credits: 3.0,
           type: 'Practical',
           group: 'A',
-          externalName: 'External Viva / Voce',
+          externalName: 'External Viva / Evaluation',
           externalRawMax: 40,
           externalWeightage: 40,
           externalTargetScore: isSample ? 34 : 0,
-          components: createStandardPracticalComponents('aiml-lab', isSample)
+          components: createStandardPracticalComponents('aiml-cv', isSample)
+        }
+      ];
+
+    case 'iot':
+      return [
+        {
+          id: 'course-pe2',
+          code: 'PE-2',
+          name: 'PE-II: Big Data / Cyber Threat (NPTEL)',
+          credits: 3.0,
+          type: 'DirectGrade',
+          group: 'B',
+          externalName: 'NPTEL Certificate Score',
+          externalRawMax: 100,
+          externalWeightage: 100,
+          externalTargetScore: isSample ? 85 : 0,
+          directGrade: isSample ? 'A' : 'B',
+          components: []
+        },
+        {
+          id: 'course-iot-net',
+          code: '24CST-360',
+          name: 'PE-III: IoT Network Architecture & Protocols (Offline)',
+          credits: 3.0,
+          type: 'Theory',
+          group: 'A',
+          externalName: 'External Theory',
+          externalRawMax: 60,
+          externalWeightage: 60,
+          externalTargetScore: isSample ? 48 : 0,
+          components: createStandardTheoryComponents('iot-net', isSample)
+        }
+      ];
+
+    case 'industry':
+      return [
+        {
+          id: 'course-pe2',
+          code: 'PE-2',
+          name: 'PE-II: Big Data / Cyber Threat (NPTEL)',
+          credits: 3.0,
+          type: 'DirectGrade',
+          group: 'B',
+          externalName: 'NPTEL Certificate Score',
+          externalRawMax: 100,
+          externalWeightage: 100,
+          externalTargetScore: isSample ? 85 : 0,
+          directGrade: isSample ? 'A' : 'B',
+          components: []
+        },
+        {
+          id: 'course-industry-spec',
+          code: 'PE-3',
+          name: 'PE-III: Industry Specialization (KPIT/Salesforce/SAP/IBM)',
+          credits: 3.0,
+          type: 'Theory',
+          group: 'A',
+          externalName: 'External Theory / Viva',
+          externalRawMax: 60,
+          externalWeightage: 60,
+          externalTargetScore: isSample ? 49 : 0,
+          components: createStandardTheoryComponents('ind-spec', isSample)
         }
       ];
 
@@ -725,7 +847,7 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
         {
           id: 'course-cloud-theory',
           code: '24CST-356',
-          name: 'Cloud Architecture & Virtualization',
+          name: 'PE-II: Cloud Architecture & Virtualization',
           credits: 3.0,
           type: 'Theory',
           group: 'A',
@@ -738,7 +860,7 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
         {
           id: 'course-cloud-lab',
           code: '24CSP-357',
-          name: 'Cloud DevOps & Containerization Lab',
+          name: 'PE-III: Cloud DevOps & Containerization Lab',
           credits: 3.0,
           type: 'Practical',
           group: 'A',
@@ -755,7 +877,7 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
         {
           id: 'course-cyber-theory',
           code: '24CST-358',
-          name: 'Network Security & Cryptography',
+          name: 'PE-II: Network Security & Cryptography',
           credits: 3.0,
           type: 'Theory',
           group: 'A',
@@ -768,7 +890,7 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
         {
           id: 'course-cyber-lab',
           code: '24CSP-359',
-          name: 'Cyber Defense & Ethical Hacking Lab',
+          name: 'PE-III: Cyber Defense & Ethical Hacking Lab',
           credits: 3.0,
           type: 'Practical',
           group: 'A',
@@ -785,7 +907,7 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
         {
           id: 'course-pe2',
           code: 'PE-2',
-          name: 'PE-II: NPTEL MOOC Elective',
+          name: 'PE-II: Big Data Fundamentals (NPTEL)',
           credits: 3.0,
           type: 'DirectGrade',
           group: 'B',
@@ -799,7 +921,7 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
         {
           id: 'course-pe3',
           code: 'PE-3',
-          name: 'PE-III: NPTEL MOOC Elective',
+          name: 'PE-III: Cyber Threat Intelligence (NPTEL)',
           credits: 3.0,
           type: 'DirectGrade',
           group: 'B',
@@ -816,22 +938,9 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
     default:
       return [
         {
-          id: 'course-wdf',
-          code: '24CST-351',
-          name: 'PE-II: Web Development Fundamentals',
-          credits: 3.0,
-          type: 'Theory',
-          group: 'A',
-          externalName: 'External Theory',
-          externalRawMax: 60,
-          externalWeightage: 60,
-          externalTargetScore: isSample ? 50 : 0,
-          components: createStandardTheoryComponents('wdf', isSample)
-        },
-        {
-          id: 'course-pe3',
-          code: 'PE-3',
-          name: 'PE-III: NPTEL / Elective (Configurable)',
+          id: 'course-pe2',
+          code: 'PE-2',
+          name: 'PE-II: Big Data / Cyber Threat (NPTEL)',
           credits: 3.0,
           type: 'DirectGrade',
           group: 'B',
@@ -841,6 +950,19 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
           externalTargetScore: isSample ? 85 : 0,
           directGrade: isSample ? 'A' : 'B',
           components: []
+        },
+        {
+          id: 'course-wdf',
+          code: '24CST-351',
+          name: 'PE-III: Web Development Fundamentals (Offline)',
+          credits: 3.0,
+          type: 'Theory',
+          group: 'A',
+          externalName: 'External Theory',
+          externalRawMax: 60,
+          externalWeightage: 60,
+          externalTargetScore: isSample ? 50 : 0,
+          components: createStandardTheoryComponents('wdf', isSample)
         }
       ];
   }
@@ -853,13 +975,17 @@ export function isElectiveCourse(course: Course): boolean {
     '24CSH-352', '24CSP-353',
     '24CST-354', '24CSP-355',
     '24CST-356', '24CSP-357',
-    '24CST-358', '24CSP-359'
+    '24CST-358', '24CSP-359',
+    '24CST-360', '24CSP-361'
   ];
   return electiveCodes.includes(course.code) || 
          course.id.startsWith('course-apple-') || 
          course.id.startsWith('course-aiml-') ||
          course.id.startsWith('course-cloud-') ||
          course.id.startsWith('course-cyber-') ||
+         course.id.startsWith('course-iot-') ||
+         course.id.startsWith('course-industry-') ||
+         course.id.startsWith('course-wdf') ||
          course.id.startsWith('course-pe2') ||
          course.id.startsWith('course-pe3') ||
          course.id.startsWith('course-pe5');
@@ -876,11 +1002,17 @@ export function getCoursesForTrack(trackId: CohortTrackId, isSample = false): Co
 
 export function detectTrackFromCourses(courses: Course[]): CohortTrackId {
   const codes = courses.map(c => c.code.toUpperCase());
-  if (codes.includes('24CSH-352') || codes.includes('24CSP-353') || courses.some(c => c.name.toLowerCase().includes('apple') || c.name.toLowerCase().includes('ios'))) {
+  if (codes.includes('24CSH-352') || codes.includes('24CSP-353') || courses.some(c => c.name.toLowerCase().includes('apple') || c.name.toLowerCase().includes('swift'))) {
     return 'apple';
   }
-  if (codes.includes('24CST-354') || codes.includes('24CSP-355') || courses.some(c => c.name.toLowerCase().includes('machine learning'))) {
+  if (codes.includes('24CST-354') || codes.includes('24CSP-355') || courses.some(c => c.name.toLowerCase().includes('machine learning') || c.name.toLowerCase().includes('optimization techniques for ai'))) {
     return 'aiml';
+  }
+  if (codes.includes('24CST-360') || courses.some(c => c.name.toLowerCase().includes('iot network') || c.name.toLowerCase().includes('iot'))) {
+    return 'iot';
+  }
+  if (courses.some(c => c.name.toLowerCase().includes('kpit') || c.name.toLowerCase().includes('salesforce') || c.name.toLowerCase().includes('servicenow') || c.name.toLowerCase().includes('virtusa') || c.name.toLowerCase().includes('industry'))) {
+    return 'industry';
   }
   if (codes.includes('24CST-356') || codes.includes('24CSP-357') || courses.some(c => c.name.toLowerCase().includes('devops') || c.name.toLowerCase().includes('cloud arch'))) {
     return 'cloud';
@@ -888,10 +1020,10 @@ export function detectTrackFromCourses(courses: Course[]): CohortTrackId {
   if (codes.includes('24CST-358') || codes.includes('24CSP-359') || courses.some(c => c.name.toLowerCase().includes('cyber security') || c.name.toLowerCase().includes('cryptography'))) {
     return 'cyber';
   }
-  if ((codes.includes('PE-2') && codes.includes('PE-3')) || (codes.includes('PE-5A') && codes.includes('PE-5B'))) {
+  if ((codes.includes('PE-2') && codes.includes('PE-3') && courses.filter(c => c.type === 'DirectGrade').length >= 2) || (codes.includes('PE-5A') && codes.includes('PE-5B'))) {
     return 'dual-nptel';
   }
-  if (codes.includes('24CST-351') && (codes.includes('PE-3') || codes.includes('PE-5'))) {
+  if (codes.includes('24CST-351') || codes.includes('PE-2') || codes.includes('PE-3') || codes.includes('PE-5')) {
     return 'general';
   }
   return 'custom';

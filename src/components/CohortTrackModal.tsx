@@ -41,6 +41,10 @@ export const CohortTrackModal: React.FC<CohortTrackModalProps> = ({
         return <span className="text-xl">🍎</span>;
       case 'aiml':
         return <span className="text-xl">🤖</span>;
+      case 'iot':
+        return <span className="text-xl">📡</span>;
+      case 'industry':
+        return <span className="text-xl">🏢</span>;
       case 'cloud':
         return <span className="text-xl">☁️</span>;
       case 'cyber':
