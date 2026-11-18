@@ -45,6 +45,7 @@ import { CommandPalette } from './components/CommandPalette';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { SemesterSetupWizard } from './components/SemesterSetupWizard';
 import { FeedbackModal } from './components/FeedbackModal';
+import { getGlobalHearts } from './services/heartCounter';
 import { CohortTrackModal } from './components/CohortTrackModal';
 import { AddCustomCourseModal } from './components/AddCustomCourseModal';
 import { EditCourseModal } from './components/EditCourseModal';
@@ -95,6 +96,20 @@ export const App: React.FC = () => {
   const [isAddCustomCourseOpen, setIsAddCustomCourseOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [globalHearts, setGlobalHearts] = useState<number>(() => {
+    try {
+      return parseInt(localStorage.getItem('cu_gradepulse_cached_global_hearts') || '0', 10);
+    } catch (e) {
+      return 0;
+    }
+  });
+
+  // Fetch real-time global hearts on mount
+  useEffect(() => {
+    getGlobalHearts().then(count => {
+      if (count > 0) setGlobalHearts(count);
+    });
+  }, []);
 
   // Setup Wizard starts OPEN on Step 0 so students always start from the start!
   const [isSetupWizardOpen, setIsSetupWizardOpen] = useState<boolean>(true);
@@ -410,6 +425,7 @@ export const App: React.FC = () => {
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         onOpenWizard={handleOpenWizard}
         onOpenFeedback={() => setIsFeedbackOpen(true)}
+        globalHearts={globalHearts}
         onResetAll={handleResetAll}
       />
 
@@ -643,7 +659,7 @@ export const App: React.FC = () => {
           >
             <span>Crafted with</span>
             <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-400 animate-pulse" />
-            <span>by Anuj Kumar • Send Love & Feedback</span>
+            <span>by Anuj Kumar • {globalHearts > 0 ? `${globalHearts.toLocaleString()} Hearts Collected` : 'Send Love'} & Feedback</span>
           </button>
         </div>
       </footer>
@@ -823,6 +839,8 @@ export const App: React.FC = () => {
         isOpen={isFeedbackOpen}
         onClose={() => setIsFeedbackOpen(false)}
         defaultSection={COHORT_TRACKS_INFO.find(t => t.id === currentTrackId)?.name || 'CU CSE 5th Sem'}
+        globalHearts={globalHearts}
+        onHeartsUpdated={(newTotal) => setGlobalHearts(newTotal)}
       />
 
     </div>

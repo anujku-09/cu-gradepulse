@@ -1,28 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Heart, 
   Send, 
   Sparkles, 
   CheckCircle, 
-  MessageSquare,
-  Award,
   Flame,
-  ThumbsUp
+  Globe,
+  MessageSquare
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { track } from '@vercel/analytics';
+import { getGlobalHearts, incrementGlobalHearts } from '../services/heartCounter';
 
 interface FeedbackModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultSection?: string;
+  globalHearts?: number;
+  onHeartsUpdated?: (newTotal: number) => void;
 }
 
 export const FeedbackModal: React.FC<FeedbackModalProps> = ({
   isOpen,
   onClose,
   defaultSection = 'CU CSE 5th Sem',
+  globalHearts: initialGlobalHearts,
+  onHeartsUpdated,
 }) => {
   if (!isOpen) return null;
 
@@ -33,6 +36,8 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
       return 0;
     }
   });
+
+  const [globalHearts, setGlobalHearts] = useState<number>(initialGlobalHearts || 0);
   const [rating, setRating] = useState<number>(5);
   const [studentName, setStudentName] = useState<string>('');
   const [studentSection, setStudentSection] = useState<string>(defaultSection);
@@ -41,44 +46,62 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [heartBurst, setHeartBurst] = useState<boolean>(false);
 
-  const handleHeartClick = () => {
-    const newCount = heartsCount + 1;
-    setHeartsCount(newCount);
+  // Fetch real-time global hearts when modal opens
+  useEffect(() => {
+    let isMounted = true;
+    getGlobalHearts().then((count) => {
+      if (isMounted && count > 0) {
+        setGlobalHearts(count);
+        if (onHeartsUpdated) onHeartsUpdated(count);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleHeartClick = async () => {
+    const newPersonalCount = heartsCount + 1;
+    setHeartsCount(newPersonalCount);
     setHeartBurst(true);
-    setTimeout(() => setHeartBurst(false), 600);
+    setTimeout(() => setHeartBurst(false), 500);
+
+    // Optimistic local and global increment
+    setGlobalHearts(prev => {
+      const next = prev + 1;
+      if (onHeartsUpdated) onHeartsUpdated(next);
+      return next;
+    });
 
     try {
-      localStorage.setItem('cu_gradepulse_user_hearts', newCount.toString());
-    } catch (e) {}
-
-    // Send custom heart event to Vercel Analytics
-    try {
-      track('heart_click', { totalHeartsGiven: newCount });
+      localStorage.setItem('cu_gradepulse_user_hearts', newPersonalCount.toString());
     } catch (e) {}
 
     // Confetti celebration
     try {
       confetti({
-        particleCount: 25,
-        spread: 50,
+        particleCount: 28,
+        spread: 60,
         origin: { y: 0.6 },
         colors: ['#f43f5e', '#ec4899', '#f472b6', '#06b6d4', '#6366f1']
       });
     } catch (e) {}
+
+    // Persist to Cloud Counter (free, no Vercel Pro required)
+    try {
+      const updatedCloudCount = await incrementGlobalHearts();
+      if (updatedCloudCount > 0) {
+        setGlobalHearts(updatedCloudCount);
+        if (onHeartsUpdated) onHeartsUpdated(updatedCloudCount);
+      }
+    } catch (err) {
+      console.log('Heart recorded locally:', err);
+    }
   };
 
   const handleSubmitFeedback = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    // Track on Vercel Analytics
-    try {
-      track('student_feedback', {
-        rating,
-        section: studentSection,
-        messageLength: message.length,
-      });
-    } catch (e) {}
 
     // Deliver to Anuj's email via FormSubmit AJAX endpoint
     try {
@@ -89,11 +112,12 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
           'Accept': 'application/json'
         },
         body: JSON.stringify({
-          _subject: `❤️ CU GradePulse Feedback: ${rating}★ from ${studentName || 'A CU Student'}`,
+          _subject: `❤️ CU GradePulse Review: ${rating}★ from ${studentName || 'A CU Student'} (${heartsCount} Hearts Given)`,
           studentName: studentName || 'Anonymous Student',
           section: studentSection || defaultSection,
-          rating: `${rating} / 5 Hearts`,
-          heartsSent: heartsCount,
+          rating: `${rating} / 5 Stars`,
+          heartsSentByStudent: heartsCount,
+          totalGlobalHeartsAtSubmission: globalHearts,
           feedbackMessage: message,
           submittedAt: new Date().toLocaleString()
         })
@@ -162,15 +186,29 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                 Thank You So Much! ❤️
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 max-w-sm mx-auto leading-relaxed">
-                Your hearts and motivational feedback have been delivered straight to Anuj. Keep crushing your 5th semester! 🚀
+                Your hearts and motivational feedback have been delivered straight to Anuj's inbox. Keep crushing your 5th semester! 🚀
               </p>
             </div>
           ) : (
             <>
+              {/* Real-time Global Hearts Community Badge */}
+              <div className="flex items-center justify-between p-3 rounded-xl bg-rose-950/30 border border-rose-500/30">
+                <div className="flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-rose-400 animate-pulse flex-shrink-0" />
+                  <span className="text-xs font-semibold text-rose-200">
+                    Live Global Hearts Collected:
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 font-mono font-extrabold text-sm shadow-[0_0_10px_rgba(244,63,94,0.2)]">
+                  <span>❤️</span>
+                  <span>{globalHearts > 0 ? globalHearts.toLocaleString() : '...'}</span>
+                </div>
+              </div>
+
               {/* Interactive Heart Button Hero */}
               <div className="p-4 rounded-2xl bg-gradient-to-br from-rose-950/40 via-obsidian-850 to-purple-950/40 border border-rose-500/30 text-center space-y-2">
                 <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400 block">
-                  Tap to Send Hearts to Creator
+                  Tap Heart to Show Appreciation
                 </span>
 
                 <button
@@ -179,16 +217,17 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                   className={`inline-flex items-center justify-center p-4 rounded-2xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 shadow-[0_0_25px_rgba(244,63,94,0.3)] transition-all active:scale-90 cursor-pointer ${
                     heartBurst ? 'scale-125' : 'scale-100 hover:scale-105'
                   }`}
-                  title="Click to send love to the developer"
+                  title="Click to send love to Anuj"
                 >
                   <Heart className={`w-8 h-8 text-rose-400 fill-rose-500 ${heartBurst ? 'animate-ping' : ''}`} />
                 </button>
 
                 <div className="flex items-center justify-center gap-1.5 text-sm font-bold font-mono text-rose-300">
-                  <span>{heartsCount > 0 ? `❤️ ${heartsCount} Hearts Sent By You!` : 'Tap heart to show love!'}</span>
+                  <span>{heartsCount > 0 ? `❤️ ${heartsCount} Hearts Given By You!` : 'Tap heart to show love!'}</span>
                 </div>
-                <p className="text-[10px] text-slate-400">
-                  Every tap is logged on Vercel Analytics to show Anuj how many students love GradePulse.
+                <p className="text-[10px] text-slate-400 flex items-center justify-center gap-1">
+                  <Globe className="w-3 h-3 text-cyan-400 inline" />
+                  <span>Synced in real-time cloud storage. No login required.</span>
                 </p>
               </div>
 

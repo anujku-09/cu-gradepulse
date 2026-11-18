@@ -34,6 +34,7 @@ interface NavbarProps {
   onOpenCommandPalette: () => void;
   onOpenWizard?: () => void;
   onOpenFeedback?: () => void;
+  globalHearts?: number;
   onResetAll: () => void;
 }
 
@@ -53,6 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCommandPalette,
   onOpenWizard,
   onOpenFeedback,
+  globalHearts,
   onResetAll,
 }) => {
   const currentTrack = COHORT_TRACKS_INFO.find(t => t.id === currentTrackId) || COHORT_TRACKS_INFO[0];
@@ -249,10 +251,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onOpenFeedback}
               className="flex items-center justify-center gap-1 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 hover:border-rose-400/50 transition-all text-xs font-semibold shadow-[0_0_12px_rgba(244,63,94,0.15)] active:scale-95 touch-manipulation flex-shrink-0"
-              title="Support Creator & Send Feedback"
+              title={`Support Creator (${globalHearts && globalHearts > 0 ? `${globalHearts} Hearts Received` : 'Send Love & Feedback'})`}
             >
               <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-500 animate-pulse" />
-              <span className="hidden xl:inline font-sans">Love</span>
+              <span className="hidden xl:inline font-sans font-bold">
+                {globalHearts && globalHearts > 0 ? `${globalHearts} Hearts` : 'Love'}
+              </span>
             </button>
           )}
 
