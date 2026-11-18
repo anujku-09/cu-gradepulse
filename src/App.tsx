@@ -47,119 +47,39 @@ import { CohortTrackModal } from './components/CohortTrackModal';
 import { AddCustomCourseModal } from './components/AddCustomCourseModal';
 import { EditCourseModal } from './components/EditCourseModal';
 
-const STORAGE_KEY_COURSES = 'cuims_gradepulse_courses_v3';
-const STORAGE_KEY_CGPA = 'cuims_gradepulse_cgpa_v3';
-const STORAGE_KEY_CURVE = 'cuims_gradepulse_curve_v3';
-const STORAGE_KEY_VIEW = 'cuims_gradepulse_view_v3';
-const STORAGE_KEY_TRACK = 'cuims_gradepulse_track_v3';
-const STORAGE_KEY_CUSTOM_CUTOFFS = 'cuims_gradepulse_custom_cutoffs_v3';
-
 export const App: React.FC = () => {
-  // 1. Course State (Persisted in localStorage, defaults to clean slate)
-  const [courses, setCourses] = useState<Course[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY_COURSES);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    } catch (e) {
-      console.error('Failed to parse saved courses from localStorage:', e);
-    }
-    return INITIAL_BLANK_COURSES;
-  });
-
-  // Track State (Apple Section, General CSE, AI/ML, Cloud, Cyber, etc.)
-  const [currentTrackId, setCurrentTrackId] = useState<CohortTrackId>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY_TRACK);
-      if (saved) return saved as CohortTrackId;
-    } catch (e) {}
-    return detectTrackFromCourses(courses);
-  });
-
+  // Clear any residual browser storage so application always starts clean from start on refresh or tab reopen
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY_TRACK, currentTrackId);
+      localStorage.clear();
+      sessionStorage.clear();
     } catch (e) {}
-  }, [currentTrackId]);
+  }, []);
+
+  // 1. Course State (Starts fresh on every load / refresh with clean blank slate)
+  const [courses, setCourses] = useState<Course[]>(INITIAL_BLANK_COURSES);
+
+  // Track State (Starts fresh at General CSE Set F)
+  const [currentTrackId, setCurrentTrackId] = useState<CohortTrackId>('general');
 
   // 2. View Mode (Simple vs Detailed)
-  const [isDetailedView, setIsDetailedView] = useState<boolean>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY_VIEW);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
-    return false; // Default to clean Simple view
-  });
+  const [isDetailedView, setIsDetailedView] = useState<boolean>(false);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_VIEW, JSON.stringify(isDetailedView));
-    } catch (e) {}
-  }, [isDetailedView]);
-
-  // 3. Global Curve Mode & Cutoffs (With persistence for custom cutoffs)
-  const [curveMode, setCurveMode] = useState<CurveMode>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY_CURVE);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
-    return 'standard';
-  });
-
-  const [globalCutoffs, setGlobalCutoffs] = useState<GradeCutoffs>(() => {
-    try {
-      const savedCurve = localStorage.getItem(STORAGE_KEY_CURVE);
-      const parsedCurve = savedCurve ? JSON.parse(savedCurve) : 'standard';
-      if (parsedCurve === 'custom') {
-        const savedCustom = localStorage.getItem(STORAGE_KEY_CUSTOM_CUTOFFS);
-        if (savedCustom) return JSON.parse(savedCustom);
-      }
-      return CURVE_PRESETS[parsedCurve as Exclude<CurveMode, 'custom'>] || CURVE_PRESETS.standard;
-    } catch (e) {
-      return CURVE_PRESETS.standard;
-    }
-  });
+  // 3. Global Curve Mode & Cutoffs (Defaults to standard 95+ CU curve)
+  const [curveMode, setCurveMode] = useState<CurveMode>('standard');
+  const [globalCutoffs, setGlobalCutoffs] = useState<GradeCutoffs>(CURVE_PRESETS.standard);
 
   useEffect(() => {
     if (curveMode !== 'custom') {
       setGlobalCutoffs(CURVE_PRESETS[curveMode]);
     }
-    try {
-      localStorage.setItem(STORAGE_KEY_CURVE, JSON.stringify(curveMode));
-    } catch (e) {}
   }, [curveMode]);
 
   // 4. CGPA Forecaster Preferences (Previous CGPA & Credits)
-  const [cgpaPrefs, setCgpaPrefs] = useState<{ previousCgpa: number; previousCredits: number }>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY_CGPA);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (typeof parsed?.previousCgpa === 'number' && typeof parsed?.previousCredits === 'number') {
-          return parsed;
-        }
-      }
-    } catch (e) {}
-    return { previousCgpa: 8.25, previousCredits: 76.0 };
+  const [cgpaPrefs, setCgpaPrefs] = useState<{ previousCgpa: number; previousCredits: number }>({
+    previousCgpa: 8.25,
+    previousCredits: 76.0
   });
-
-  // Auto-save courses to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_COURSES, JSON.stringify(courses));
-    } catch (e) {}
-  }, [courses]);
-
-  // Save CGPA prefs to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_CGPA, JSON.stringify(cgpaPrefs));
-    } catch (e) {}
-  }, [cgpaPrefs]);
 
   // 5. Modal Dialog States
   const [inspectCourseId, setInspectCourseId] = useState<string | null>(null);
@@ -172,14 +92,9 @@ export const App: React.FC = () => {
   const [isTrackModalOpen, setIsTrackModalOpen] = useState(false);
   const [isAddCustomCourseOpen, setIsAddCustomCourseOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
-  const [isSetupWizardOpen, setIsSetupWizardOpen] = useState<boolean>(() => {
-    try {
-      const completed = localStorage.getItem('cu_gradepulse_wizard_completed');
-      return !completed;
-    } catch (e) {
-      return false;
-    }
-  });
+
+  // Setup Wizard starts OPEN on Step 0 so students always start from the start!
+  const [isSetupWizardOpen, setIsSetupWizardOpen] = useState<boolean>(true);
   const [showFlightPlanBanner, setShowFlightPlanBanner] = useState(false);
 
   // 6. Filter Tab: All, Core Marks (A), Direct (B), Dual-Mode (C)
@@ -436,9 +351,6 @@ export const App: React.FC = () => {
   const handleCompleteWizard = useCallback(() => {
     setIsSetupWizardOpen(false);
     setShowFlightPlanBanner(true);
-    try {
-      localStorage.setItem('cu_gradepulse_wizard_completed', 'true');
-    } catch (e) {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => {
       document.getElementById('course-matrix')?.scrollIntoView({ behavior: 'smooth' });
@@ -826,9 +738,6 @@ export const App: React.FC = () => {
           onSaveCutoffs={(cutoffs) => {
             setGlobalCutoffs(cutoffs);
             setCurveMode('custom');
-            try {
-              localStorage.setItem(STORAGE_KEY_CUSTOM_CUTOFFS, JSON.stringify(cutoffs));
-            } catch (e) {}
           }}
         />
       )}
