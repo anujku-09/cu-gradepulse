@@ -313,7 +313,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-obsidian-950/80 backdrop-blur-md flex items-start justify-center pt-10 sm:pt-20 p-3 sm:p-4 animate-fadeIn">
+    <div className="fixed inset-0 z-[80] overflow-y-auto bg-obsidian-950/80 backdrop-blur-md flex items-start justify-center pt-10 sm:pt-20 p-3 sm:p-4 animate-fadeIn">
       <div className="relative w-full max-w-xl bg-obsidian-900 border border-white/15 rounded-2xl shadow-2xl overflow-hidden">
         
         {/* Search Input Bar */}

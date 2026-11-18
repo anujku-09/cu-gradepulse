@@ -82,7 +82,7 @@ export const ScorecardExportModal: React.FC<ScorecardExportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-obsidian-950/85 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4 animate-fadeIn">
+    <div className="fixed inset-0 z-[70] overflow-y-auto bg-obsidian-950/85 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4 animate-fadeIn">
       <div className="relative w-full max-w-3xl bg-obsidian-900 border border-white/10 rounded-2xl shadow-2xl p-3.5 sm:p-5 max-h-[94vh] flex flex-col justify-between my-auto overflow-hidden">
         
         {/* Modal Header */}

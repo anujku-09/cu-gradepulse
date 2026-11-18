@@ -698,6 +698,40 @@ export const App: React.FC = () => {
         </div>
       </footer>
 
+      {/* Step-by-Step Card Flow (Rapid Setup Wizard) - Mounted BEFORE modals so all modals naturally layer on top */}
+      {isSetupWizardOpen && (
+        <SemesterSetupWizard
+          isOpen={isSetupWizardOpen}
+          onClose={handleCompleteWizard}
+          courses={courses}
+          results={calculation.courses}
+          liveSgpa={calculation.sgpa}
+          totalGradedCredits={calculation.totalGradedCredits}
+          isGlobalMng={isGlobalMng}
+          curveMode={curveMode}
+          currentTrackId={currentTrackId}
+          onSelectTrack={handleSelectTrack}
+          onOpenTrackModal={() => setIsTrackModalOpen(true)}
+          onCurveChange={setCurveMode}
+          onOpenCutoffModal={() => setIsCutoffModalOpen(true)}
+          onToggleGlobalMng={handleToggleGlobalMng}
+          onUpdateExternal={handleUpdateExternal}
+          onUpdateDirectGrade={handleUpdateDirectGrade}
+          onUpdateDirectInternal={handleUpdateDirectInternal}
+          onUpdateComponentMarks={handleUpdateComponentMarks}
+          onToggleCourseMng={handleToggleCourseMng}
+          onToggleCourseExcluded={handleToggleCourseExcluded}
+          onQuickPreset={handleQuickPreset}
+          onToggleAttendance={handleToggleAttendance}
+          onClaimAllAttendance={handleClaimAllAttendance}
+          onOpenEditCourse={(c) => setEditingCourse(c)}
+          onConvertCourseMode={handleConvertCourseMode}
+          globalCutoffs={globalCutoffs}
+          onSaveCustomCutoffs={handleSaveCustomCutoffs}
+          onComplete={handleCompleteWizard}
+        />
+      )}
+
       {/* Modals & Slide-over Inspectors */}
       {inspectedCourse && inspectedResult && (
         <CourseDetailModal
@@ -821,40 +855,6 @@ export const App: React.FC = () => {
         isSimpleMode={!isDetailedView}
         onToggleSimpleMode={() => setIsDetailedView(prev => !prev)}
       />
-
-      {/* Step-by-Step Card Flow (Rapid Setup Wizard) */}
-      {isSetupWizardOpen && (
-        <SemesterSetupWizard
-          isOpen={isSetupWizardOpen}
-          onClose={handleCompleteWizard}
-          courses={courses}
-          results={calculation.courses}
-          liveSgpa={calculation.sgpa}
-          totalGradedCredits={calculation.totalGradedCredits}
-          isGlobalMng={isGlobalMng}
-          curveMode={curveMode}
-          currentTrackId={currentTrackId}
-          onSelectTrack={handleSelectTrack}
-          onOpenTrackModal={() => setIsTrackModalOpen(true)}
-          onCurveChange={setCurveMode}
-          onOpenCutoffModal={() => setIsCutoffModalOpen(true)}
-          onToggleGlobalMng={handleToggleGlobalMng}
-          onUpdateExternal={handleUpdateExternal}
-          onUpdateDirectGrade={handleUpdateDirectGrade}
-          onUpdateDirectInternal={handleUpdateDirectInternal}
-          onUpdateComponentMarks={handleUpdateComponentMarks}
-          onToggleCourseMng={handleToggleCourseMng}
-          onToggleCourseExcluded={handleToggleCourseExcluded}
-          onQuickPreset={handleQuickPreset}
-          onToggleAttendance={handleToggleAttendance}
-          onClaimAllAttendance={handleClaimAllAttendance}
-          onOpenEditCourse={(c) => setEditingCourse(c)}
-          onConvertCourseMode={handleConvertCourseMode}
-          globalCutoffs={globalCutoffs}
-          onSaveCustomCutoffs={handleSaveCustomCutoffs}
-          onComplete={handleCompleteWizard}
-        />
-      )}
 
       {/* Floating Bottom Mission Control Dock for Mobile Phones */}
       <MobileBottomNav

@@ -101,7 +101,7 @@ export const CourseDetailModal: React.FC<CourseDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-obsidian-950/80 backdrop-blur-md flex justify-end animate-fadeIn">
+    <div className="fixed inset-0 z-[70] overflow-y-auto bg-obsidian-950/80 backdrop-blur-md flex justify-end animate-fadeIn">
       {/* Click outside backdrop */}
       <div className="fixed inset-0" onClick={onClose} />
 

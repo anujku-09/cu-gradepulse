@@ -122,7 +122,9 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
       '24CST-354', // ML Foundations (3.0 Cr)
       '24CST-356', // Cloud Arch (3.0 Cr)
       '24CST-358', // Network Security (3.0 Cr)
-      'PE-5',      // Professional Elective (3.0 Cr)
+      'PE-2',      // Professional Elective-II (3.0 Cr)
+      'PE-3',      // Professional Elective-III (3.0 Cr)
+      'PE-5',      // Legacy Professional Elective (3.0 Cr)
       'PE-5A',     // Dual NPTEL 1
       'PE-5B',     // Dual NPTEL 2
       '24CST-302', // Computer Networks (3.0 Cr)
@@ -427,7 +429,13 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
             const isCurrent = i === currentStep;
             const course = i >= 1 && i <= totalCourseSteps ? orderedCourses[i - 1] : null;
             const res = course ? results[course.id] : null;
-            const label = i === 0 ? 'Track' : i === celebrationStep ? 'Done' : (course?.code.split('-')[1] || course?.code.slice(0, 6));
+            const label = i === 0 
+              ? 'Track' 
+              : i === celebrationStep 
+              ? 'Done' 
+              : course?.code.startsWith('PE-')
+              ? course.code
+              : (course?.code.split('-')[1] || course?.code.slice(0, 6));
 
             return (
               <button
@@ -514,11 +522,11 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                         }`}
                       >
                         <span className="text-xl flex-shrink-0">{track.icon}</span>
-                        <div className="min-w-0">
-                          <span className={`text-xs font-bold block truncate ${isSelected ? 'text-cyan-300' : 'text-slate-200'}`}>
+                        <div className="min-w-0 flex-1">
+                          <span className={`text-xs font-bold block leading-tight line-clamp-2 ${isSelected ? 'text-cyan-300' : 'text-slate-200'}`}>
                             {track.name}
                           </span>
-                          <span className="text-[10px] text-slate-400 block truncate font-mono">
+                          <span className="text-[10px] text-slate-400 block truncate font-mono mt-0.5">
                             {track.badge}
                           </span>
                         </div>
@@ -1386,7 +1394,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
       {/* 4. SINGLE SUBJECT RESULT & QUICK EXIT MODAL                     */}
       {/* ============================================================== */}
       {showSingleSubjectModal && activeCourse && activeResult && (
-        <div className="fixed inset-0 z-60 bg-obsidian-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fadeIn">
+        <div className="fixed inset-0 z-[70] bg-obsidian-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fadeIn">
           <div className="relative w-full max-w-lg bg-obsidian-900 border border-cyan-500/30 rounded-2xl shadow-2xl p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-start justify-between pb-3 border-b border-white/10 gap-2">

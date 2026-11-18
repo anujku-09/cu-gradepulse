@@ -292,11 +292,11 @@ export function getCoursesTemplate(isSample: boolean = false): Course[] {
       ]
     },
 
-    // 5. Web Development Fundamentals
+    // 5. Web Development Fundamentals (PE-II)
     {
       id: 'course-wdf',
       code: '24CST-351',
-      name: 'Web Development Fundamentals',
+      name: 'PE-II: Web Development Fundamentals',
       credits: 3.0,
       type: 'Theory',
       group: 'A',
@@ -420,15 +420,15 @@ export function getCoursesTemplate(isSample: boolean = false): Course[] {
       ]
     },
 
-    // 7. Professional Elective (PE-5)
+    // 7. Professional Elective (PE-III)
     {
-      id: 'course-pe5',
-      code: 'PE-5',
-      name: 'Professional Elective (Cloud / AI / Cyber)',
+      id: 'course-pe3',
+      code: 'PE-3',
+      name: 'PE-III: NPTEL / Elective (Configurable)',
       credits: 3.0,
       type: 'DirectGrade',
       group: 'B',
-      externalName: 'Target Assessment',
+      externalName: 'NPTEL Certificate Score',
       externalRawMax: 100,
       externalWeightage: 100,
       externalTargetScore: isSample ? 85 : 0,
@@ -595,12 +595,12 @@ export function getCoursesTemplate(isSample: boolean = false): Course[] {
 export const COHORT_TRACKS_INFO: CohortTrackInfo[] = [
   {
     id: 'general',
-    name: 'General CSE',
+    name: 'General CSE (Core + 2 Electives)',
     badge: 'Core Track',
     icon: '🌐',
-    shortDesc: 'Web Dev (Marks) + NPTEL Direct Grade',
-    description: 'Standard 5th semester curriculum with Web Development Fundamentals (40 internal / 60 external) and NPTEL Swayam exam direct grade.',
-    electiveHighlight: 'Web Development (24CST-351) + NPTEL Elective (PE-5)',
+    shortDesc: 'PE-2 (Web Dev / NPTEL) + PE-3 (NPTEL / Elective)',
+    description: 'Standard 5th semester curriculum with 7 Core subjects + PE-II (Web Development / NPTEL) and PE-III (NPTEL / Customizable Elective).',
+    electiveHighlight: 'PE-II (Web Dev 24CST-351) + PE-III (NPTEL / Elective PE-3)',
   },
   {
     id: 'apple',
@@ -643,9 +643,9 @@ export const COHORT_TRACKS_INFO: CohortTrackInfo[] = [
     name: 'Dual NPTEL / MOOC Track',
     badge: 'Online Electives',
     icon: '🎓',
-    shortDesc: 'Both Electives Direct Grade (Certificate)',
+    shortDesc: 'Both Electives Direct Grade (PE-2 + PE-3)',
     description: 'For sections or students who completed both professional electives through online NPTEL / Swayam examinations.',
-    electiveHighlight: 'NPTEL Elective-I (PE-5A) + NPTEL Elective-II (PE-5B)',
+    electiveHighlight: 'PE-II NPTEL (PE-2) + PE-III NPTEL (PE-3)',
   },
   {
     id: 'custom',
@@ -783,9 +783,9 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
     case 'dual-nptel':
       return [
         {
-          id: 'course-pe5a',
-          code: 'PE-5A',
-          name: 'Professional Elective-I (NPTEL / MOOC)',
+          id: 'course-pe2',
+          code: 'PE-2',
+          name: 'PE-II: NPTEL MOOC Elective',
           credits: 3.0,
           type: 'DirectGrade',
           group: 'B',
@@ -797,9 +797,9 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
           components: []
         },
         {
-          id: 'course-pe5b',
-          code: 'PE-5B',
-          name: 'Professional Elective-II (NPTEL / MOOC)',
+          id: 'course-pe3',
+          code: 'PE-3',
+          name: 'PE-III: NPTEL MOOC Elective',
           credits: 3.0,
           type: 'DirectGrade',
           group: 'B',
@@ -818,7 +818,7 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
         {
           id: 'course-wdf',
           code: '24CST-351',
-          name: 'Web Development Fundamentals',
+          name: 'PE-II: Web Development Fundamentals',
           credits: 3.0,
           type: 'Theory',
           group: 'A',
@@ -829,13 +829,13 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
           components: createStandardTheoryComponents('wdf', isSample)
         },
         {
-          id: 'course-pe5',
-          code: 'PE-5',
-          name: 'Professional Elective (Cloud / AI / Cyber / NPTEL)',
+          id: 'course-pe3',
+          code: 'PE-3',
+          name: 'PE-III: NPTEL / Elective (Configurable)',
           credits: 3.0,
           type: 'DirectGrade',
           group: 'B',
-          externalName: 'Target Assessment',
+          externalName: 'NPTEL Certificate Score',
           externalRawMax: 100,
           externalWeightage: 100,
           externalTargetScore: isSample ? 85 : 0,
@@ -849,7 +849,7 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
 // Check if a course is considered an elective slot that switches between tracks
 export function isElectiveCourse(course: Course): boolean {
   const electiveCodes = [
-    '24CST-351', 'PE-5', 'PE-5A', 'PE-5B',
+    '24CST-351', 'PE-2', 'PE-3', 'PE-5', 'PE-5A', 'PE-5B',
     '24CSH-352', '24CSP-353',
     '24CST-354', '24CSP-355',
     '24CST-356', '24CSP-357',
@@ -860,6 +860,8 @@ export function isElectiveCourse(course: Course): boolean {
          course.id.startsWith('course-aiml-') ||
          course.id.startsWith('course-cloud-') ||
          course.id.startsWith('course-cyber-') ||
+         course.id.startsWith('course-pe2') ||
+         course.id.startsWith('course-pe3') ||
          course.id.startsWith('course-pe5');
 }
 
@@ -886,10 +888,10 @@ export function detectTrackFromCourses(courses: Course[]): CohortTrackId {
   if (codes.includes('24CST-358') || codes.includes('24CSP-359') || courses.some(c => c.name.toLowerCase().includes('cyber security') || c.name.toLowerCase().includes('cryptography'))) {
     return 'cyber';
   }
-  if (codes.includes('PE-5A') && codes.includes('PE-5B')) {
+  if ((codes.includes('PE-2') && codes.includes('PE-3')) || (codes.includes('PE-5A') && codes.includes('PE-5B'))) {
     return 'dual-nptel';
   }
-  if (codes.includes('24CST-351') && codes.includes('PE-5')) {
+  if (codes.includes('24CST-351') && (codes.includes('PE-3') || codes.includes('PE-5'))) {
     return 'general';
   }
   return 'custom';
