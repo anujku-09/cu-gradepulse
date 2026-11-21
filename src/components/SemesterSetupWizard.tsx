@@ -897,40 +897,6 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                 {/* -------------------------------------------------------- */}
                 {/* 1. ATTENDANCE QUICK-TOGGLE (NO TYPING NEEDED!)           */}
                 {/* -------------------------------------------------------- */}
-                {attendanceComp && (
-                  <div className="p-3 rounded-xl bg-gradient-to-r from-obsidian-900 to-obsidian-850 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                    <div className="space-y-0.5">
-                      <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                        <CalendarCheck className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Class Attendance (≥ 75% Rule)</span>
-                        <MicroTooltip content="Attendance Rule: If your attendance is ≥ 75%, you earn full marks for the attendance component according to CU academic regulations." />
-                      </span>
-                      <p className="text-[11px] text-slate-400">
-                        Attendance Credit: +{attendanceComp.rawMax} marks for ≥ 75% attendance.
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => onToggleAttendance(activeCourse.id, !hasFullAttendance)}
-                      className={`w-full sm:w-auto flex-shrink-0 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all border active:scale-95 touch-manipulation ${
-                        hasFullAttendance
-                          ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]'
-                          : 'bg-obsidian-800 text-slate-400 border-white/15 hover:border-white/30 hover:text-slate-200'
-                      }`}
-                    >
-                      {hasFullAttendance ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Full +{attendanceComp.rawMax}.0 Marks Claimed</span>
-                        </>
-                      ) : (
-                        <span>Click if ≥ 75% Attended (+{attendanceComp.rawMax})</span>
-                      )}
-                    </button>
-                  </div>
-                )}
-
                 {/* -------------------------------------------------------- */}
                 {/* 2. INTERNAL MARKS ENTRY (For Non-DirectGrade)            */}
                 {/* -------------------------------------------------------- */}
@@ -943,27 +909,48 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                         <MicroTooltip content="Internal Marks: Continuous internal evaluation (MSTs, Quizzes, Assignments, Attendance, Labs) weighted per syllabus." />
                       </span>
                       
-                      {/* One-click quick presets */}
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <div className="inline-flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() => setShowRegexBox(!showRegexBox)}
-                            className={`text-[10px] font-mono px-2 py-0.5 rounded border transition-all flex items-center gap-1 ${
-                              showRegexBox
-                                ? 'bg-cyan-950 text-cyan-300 border-cyan-500/50 shadow-[0_0_10px_rgba(6,182,212,0.3)]'
-                                : 'bg-white/[0.04] text-cyan-400 border-white/10 hover:border-cyan-500/30'
-                            }`}
-                            title="Paste copied table text from CUIMS portal to auto-fill marks via regex"
-                          >
-                            <ClipboardPaste className="w-3 h-3 text-cyan-400" />
-                            <span>Regex Paste</span>
-                          </button>
-                          <MicroTooltip content="Regex Paste: Copy your raw internal marks table from the CUIMS portal and click paste. The smart parser automatically fills MSTs, Quizzes, and Assignments into the correct fields with zero manual typing." />
-                        </div>
-                      </div>
-                    </div>
+         {/* Attendance + Regex Paste Controls */}
+<div className="flex items-center gap-1.5 flex-shrink-0">
 
+  {/* Attendance Toggle */}
+  {attendanceComp && (
+    <button
+      type="button"
+      onClick={() => onToggleAttendance(activeCourse.id, !hasFullAttendance)}
+      className={`flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-[10px] sm:text-xs font-bold transition-all border active:scale-95 touch-manipulation whitespace-nowrap ${
+        hasFullAttendance
+          ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50'
+          : 'bg-obsidian-800 text-slate-400 border-white/15 hover:border-emerald-500/40'
+      }`}
+      title={`Attendance credit: ${attendanceComp.rawMax} marks for ≥75% attendance`}
+    >
+      {hasFullAttendance && (
+        <Check className="w-3 h-3 text-emerald-400" />
+      )}
+      <span>≥75% Attend. (+{attendanceComp.rawMax})</span>
+    </button>
+  )}
+
+  {/* Regex Paste */}
+  <div className="inline-flex items-center gap-1">
+    <button
+      type="button"
+      onClick={() => setShowRegexBox(!showRegexBox)}
+      className={`text-[10px] font-mono px-2 py-1 rounded-lg border transition-all flex items-center gap-1 whitespace-nowrap ${
+        showRegexBox
+          ? 'bg-cyan-950 text-cyan-300 border-cyan-500/50 shadow-[0_0_10px_rgba(6,182,212,0.3)]'
+          : 'bg-white/[0.04] text-cyan-400 border-white/10 hover:border-cyan-500/30'
+      }`}
+      title="Paste copied table text from CUIMS portal to auto-fill marks via regex"
+    >
+      <ClipboardPaste className="w-3 h-3 text-cyan-400" />
+      <span>Regex Paste</span>
+    </button>
+
+    <MicroTooltip content="Regex Paste: Copy your raw internal marks table from the CUIMS portal and click paste. The smart parser automatically fills MSTs, Quizzes, and Assignments." />
+  </div>
+
+</div>
                     {/* Embedded Course Regex Paste Box */}
                     {showRegexBox && (
                       <CourseRegexPasteBox
@@ -978,6 +965,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                         onClose={() => setShowRegexBox(false)}
                       />
                     )}
+          </div>
 
                     {/* Simple Big Direct Internal Box */}
                     <div className="flex items-center justify-between gap-2 p-2.5 sm:p-3 rounded-xl bg-obsidian-900 border border-white/5">
