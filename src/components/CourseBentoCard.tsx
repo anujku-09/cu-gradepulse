@@ -1,27 +1,19 @@
 import React, { useState } from 'react';
 import { 
   ChevronRight, 
-  ChevronDown,
   CheckCircle, 
-  XCircle, 
-  Layers, 
   SlidersHorizontal,
   Flame,
-  ToggleLeft,
-  ToggleRight,
-  Info,
   Edit3,
-  RotateCcw,
-  Sparkles,
   EyeOff,
   Check,
-  ClipboardPaste
+  ClipboardPaste,
+  Settings2
 } from 'lucide-react';
 import { Course, CourseResult, GradeLevel, CourseType } from '../types';
 import { GRADE_COLORS, GRADE_POINTS } from '../utils/gradeCalculations';
 import { CourseRegexPasteBox } from './CourseRegexPasteBox';
 import { MicroTooltip } from './MicroTooltip';
-import { Sliders, Settings2 } from 'lucide-react';
 
 interface CourseBentoCardProps {
   course: Course;
@@ -47,7 +39,6 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
   onUpdateDirectInternal,
   onUpdateComponentMarks,
   onToggleCourseExcluded,
-  onQuickPreset,
   onInspect,
   onOpenEditCourse,
   onConvertCourseMode,
@@ -69,12 +60,12 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
   const internalPercent = Math.min(100, Math.round(internalRatio * 100));
 
   // Radial SVG constants
-  const radius = 22;
+  const radius = 20;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (internalRatio * circumference);
 
-  // Group B Direct Grade options
-  const gradePills: GradeLevel[] = ['A+', 'A', 'B+', 'B', 'C+', 'C', 'D', 'F'];
+  // Group B Direct Grade options (excluding D per policy)
+  const gradePills: GradeLevel[] = ['A+', 'A', 'B+', 'B', 'C+', 'C', 'F'];
 
   // Check for attendance component
   const attendanceComp = course.components.find(
@@ -88,7 +79,7 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
   return (
     <div
       id={`course-${course.id}`}
-      className={`glass-card rounded-2xl p-3.5 sm:p-5 flex flex-col justify-between relative overflow-hidden transition-all duration-300 border ${
+      className={`glass-card rounded-2xl p-3 sm:p-4.5 flex flex-col justify-between relative overflow-hidden transition-all duration-300 border ${
         isExcluded 
           ? 'opacity-65 border-white/10 hover:opacity-100' 
           : result.isBacklog ? 'border-rose-500/50 shadow-[0_0_25px_rgba(239,68,68,0.25)]' : theme.border
@@ -96,9 +87,9 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
     >
       {/* Excluded Subject Notice Banner */}
       {isExcluded && (
-        <div className="mb-3 px-3 py-1.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between">
+        <div className="mb-2.5 px-3 py-1.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between">
           <span className="flex items-center gap-1.5 font-medium">
-            <EyeOff className="w-3.5 h-3.5 text-rose-400" />
+            <EyeOff className="w-3.5 h-3.5 text-rose-400 flex-shrink-0" />
             <span>Disallowed • Excluded from your SGPA</span>
           </span>
           <button
@@ -110,109 +101,54 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
         </div>
       )}
 
-      {/* Top Header Row */}
+      {/* ============================================================== */}
+      {/* 1. CLEAN STREAMLINED HEADER FOR MOBILE & DESKTOP                */}
+      {/* ============================================================== */}
       <div>
-        <div className="flex items-start justify-between gap-3">
-          {/* Left: Code, Credits, Type */}
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-mono text-xs font-bold text-slate-200 px-2 py-0.5 rounded bg-white/[0.06] border border-white/10">
-                {course.code}
-              </span>
-              <span className="text-[11px] font-mono text-cyan-300 font-semibold">
-                {course.credits.toFixed(1)} Credits
-              </span>
-              <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border ${
-                course.type === 'Hybrid'
-                  ? 'bg-purple-950/60 text-purple-300 border-purple-500/30'
-                  : course.type === 'ContinuousEvaluation'
-                  ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/30'
-                  : course.type === 'Practical'
-                  ? 'bg-amber-950/60 text-amber-300 border-amber-500/30'
-                  : course.type === 'DirectGrade'
-                  ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/30'
-                  : 'bg-cyan-950/60 text-cyan-300 border-cyan-500/30'
-              }`}>
-                {course.type === 'Hybrid' ? 'HYBRID 70/30' :
-                 course.type === 'ContinuousEvaluation' ? '100% INTERNAL' :
-                 course.type === 'Practical' ? 'PRACTICAL 60/40' :
-                 course.type === 'DirectGrade' ? 'DIRECT GRADE' : 'THEORY 40/60'}
-              </span>
-
-              {/* Allow / Disallow Contribution Toggle Button */}
-              <div className="inline-flex items-center gap-0.5">
-                <button
-                  onClick={() => onToggleCourseExcluded(course.id)}
-                  title={isExcluded ? "Include this subject back into SGPA calculations" : "Disallow / exclude this subject from SGPA calculations"}
-                  className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-all border ${
-                    isExcluded
-                      ? 'bg-rose-950/60 text-rose-300 border-rose-500/40 hover:bg-rose-900/60'
-                      : 'bg-emerald-950/40 text-emerald-300 border-emerald-500/30 hover:bg-emerald-900/60'
-                  }`}
-                >
-                  {isExcluded ? (
-                    <>
-                      <EyeOff className="w-2.5 h-2.5 text-rose-400" />
-                      <span>Excluded (0 Cr)</span>
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-2.5 h-2.5 text-emerald-400" />
-                      <span>In SGPA</span>
-                    </>
-                  )}
-                </button>
-                <MicroTooltip content="In SGPA / Exclude: Exclude this course from your SGPA calculation without deleting marks." />
-              </div>
-
-              {/* Configure Subject Modal Trigger */}
-              {onOpenEditCourse && (
-                <div className="inline-flex items-center gap-0.5">
-                  <button
-                    type="button"
-                    onClick={() => onOpenEditCourse(course)}
-                    title="Configure subject name, code, credits, or change evaluation mode"
-                    className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-400 hover:text-cyan-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
-                  >
-                    <Settings2 className="w-2.5 h-2.5" />
-                    <span>Config</span>
-                  </button>
-                  <MicroTooltip content="Subject Config: Modify course code, credits, or convert evaluation pattern (Theory, Practical, Hybrid 70/30, 100% Internal, or Direct Grade)." />
-                </div>
-              )}
-            </div>
-
-            <h3 className="font-semibold text-slate-100 text-sm leading-snug line-clamp-1" title={course.name}>
-              {course.name}
-            </h3>
+        {/* Top Metadata Row: Code, Credits, Evaluation Mode & Hero Grade Pill */}
+        <div className="flex items-center justify-between gap-2">
+          {/* Left: Code, Credits, Mode Badges */}
+          <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+            <span className="font-mono text-xs font-bold text-slate-200 px-2 py-0.5 rounded bg-white/[0.06] border border-white/10">
+              {course.code}
+            </span>
+            <span className="text-[11px] font-mono text-cyan-300 font-semibold px-1.5 py-0.5 rounded bg-cyan-950/40 border border-cyan-800/40">
+              {course.credits.toFixed(1)} Cr
+            </span>
+            <span className={`text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded border ${
+              course.type === 'Hybrid'
+                ? 'bg-purple-950/60 text-purple-300 border-purple-500/30'
+                : course.type === 'ContinuousEvaluation'
+                ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/30'
+                : course.type === 'Practical'
+                ? 'bg-amber-950/60 text-amber-300 border-amber-500/30'
+                : course.type === 'DirectGrade'
+                ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/30'
+                : 'bg-cyan-950/60 text-cyan-300 border-cyan-500/30'
+            }`}>
+              {course.type === 'Hybrid' ? 'HYBRID 70/30' :
+               course.type === 'ContinuousEvaluation' ? '100% INTERNAL' :
+               course.type === 'Practical' ? 'PRACTICAL 60/40' :
+               course.type === 'DirectGrade' ? 'DIRECT GRADE' : 'THEORY 40/60'}
+            </span>
           </div>
 
-          {/* Right: Predicted Grade Pill */}
-          <div className="flex flex-col items-end flex-shrink-0">
+          {/* Right: Hero Predicted Grade Badge */}
+          <div className="flex-shrink-0">
             {isExcluded ? (
-              <div className="flex flex-col items-end">
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold border border-rose-500/30 bg-rose-950/40 text-rose-300">
-                  Excluded
-                </span>
-                <span className="text-[10px] font-mono text-slate-500 mt-0.5">
-                  0 Cr in SGPA
-                </span>
-              </div>
+              <span className="px-2.5 py-1 rounded-full text-xs font-mono font-bold border border-rose-500/30 bg-rose-950/40 text-rose-300 block text-right">
+                Excluded
+              </span>
             ) : isUnentered ? (
-              <div className="flex flex-col items-end">
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-medium border border-white/10 bg-obsidian-850 text-slate-400">
-                  Awaiting Marks
-                </span>
-                <span className="text-[10px] font-mono text-slate-500 mt-0.5">
-                  0 / 100
-                </span>
-              </div>
+              <span className="px-2.5 py-1 rounded-full text-xs font-mono font-medium border border-white/10 bg-obsidian-850 text-slate-400 block text-right">
+                Awaiting Marks
+              </span>
             ) : (
-              <div className="flex flex-col items-end">
-                <span className={`px-2.5 py-0.5 rounded-full text-sm font-extrabold font-mono border ${theme.bg} ${theme.border} ${theme.text} ${theme.glow}`}>
-                  Grade {predictedGrade} <span className="text-[11px] font-normal opacity-85">({gradePoint} GP)</span>
+              <div className="text-right">
+                <span className={`px-2.5 py-0.5 rounded-full text-xs sm:text-sm font-extrabold font-mono inline-block border ${theme.bg} ${theme.border} ${theme.text} ${theme.glow}`}>
+                  Grade {predictedGrade} <span className="text-[10px] font-normal opacity-85">({gradePoint} GP)</span>
                 </span>
-                <span className="text-[10px] font-mono text-slate-400 mt-0.5">
+                <span className="text-[10px] font-mono text-slate-400 block mt-0.5">
                   Total: {totalWeightedScore.toFixed(1)}/100
                 </span>
               </div>
@@ -220,94 +156,144 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
           </div>
         </div>
 
+        {/* Full-width Subject Name */}
+        <h3 className="font-bold text-slate-100 text-sm sm:text-base leading-snug break-words mt-2 mb-2.5" title={course.name}>
+          {course.name}
+        </h3>
+
+        {/* Quick Action Pill Bar */}
+        <div className="flex items-center gap-1.5 flex-wrap text-xs pb-1">
+          {/* Allow / Disallow Contribution Toggle */}
+          <div className="inline-flex items-center gap-0.5">
+            <button
+              type="button"
+              onClick={() => onToggleCourseExcluded(course.id)}
+              title={isExcluded ? "Include this subject back into SGPA calculations" : "Disallow / exclude this subject from SGPA calculations"}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-mono font-bold transition-all border ${
+                isExcluded
+                  ? 'bg-rose-950/60 text-rose-300 border-rose-500/40 hover:bg-rose-900/60'
+                  : 'bg-emerald-950/40 text-emerald-300 border-emerald-500/30 hover:bg-emerald-900/60'
+              }`}
+            >
+              {isExcluded ? (
+                <>
+                  <EyeOff className="w-3 h-3 text-rose-400" />
+                  <span>Excluded</span>
+                </>
+              ) : (
+                <>
+                  <Check className="w-3 h-3 text-emerald-400" />
+                  <span>In SGPA</span>
+                </>
+              )}
+            </button>
+            <MicroTooltip content="In SGPA / Exclude: Exclude this course from your SGPA calculation without deleting marks." />
+          </div>
+
+          {/* Configure Subject Modal Trigger */}
+          {onOpenEditCourse && (
+            <div className="inline-flex items-center gap-0.5">
+              <button
+                type="button"
+                onClick={() => onOpenEditCourse(course)}
+                title="Configure subject name, code, credits, or change evaluation mode"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-mono text-slate-300 hover:text-cyan-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+              >
+                <Settings2 className="w-3 h-3 text-slate-400" />
+                <span>Config</span>
+              </button>
+              <MicroTooltip content="Subject Config: Modify course code, credits, or convert evaluation pattern (Theory, Practical, Hybrid 70/30, 100% Internal, or Direct Grade)." />
+            </div>
+          )}
+
+          {/* Attendance 1-click toggle if present */}
+          {attendanceComp && course.type !== 'DirectGrade' && (
+            <button
+              type="button"
+              onClick={() => {
+                onUpdateDirectInternal(course.id, undefined);
+                const isFull = attendanceComp.rawObtained >= attendanceComp.rawMax;
+                onUpdateComponentMarks(course.id, attendanceComp.id, isFull ? 0 : attendanceComp.rawMax);
+              }}
+              className={`text-[10px] sm:text-[11px] font-mono px-2.5 py-1 rounded-full border transition-all flex items-center gap-1 ${
+                hasFullAttendance
+                  ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50 shadow-[0_0_8px_rgba(16,185,129,0.3)]'
+                  : 'bg-obsidian-800 text-slate-400 border-white/10 hover:border-white/20'
+              }`}
+              title="One-click attendance toggle: CU awards full marks for >= 75% attendance"
+            >
+              <Check className="w-3 h-3" />
+              <span>{hasFullAttendance ? `+${attendanceComp.rawMax} Att` : 'No Att'}</span>
+            </button>
+          )}
+
+          {/* Regex Paste Trigger */}
+          {course.type !== 'DirectGrade' && (
+            <div className="inline-flex items-center gap-0.5">
+              <button
+                type="button"
+                onClick={() => setShowRegexBox(!showRegexBox)}
+                className={`text-[10px] sm:text-[11px] font-mono px-2.5 py-1 rounded-full border transition-all flex items-center gap-1 ${
+                  showRegexBox
+                    ? 'bg-cyan-950 text-cyan-300 border-cyan-500/50 shadow-[0_0_8px_rgba(6,182,212,0.2)]'
+                    : 'bg-white/[0.04] text-cyan-400 border-white/10 hover:border-cyan-500/30'
+                }`}
+                title="Regex auto-fill marks from CUIMS copied text for this subject"
+              >
+                <ClipboardPaste className="w-3 h-3" />
+                <span>Regex Paste</span>
+              </button>
+              <MicroTooltip content="Regex Paste: Copy your raw internal marks table from the CUIMS portal and click paste. Automatically fills MSTs, Quizzes, Experiments, and Assignments with zero manual typing." />
+            </div>
+          )}
+
+          {/* Mode Switcher Shortcut */}
+          {onConvertCourseMode && course.type !== 'DirectGrade' && (
+            <div className="inline-flex items-center gap-0.5">
+              <button
+                type="button"
+                onClick={() => onConvertCourseMode(course.id, 'DirectGrade')}
+                className="text-[10px] sm:text-[11px] font-mono px-2.5 py-1 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/60 transition-colors"
+                title="Switch this subject to Direct Grade (NPTEL / Certificate)"
+              >
+                ⇄ Direct Grade
+              </button>
+              <MicroTooltip content="Direct Grade: For NPTEL / MOOC electives where you get a direct letter grade without internal/external exams." />
+            </div>
+          )}
+        </div>
+
+        {/* Embedded Course Regex Paste Box */}
+        {showRegexBox && (
+          <div className="mt-2.5">
+            <CourseRegexPasteBox
+              course={course}
+              onApplyMarks={(updates) => {
+                onUpdateDirectInternal(course.id, undefined);
+                for (const u of updates) {
+                  onUpdateComponentMarks(course.id, u.componentId, u.rawObtained);
+                }
+                setShowRegexBox(false);
+              }}
+              onClose={() => setShowRegexBox(false)}
+              isCompact={true}
+            />
+          </div>
+        )}
+
         {/* ============================================================== */}
-        {/* DIRECT INTERNAL MARKS ENTRY SECTION (Non-DirectGrade courses)  */}
+        {/* 2. STEP 1: INTERNAL MARKS SECTION                              */}
         {/* ============================================================== */}
         {course.type !== 'DirectGrade' && (
-          <div className="mt-4 p-3.5 rounded-xl bg-obsidian-850/70 border border-white/10 space-y-2.5">
-            <div className="flex flex-wrap items-center justify-between gap-1.5">
-              <span className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-                <Edit3 className="w-3.5 h-3.5 text-cyan-400" />
-                Step 1: Your Internal Marks
-              </span>
-              
-              {/* Quick presets & 1-click Attendance */}
-              <div className="flex items-center gap-1 flex-wrap">
-                {attendanceComp && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onUpdateDirectInternal(course.id, undefined);
-                      const isFull = attendanceComp.rawObtained >= attendanceComp.rawMax;
-                      onUpdateComponentMarks(course.id, attendanceComp.id, isFull ? 0 : attendanceComp.rawMax);
-                    }}
-                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full border transition-all flex items-center gap-1 ${
-                      hasFullAttendance
-                        ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50 shadow-[0_0_8px_rgba(16,185,129,0.3)]'
-                        : 'bg-obsidian-800 text-slate-400 border-white/10 hover:border-white/20'
-                    }`}
-                    title="One-click attendance toggle: CU awards full marks for >= 75% attendance"
-                  >
-                    <Check className="w-2.5 h-2.5" />
-                    <span>{hasFullAttendance ? `+${attendanceComp.rawMax} Att` : 'No Att'}</span>
-                  </button>
-                )}
-                     <div className="inline-flex items-center gap-0.5">
-                  <button
-                    type="button"
-                    onClick={() => setShowRegexBox(!showRegexBox)}
-                    className={`text-[10px] font-mono px-1.5 py-0.5 rounded border transition-all flex items-center gap-1 ${
-                      showRegexBox
-                        ? 'bg-cyan-950 text-cyan-300 border-cyan-500/50 shadow-[0_0_8px_rgba(6,182,212,0.2)]'
-                        : 'bg-white/[0.04] text-cyan-400 border-white/5 hover:border-cyan-500/30'
-                    }`}
-                    title="Regex auto-fill marks from CUIMS copied text for this subject"
-                  >
-                    <ClipboardPaste className="w-2.5 h-2.5" />
-                    <span>Regex Paste</span>
-                  </button>
-                  <MicroTooltip content="Regex Paste: Copy your raw internal marks table from the CUIMS portal and click paste. Automatically fills MSTs, Quizzes, Experiments, and Assignments with zero manual typing." />
-                </div>
-                {onConvertCourseMode && (
-                  <div className="inline-flex items-center gap-0.5">
-                    <button
-                      type="button"
-                      onClick={() => onConvertCourseMode(course.id, 'DirectGrade')}
-                      className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-950/60 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/60 transition-colors"
-                      title="Switch this subject to Direct Grade (NPTEL / Certificate)"
-                    >
-                      ⇄ Direct Grade
-                    </button>
-                    <MicroTooltip content="Direct Grade: For NPTEL / MOOC electives where you get a direct letter grade without internal/external exams." />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Embedded Course Regex Paste Box */}
-            {showRegexBox && (
-              <CourseRegexPasteBox
-                course={course}
-                onApplyMarks={(updates) => {
-                  onUpdateDirectInternal(course.id, undefined);
-                  for (const u of updates) {
-                    onUpdateComponentMarks(course.id, u.componentId, u.rawObtained);
-                  }
-                  setShowRegexBox(false);
-                }}
-                onClose={() => setShowRegexBox(false)}
-                isCompact={true}
-              />
-            )}
-
+          <div className="mt-3 p-3 rounded-xl bg-obsidian-850/80 border border-white/10 space-y-2.5">
             {/* Direct Total Internal Input Row */}
-            <div className="flex items-center justify-between gap-2.5 bg-obsidian-900/90 p-2.5 rounded-lg border border-white/5">
+            <div className="flex items-center justify-between gap-2.5">
               <div className="flex items-center gap-2.5 min-w-0">
                 {isDetailedView && (
-                  <div className="relative flex items-center justify-center w-9 h-9 flex-shrink-0">
-                    <svg className="w-9 h-9 -rotate-90" viewBox="0 0 56 56">
-                      <circle cx="28" cy="28" r={radius} stroke="rgba(255,255,255,0.08)" strokeWidth="4" fill="transparent" />
-                      <circle cx="28" cy="28" r={radius} stroke={theme.ring} strokeWidth="4" fill="transparent" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" />
+                  <div className="relative flex items-center justify-center w-8 h-8 flex-shrink-0">
+                    <svg className="w-8 h-8 -rotate-90" viewBox="0 0 48 48">
+                      <circle cx="24" cy="24" r={radius} stroke="rgba(255,255,255,0.08)" strokeWidth="3.5" fill="transparent" />
+                      <circle cx="24" cy="24" r={radius} stroke={theme.ring} strokeWidth="3.5" fill="transparent" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center font-mono text-[9px] font-bold text-slate-200">
                       {internalPercent}%
@@ -315,16 +301,17 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                   </div>
                 )}
                 <div className="min-w-0">
-                  <span className="text-xs font-semibold text-slate-300 block whitespace-nowrap">
-                    {course.directInternalOverride !== undefined ? 'Direct Internals:' : 'Weighted Total:'}
+                  <span className="text-xs font-semibold text-slate-200 flex items-center gap-1.5 whitespace-nowrap">
+                    <Edit3 className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
+                    <span>{course.directInternalOverride !== undefined ? 'Direct Internals:' : 'Internal Marks:'}</span>
                   </span>
-                  <span className="text-[11px] text-slate-400 font-mono whitespace-nowrap">
-                    Max: {maxInternalWeightage.toFixed(1)} wt
+                  <span className="text-[10px] text-slate-400 font-mono whitespace-nowrap block">
+                    Max: <strong className="text-cyan-300">{maxInternalWeightage.toFixed(1)}</strong> wt
                   </span>
                 </div>
               </div>
 
-              {/* Directly editable internal score input: balanced width to prevent truncation of label while comfortably fitting decimal scores */}
+              {/* Directly editable internal score input with touch-friendly min-h */}
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 <input
                   type="number"
@@ -343,18 +330,18 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                   }}
                   placeholder="0.0"
                   title="Directly enter your total weighted internal marks"
-                  className="w-20 px-2 py-1 rounded-md text-center num-input text-base sm:text-sm font-bold text-cyan-300 tracking-wide min-h-[38px]"
+                  className="w-20 sm:w-22 px-2 py-1.5 rounded-lg text-center num-input text-base font-bold text-cyan-300 bg-obsidian-950/90 border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none tracking-wide min-h-[40px]"
                 />
                 <span className="text-xs font-mono text-slate-400 whitespace-nowrap">/ {maxInternalWeightage.toFixed(1)}</span>
               </div>
             </div>
 
             {/* Toggleable Accordion for detailed component inputs (Experiments, MSTs) */}
-            <div>
+            <div className="pt-1 border-t border-white/5">
               <button
                 type="button"
                 onClick={() => setIsAccordionOpen(!isAccordionOpen)}
-                className="w-full flex items-center justify-between text-[11px] text-cyan-400 hover:text-cyan-300 font-medium py-1 px-1 transition-colors"
+                className="w-full flex items-center justify-between text-[11px] text-cyan-400 hover:text-cyan-300 font-medium py-1 transition-colors"
               >
                 <span>
                   {isAccordionOpen ? '▴ Hide Component Inputs' : `▾ Or edit individual assessments (${course.components.length} items)`}
@@ -365,9 +352,9 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
               </button>
 
               {isAccordionOpen && (
-                <div className="mt-2 pt-2 border-t border-white/5 space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                <div className="mt-2 pt-2 border-t border-white/5 space-y-1.5 max-h-48 overflow-y-auto pr-1 overscroll-contain">
                   <div className="text-[10px] text-slate-400 mb-1">
-                    Entering raw scores here scales down automatically according to CU weightages:
+                    Scores entered scale automatically according to CU weightages:
                   </div>
                   {course.components.map((comp) => {
                     const isAtt = comp.category === 'Attendance' || comp.name.toLowerCase().includes('attendance');
@@ -376,7 +363,7 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                         key={comp.id}
                         className="p-1.5 rounded-lg bg-obsidian-900 border border-white/5 flex items-center justify-between text-xs"
                       >
-                        <div className="min-w-0">
+                        <div className="min-w-0 pr-2">
                           <span className="text-slate-300 text-[11px] truncate block font-medium">
                             {comp.name}
                           </span>
@@ -394,7 +381,7 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                                 const isFull = comp.rawObtained >= comp.rawMax;
                                 onUpdateComponentMarks(course.id, comp.id, isFull ? 0 : comp.rawMax);
                               }}
-                              className={`px-2 py-1 rounded text-xs font-mono font-bold transition-all border flex items-center gap-1 ${
+                              className={`px-2 py-1 rounded text-xs font-mono font-bold transition-all border flex items-center gap-1 min-h-[34px] ${
                                 comp.rawObtained >= comp.rawMax
                                   ? 'bg-emerald-950/90 text-emerald-300 border-emerald-500/50 shadow-[0_0_8px_rgba(16,185,129,0.3)]'
                                   : 'bg-obsidian-800 text-slate-400 border-white/10 hover:text-white'
@@ -415,13 +402,12 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                               step="0.5"
                               value={comp.rawObtained === 0 ? '' : comp.rawObtained}
                               onChange={(e) => {
-                                // When editing component, clear direct internal override so components dictate the score
                                 onUpdateDirectInternal(course.id, undefined);
                                 const raw = e.target.value;
                                 onUpdateComponentMarks(course.id, comp.id, raw === '' ? 0 : (parseFloat(raw) || 0));
                               }}
                               placeholder="0"
-                              className="w-20 px-2 py-1 rounded-md text-center num-input text-xs font-bold text-slate-100"
+                              className="w-18 px-2 py-1 rounded-md text-center num-input text-sm font-bold text-slate-100 bg-obsidian-950 border border-white/10 min-h-[34px]"
                             />
                             <span className="text-[10px] font-mono text-slate-400 whitespace-nowrap">/ {comp.rawMax}</span>
                           </div>
@@ -437,10 +423,10 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
 
         {/* Group B Direct Grade Selector */}
         {course.type === 'DirectGrade' && (
-          <div className="mt-4 p-3.5 rounded-xl bg-obsidian-850/70 border border-white/10 space-y-2">
+          <div className="mt-3 p-3 rounded-xl bg-obsidian-850/80 border border-white/10 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="font-semibold text-slate-200">
-                Step 1: Choose Your Expected Grade:
+                Choose Expected Grade:
               </span>
               {onConvertCourseMode && (
                 <button
@@ -461,7 +447,7 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                   <button
                     key={g}
                     onClick={() => onUpdateDirectGrade(course.id, g)}
-                    className={`py-2 rounded-lg text-xs font-mono font-bold border transition-all ${
+                    className={`py-2 rounded-lg text-xs font-mono font-bold border transition-all min-h-[38px] ${
                       isSelected
                         ? `${gTheme.bg} ${gTheme.border} ${gTheme.text} ${gTheme.glow} ring-1 ring-cyan-400/40`
                         : 'bg-obsidian-800/60 text-slate-400 border-white/5 hover:border-white/20 hover:text-slate-200'
@@ -477,9 +463,9 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
       </div>
 
       {/* ============================================================== */}
-      {/* STEP 2: EXTERNAL EXAM TARGET SLIDER & INPUT                   */}
+      {/* 3. STEP 2: EXTERNAL EXAM TARGET & SLIDER                        */}
       {/* ============================================================== */}
-      <div className="mt-4 pt-3 border-t border-white/[0.08] space-y-3">
+      <div className="mt-3 pt-3 border-t border-white/[0.08] space-y-2.5">
         {course.type !== 'DirectGrade' && (
           course.type === 'ContinuousEvaluation' || course.externalRawMax === 0 ? (
             <div className="p-3 rounded-xl bg-emerald-950/25 border border-emerald-500/25 text-xs space-y-1">
@@ -493,11 +479,11 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
             </div>
           ) : (
             <div className="space-y-2">
-              {/* Title & Editable Number Box */}
+              {/* Title & Editable Target Number Box */}
               <div className="flex items-center justify-between text-xs gap-2">
-                <span className="text-slate-200 font-semibold flex items-center gap-1 min-w-0">
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
-                  <span className="truncate">Step 2: External ({course.externalName})</span>
+                <span className="text-slate-200 font-semibold flex items-center gap-1.5 min-w-0">
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+                  <span className="truncate">External Target ({course.externalName})</span>
                 </span>
                 
                 <div className="flex items-center gap-1.5 font-mono flex-shrink-0">
@@ -512,14 +498,14 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                       onUpdateExternal(course.id, raw === '' ? 0 : (parseFloat(raw) || 0));
                     }}
                     placeholder="0"
-                    className="w-18 px-2 py-1 rounded-md text-center num-input text-base sm:text-xs font-bold text-cyan-400 min-h-[36px]"
+                    className="w-18 px-2 py-1.5 rounded-lg text-center num-input text-base sm:text-sm font-bold text-indigo-300 bg-obsidian-950/90 border border-indigo-500/30 focus:border-indigo-400 outline-none min-h-[38px]"
                   />
                   <span className="text-slate-400 text-xs whitespace-nowrap">/ {course.externalRawMax}</span>
                 </div>
               </div>
 
               {/* Slider Track with Live Tickmarks */}
-              <div className="relative">
+              <div className="relative pt-0.5">
                 <input
                   type="range"
                   min="0"
@@ -527,7 +513,7 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                   step="0.5"
                   value={course.externalTargetScore}
                   onChange={(e) => onUpdateExternal(course.id, parseFloat(e.target.value) || 0)}
-                  className="w-full h-2 bg-obsidian-800 rounded-lg slider-tactile appearance-none border border-white/10"
+                  className="w-full h-2.5 bg-obsidian-800 rounded-lg slider-tactile appearance-none border border-white/10 cursor-pointer"
                 />
 
                 {/* Tick marks on slider track for grade thresholds */}
@@ -558,14 +544,14 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                 )}
               </div>
 
-              {/* Target Hint */}
-              <div className="text-[11px] font-mono text-slate-400 flex flex-wrap items-center justify-between gap-1">
+              {/* Dynamic Target Roadmap Milestone Pill */}
+              <div className="text-[11px] font-mono text-slate-400 flex flex-wrap items-center justify-between gap-1 pt-0.5">
                 {nextTarget ? (
                   <span className="text-cyan-300 flex items-center gap-1">
-                    <Flame className="w-3 h-3 text-amber-400 inline" />
-                    Target <strong className="text-cyan-200">{nextTarget.requiredExternalRaw}</strong> for <strong className="text-white">Grade {nextTarget.grade}</strong>
+                    <Flame className="w-3 h-3 text-amber-400 inline flex-shrink-0" />
+                    <span>Target <strong className="text-cyan-200">{nextTarget.requiredExternalRaw}</strong> for <strong className="text-white">Grade {nextTarget.grade}</strong></span>
                     <span className="text-[10px] text-slate-400">
-                      (~{result.gradeCutoffs[nextTarget.grade]}+ safe band)
+                      (~{result.gradeCutoffs[nextTarget.grade]}+ safe)
                     </span>
                   </span>
                 ) : (
@@ -585,7 +571,7 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
         {/* Detailed Breakdown Button */}
         <button
           onClick={() => onInspect(course.id)}
-          className="w-full py-1.5 px-3 rounded-xl bg-obsidian-800/60 hover:bg-obsidian-700/80 text-slate-300 hover:text-white border border-white/10 text-xs font-medium flex items-center justify-center gap-1.5 transition-all"
+          className="w-full min-h-[40px] py-2 px-3 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 active:scale-[0.99] text-slate-300 hover:text-white border border-white/10 text-xs font-medium flex items-center justify-center gap-1.5 transition-all shadow-sm"
         >
           <span>Deep Grade Unlocker & Cutoff Inspector</span>
           <ChevronRight className="w-3.5 h-3.5 text-cyan-400" />

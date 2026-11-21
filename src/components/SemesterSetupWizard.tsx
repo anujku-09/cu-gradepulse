@@ -1571,160 +1571,171 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
       {/* 4. SINGLE SUBJECT RESULT & QUICK EXIT MODAL                     */}
       {/* ============================================================== */}
       {showSingleSubjectModal && activeCourse && activeResult && (
-        <div className="fixed inset-0 z-[70] bg-obsidian-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fadeIn">
-          <div className="relative w-full max-w-lg bg-obsidian-900 border border-cyan-500/30 rounded-2xl shadow-2xl p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex items-start justify-between pb-3 border-b border-white/10 gap-2">
-              <div>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="font-mono text-xs font-bold text-cyan-400 px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-800/60">
-                    {activeCourse.code}
-                  </span>
-                  <span className="text-xs font-mono text-slate-300">
-                    {activeCourse.credits.toFixed(1)} Credits
-                  </span>
-                  <span className="text-[10px] font-mono text-slate-400 uppercase">
-                    {activeCourse.type}
-                  </span>
+        <div className="fixed inset-0 z-[70] overflow-y-auto bg-obsidian-950/85 backdrop-blur-md p-2.5 sm:p-4 overscroll-contain animate-fadeIn">
+          <div className="min-h-full flex items-center justify-center py-2 sm:py-6">
+            <div className="relative w-full max-w-lg bg-obsidian-900 border border-cyan-500/30 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh]">
+              {/* Sticky Modal Header */}
+              <div className="flex-shrink-0 flex items-start justify-between p-3.5 sm:p-4 border-b border-white/10 gap-2 bg-obsidian-900/90">
+                <div className="space-y-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-mono text-xs font-bold text-cyan-400 px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-800/60">
+                      {activeCourse.code}
+                    </span>
+                    <span className="text-xs font-mono text-slate-300">
+                      {activeCourse.credits.toFixed(1)} Credits
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-400 uppercase px-1.5 py-0.5 rounded bg-white/5 border border-white/10">
+                      {activeCourse.type}
+                    </span>
+                  </div>
+                  <h3 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2">
+                    {activeCourse.name}
+                  </h3>
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-white mt-1">
-                  {activeCourse.name}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowSingleSubjectModal(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Hero Grade Card */}
-            <div className="p-4 rounded-xl bg-gradient-to-br from-obsidian-850 to-obsidian-800 border border-cyan-500/20 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block mb-0.5">
-                  Single Subject Predicted Grade
-                </span>
-                <div className="flex items-baseline gap-2">
-                  <span className={`text-2xl sm:text-3xl font-extrabold font-mono ${
-                    GRADE_COLORS[activeResult.predictedGrade]?.text || 'text-cyan-300'
-                  }`}>
-                    Grade {activeResult.predictedGrade}
-                  </span>
-                  <span className="text-xs font-mono text-slate-300 font-semibold">
-                    ({activeResult.gradePoint} Grade Points)
-                  </span>
-                </div>
-                <span className="text-[11px] font-mono text-slate-400 mt-1 block">
-                  Contributes {(activeCourse.credits * activeResult.gradePoint).toFixed(1)} Credit Points to SGPA
-                </span>
-              </div>
-
-              <div className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center font-mono font-bold text-xl border ${
-                GRADE_COLORS[activeResult.predictedGrade]?.bg || 'bg-obsidian-850'
-              } ${GRADE_COLORS[activeResult.predictedGrade]?.border || 'border-cyan-500/40'} ${
-                GRADE_COLORS[activeResult.predictedGrade]?.text || 'text-cyan-300'
-              } ${GRADE_COLORS[activeResult.predictedGrade]?.glow || ''}`}>
-                {activeResult.predictedGrade}
-              </div>
-            </div>
-
-            {/* Marks Breakdown Grid */}
-            <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="p-2.5 rounded-xl bg-obsidian-850 border border-white/5">
-                <span className="text-[10px] font-mono text-slate-400 block">Total Score</span>
-                <span className="text-sm font-bold font-mono text-white">
-                  {activeResult.totalWeightedScore.toFixed(1)}
-                </span>
-                <span className="text-[10px] text-slate-500 block">/ 100.0</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-obsidian-850 border border-white/5">
-                <span className="text-[10px] font-mono text-slate-400 block">Internal Secured</span>
-                <span className="text-sm font-bold font-mono text-cyan-300">
-                  {activeResult.weightedInternalScore.toFixed(1)}
-                </span>
-                <span className="text-[10px] text-slate-500 block">/ {activeResult.maxInternalWeightage} wt</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-obsidian-850 border border-white/5">
-                <span className="text-[10px] font-mono text-slate-400 block">External Target</span>
-                <span className="text-sm font-bold font-mono text-indigo-300">
-                  {activeCourse.externalTargetScore}
-                </span>
-                <span className="text-[10px] text-slate-500 block">/ {activeCourse.externalRawMax} raw</span>
-              </div>
-            </div>
-
-            {/* Target Roadmap Table */}
-            <div className="space-y-1.5">
-              <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Target className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Cohort Grade Roadmap for {activeCourse.code}:</span>
-              </span>
-              <div className="grid grid-cols-2 xs:grid-cols-4 sm:grid-cols-7 gap-1">
-                {activeResult.targetRequirements.map(req => {
-                  const isCurrent = activeResult.predictedGrade === req.grade;
-                  return (
-                    <div
-                      key={req.grade}
-                      className={`p-1.5 rounded-lg border text-center font-mono ${
-                        isCurrent
-                          ? 'bg-cyan-950/80 border-cyan-400 ring-1 ring-cyan-400 text-cyan-300'
-                          : req.alreadyAchieved
-                          ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300'
-                          : req.possible
-                          ? 'bg-obsidian-850 border-white/10 text-slate-300'
-                          : 'bg-obsidian-950/60 border-white/5 text-slate-600'
-                      }`}
-                    >
-                      <div className="text-xs font-bold">{req.grade}</div>
-                      <div className="text-[9px] text-slate-400">≥{activeResult.gradeCutoffs[req.grade]}</div>
-                      <div className="text-[9px] font-bold mt-0.5">
-                        {req.alreadyAchieved ? '✓' : req.possible ? `${req.requiredExternalRaw}` : '✗'}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Modal Actions */}
-            <div className="space-y-2 pt-2 border-t border-white/10">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowSingleSubjectModal(false);
-                  onComplete();
-                  setTimeout(() => {
-                    document.getElementById(`course-${activeCourse.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  }, 150);
-                }}
-                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-xs shadow-[0_0_15px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>Finish & View This Subject on Dashboard 🚀</span>
-              </button>
-
-              <div className="flex items-center gap-2">
-                {currentStep < totalCourseSteps && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowSingleSubjectModal(false);
-                      handleNext();
-                    }}
-                    className="flex-1 py-2 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 text-slate-200 text-xs font-semibold border border-white/10 transition-colors"
-                  >
-                    Simulate Next Subject →
-                  </button>
-                )}
                 <button
                   type="button"
                   onClick={() => setShowSingleSubjectModal(false)}
-                  className="flex-1 py-2 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 text-slate-400 hover:text-slate-200 text-xs font-semibold border border-white/10 transition-colors"
+                  aria-label="Close report modal"
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors flex-shrink-0"
                 >
-                  Keep Editing
+                  <X className="w-4 h-4" />
                 </button>
+              </div>
+
+              {/* Scrollable Modal Content */}
+              <div className="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-3.5 overscroll-contain">
+                {/* Hero Grade Card */}
+                <div className="p-3.5 sm:p-4 rounded-xl bg-gradient-to-br from-obsidian-850 to-obsidian-800 border border-cyan-500/20 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block mb-0.5">
+                      Single Subject Predicted Grade
+                    </span>
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <span className={`text-2xl sm:text-3xl font-extrabold font-mono ${
+                        GRADE_COLORS[activeResult.predictedGrade]?.text || 'text-cyan-300'
+                      }`}>
+                        Grade {activeResult.predictedGrade}
+                      </span>
+                      <span className="text-xs font-mono text-slate-300 font-semibold">
+                        ({activeResult.gradePoint} Grade Points)
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-mono text-slate-400 mt-1 block">
+                      Contributes {(activeCourse.credits * activeResult.gradePoint).toFixed(1)} Credit Points to SGPA
+                    </span>
+                  </div>
+
+                  <div className={`w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex flex-col items-center justify-center font-mono font-bold text-xl flex-shrink-0 border ${
+                    GRADE_COLORS[activeResult.predictedGrade]?.bg || 'bg-obsidian-850'
+                  } ${GRADE_COLORS[activeResult.predictedGrade]?.border || 'border-cyan-500/40'} ${
+                    GRADE_COLORS[activeResult.predictedGrade]?.text || 'text-cyan-300'
+                  } ${GRADE_COLORS[activeResult.predictedGrade]?.glow || ''}`}>
+                    {activeResult.predictedGrade}
+                  </div>
+                </div>
+
+                {/* Marks Breakdown Grid */}
+                <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-obsidian-850 border border-white/5">
+                    <span className="text-[10px] font-mono text-slate-400 block">Total Score</span>
+                    <span className="text-sm sm:text-base font-bold font-mono text-white">
+                      {activeResult.totalWeightedScore.toFixed(1)}
+                    </span>
+                    <span className="text-[10px] text-slate-500 block">/ 100.0</span>
+                  </div>
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-obsidian-850 border border-white/5">
+                    <span className="text-[10px] font-mono text-slate-400 block">Internal</span>
+                    <span className="text-sm sm:text-base font-bold font-mono text-cyan-300">
+                      {activeResult.weightedInternalScore.toFixed(1)}
+                    </span>
+                    <span className="text-[10px] text-slate-500 block">/ {activeResult.maxInternalWeightage} wt</span>
+                  </div>
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-obsidian-850 border border-white/5">
+                    <span className="text-[10px] font-mono text-slate-400 block">External</span>
+                    <span className="text-sm sm:text-base font-bold font-mono text-indigo-300">
+                      {activeCourse.externalTargetScore}
+                    </span>
+                    <span className="text-[10px] text-slate-500 block">/ {activeCourse.externalRawMax} raw</span>
+                  </div>
+                </div>
+
+                {/* Target Roadmap Strip (Swipeable on mobile, grid on desktop) */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-slate-300 flex items-center gap-1.5">
+                      <Target className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Cohort Grade Roadmap:</span>
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-500 sm:hidden">
+                      Swipe ⇄
+                    </span>
+                  </div>
+                  <div className="flex gap-1.5 overflow-x-auto pb-1.5 sm:pb-0 no-scrollbar snap-x sm:grid sm:grid-cols-7 sm:gap-1.5">
+                    {activeResult.targetRequirements.map(req => {
+                      const isCurrent = activeResult.predictedGrade === req.grade;
+                      return (
+                        <div
+                          key={req.grade}
+                          className={`min-w-[56px] flex-1 snap-start p-1.5 rounded-lg border text-center font-mono ${
+                            isCurrent
+                              ? 'bg-cyan-950/80 border-cyan-400 ring-1 ring-cyan-400 text-cyan-300'
+                              : req.alreadyAchieved
+                              ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300'
+                              : req.possible
+                              ? 'bg-obsidian-850 border-white/10 text-slate-300'
+                              : 'bg-obsidian-950/60 border-white/5 text-slate-600'
+                          }`}
+                        >
+                          <div className="text-xs font-bold">{req.grade}</div>
+                          <div className="text-[9px] text-slate-400">≥{activeResult.gradeCutoffs[req.grade]}</div>
+                          <div className="text-[9px] font-bold mt-0.5">
+                            {req.alreadyAchieved ? '✓' : req.possible ? `${req.requiredExternalRaw}` : '✗'}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Sticky Footer Modal Actions */}
+              <div className="flex-shrink-0 p-3 sm:p-4 bg-obsidian-950/95 backdrop-blur-md border-t border-white/10 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSingleSubjectModal(false);
+                    onComplete();
+                    setTimeout(() => {
+                      document.getElementById(`course-${activeCourse.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 150);
+                  }}
+                  className="w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm shadow-[0_0_15px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>Finish & View This Subject on Dashboard 🚀</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  {currentStep < totalCourseSteps && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowSingleSubjectModal(false);
+                        handleNext();
+                      }}
+                      className="flex-1 min-h-[40px] py-2 px-3 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 text-slate-200 text-xs font-semibold border border-white/10 transition-colors"
+                    >
+                      Simulate Next Subject →
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowSingleSubjectModal(false)}
+                    className="flex-1 min-h-[40px] py-2 px-3 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 text-slate-400 hover:text-slate-200 text-xs font-semibold border border-white/10 transition-colors"
+                  >
+                    Keep Editing
+                  </button>
+                </div>
               </div>
             </div>
           </div>
