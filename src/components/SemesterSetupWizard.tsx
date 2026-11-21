@@ -312,7 +312,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
   }).length;
 
   return (
-    <div className="fixed top-14 sm:top-16 inset-x-0 bottom-0 z-40 overflow-y-auto bg-obsidian-950/95 backdrop-blur-xl flex flex-col justify-between p-2.5 sm:p-5 animate-fadeIn select-none">
+    <div className="fixed top-14 sm:top-16 inset-x-0 bottom-0 z-40 overflow-y-auto bg-obsidian-950/95 backdrop-blur-xl flex flex-col p-2 sm:p-5 animate-fadeIn select-none">
       
       {/* ============================================================== */}
       {/* 1. TOP HEADER & LIVE PROGRESS HUB                             */}
@@ -525,7 +525,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
       {/* ============================================================== */}
       {/* 2. THE ANIMATED CARD STACK (AnimatePresence)                  */}
       {/* ============================================================== */}
-      <div className="w-full max-w-2xl mx-auto my-auto py-2">
+      <div className="w-full max-w-2xl mx-auto flex-1 flex flex-col justify-center py-1 sm:py-3">
         <AnimatePresence mode="wait" custom={direction}>
           
           {/* ============================================================ */}
@@ -539,7 +539,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
               initial="enter"
               animate="center"
               exit="exit"
-              className="glass-card rounded-2xl p-3.5 sm:p-7 border border-white/15 shadow-2xl relative overflow-hidden"
+              className="glass-card rounded-2xl p-3 sm:p-7 border border-white/15 shadow-2xl relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
               
@@ -649,10 +649,10 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
               initial="enter"
               animate="center"
               exit="exit"
-              className="glass-card rounded-2xl p-5 sm:p-6 border border-white/15 shadow-2xl relative overflow-hidden"
+              className="glass-card rounded-2xl p-3 sm:p-6 border border-white/15 shadow-2xl relative overflow-hidden"
             >
               {/* Mobile Subject Identity Header (< 640px) */}
-              <div className="sm:hidden space-y-2 pb-3 border-b border-white/10">
+              <div className="sm:hidden space-y-2 pb-2.5 border-b border-white/10">
                 {/* Row 1: Badges Left, Grade Right */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 flex-wrap min-w-0">
@@ -675,6 +675,11 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                     }`}>
                       {activeCourse.type === 'ContinuousEvaluation' ? '100% INT' : activeCourse.type === 'DirectGrade' ? 'DIRECT' : activeCourse.type.toUpperCase()}
                     </span>
+                    {activeCourse.credits >= 3.0 && (
+                      <span className="text-[9px] font-semibold text-amber-300 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/40">
+                        ⚡ Core
+                      </span>
+                    )}
                   </div>
 
                   {/* Live Grade Badge */}
@@ -704,56 +709,59 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                   {activeCourse.name}
                 </h3>
 
-                {/* Row 3: Action Strip (Config, Cycle, Exclude) */}
-                <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
-                  {onOpenEditCourse && (
+                {/* Row 3: Action Strip (Config, Cycle, Exclude + Total Score) */}
+                <div className="flex items-center justify-between gap-1.5 pt-1 border-t border-white/5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {onOpenEditCourse && (
+                      <div className="inline-flex items-center gap-0.5">
+                        <button
+                          type="button"
+                          onClick={() => onOpenEditCourse(activeCourse)}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-mono font-semibold text-cyan-300 bg-cyan-950/60 border border-cyan-500/40 active:scale-95 touch-manipulation"
+                        >
+                          <Sliders className="w-2.5 h-2.5 text-cyan-400" />
+                          <span>Config</span>
+                        </button>
+                        <MicroTooltip content="Config Scheme: Customize course name, code, credits, evaluation scheme, or custom internal/external marks splits." />
+                      </div>
+                    )}
+                    {onConvertCourseMode && (
+                      <div className="inline-flex items-center gap-0.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const nextMode: CourseType = 
+                              activeCourse.type === 'Theory' ? 'Practical' :
+                              activeCourse.type === 'Practical' ? 'Hybrid' :
+                              activeCourse.type === 'Hybrid' ? 'ContinuousEvaluation' :
+                              activeCourse.type === 'ContinuousEvaluation' ? 'DirectGrade' : 'Theory';
+                            onConvertCourseMode(activeCourse.id, nextMode);
+                          }}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-mono text-slate-300 bg-white/5 border border-white/10 active:scale-95 touch-manipulation"
+                        >
+                          <span>⇄ Mode</span>
+                        </button>
+                        <MicroTooltip content="Cycle Mode: Switch evaluation mode between Theory (40/60), Practical (60/40), Hybrid (70/30), 100% Internal, or Direct Grade." />
+                      </div>
+                    )}
                     <div className="inline-flex items-center gap-0.5">
                       <button
                         type="button"
-                        onClick={() => onOpenEditCourse(activeCourse)}
-                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold text-cyan-300 bg-cyan-950/50 border border-cyan-500/30 active:scale-95"
+                        onClick={() => onToggleCourseExcluded(activeCourse.id)}
+                        className={`flex items-center gap-1 text-[10px] font-mono font-semibold px-2.5 py-1 rounded-lg border active:scale-95 touch-manipulation ${
+                          activeCourse.isExcluded
+                            ? 'bg-rose-950/60 text-rose-300 border-rose-500/40'
+                            : 'bg-obsidian-800 text-slate-400 border-white/10'
+                        }`}
                       >
-                        <Sliders className="w-2.5 h-2.5 text-cyan-400" />
-                        <span>Config</span>
+                        {activeCourse.isExcluded ? <EyeOff className="w-2.5 h-2.5 text-rose-400" /> : <Eye className="w-2.5 h-2.5" />}
+                        <span>{activeCourse.isExcluded ? 'Excluded' : 'Exclude'}</span>
                       </button>
-                      <MicroTooltip content="Config Scheme: Customize course name, code, credits, evaluation scheme, or custom internal/external marks splits." />
+                      <MicroTooltip content="Exclude Subject: Exclude this course from SGPA calculation (0 credits in SGPA) without clearing or losing entered marks." />
                     </div>
-                  )}
-                  {onConvertCourseMode && (
-                    <div className="inline-flex items-center gap-0.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const nextMode: CourseType = 
-                            activeCourse.type === 'Theory' ? 'Practical' :
-                            activeCourse.type === 'Practical' ? 'Hybrid' :
-                            activeCourse.type === 'Hybrid' ? 'ContinuousEvaluation' :
-                            activeCourse.type === 'ContinuousEvaluation' ? 'DirectGrade' : 'Theory';
-                          onConvertCourseMode(activeCourse.id, nextMode);
-                        }}
-                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-300 bg-white/5 border border-white/10 active:scale-95"
-                      >
-                        <span>⇄ Mode</span>
-                      </button>
-                      <MicroTooltip content="Cycle Mode: Switch evaluation mode between Theory (40/60), Practical (60/40), Hybrid (70/30), 100% Internal, or Direct Grade." />
-                    </div>
-                  )}
-                  <div className="inline-flex items-center gap-0.5">
-                    <button
-                      type="button"
-                      onClick={() => onToggleCourseExcluded(activeCourse.id)}
-                      className={`flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full border active:scale-95 ${
-                        activeCourse.isExcluded
-                          ? 'bg-rose-950/60 text-rose-300 border-rose-500/40'
-                          : 'bg-obsidian-800 text-slate-400 border-white/10'
-                      }`}
-                    >
-                      {activeCourse.isExcluded ? <EyeOff className="w-2.5 h-2.5 text-rose-400" /> : <Eye className="w-2.5 h-2.5" />}
-                      <span>{activeCourse.isExcluded ? 'Excluded' : 'Exclude'}</span>
-                    </button>
-                    <MicroTooltip content="Exclude Subject: Exclude this course from SGPA calculation (0 credits in SGPA) without clearing or losing entered marks." />
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400 ml-auto">
+
+                  <span className="text-[11px] font-mono font-bold text-cyan-300 bg-obsidian-900 px-2 py-0.5 rounded-lg border border-white/5 flex-shrink-0">
                     {isActiveCourseUnentered ? '0.0/100' : `${activeResult.totalWeightedScore.toFixed(1)}/100`}
                   </span>
                 </div>
@@ -972,25 +980,26 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                     )}
 
                     {/* Simple Big Direct Internal Box */}
-                    <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-obsidian-900 border border-white/5">
-                      <div>
+                    <div className="flex items-center justify-between gap-2 p-2.5 sm:p-3 rounded-xl bg-obsidian-900 border border-white/5">
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1">
-                          <span className="text-xs font-semibold text-slate-200 block">
-                            Total Weighted Internal Score:
+                          <span className="text-xs font-bold text-slate-200 truncate">
+                            Total Internal Score:
                           </span>
                           <MicroTooltip content="Direct Internal Score: Enter your consolidated internal score out of max weightage, or click below to enter individual assessment scores." />
                         </div>
-                        <span className="text-[11px] text-slate-400 font-mono">
-                          Out of {activeResult.maxInternalWeightage.toFixed(1)} max weightage
+                        <span className="text-[10px] sm:text-[11px] text-slate-400 font-mono block">
+                          Weighted (Max {activeResult.maxInternalWeightage.toFixed(1)})
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
                         <input
                           type="number"
                           min="0"
                           max={activeResult.maxInternalWeightage}
                           step="0.5"
+                          inputMode="decimal"
                           value={activeResult.weightedInternalScore === 0 && activeCourse.directInternalOverride === undefined && activeCourse.components.every(c => c.rawObtained === 0) ? '' : activeResult.weightedInternalScore}
                           onChange={(e) => {
                             const raw = e.target.value;
@@ -1002,7 +1011,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                             }
                           }}
                           placeholder="0.0"
-                          className="w-24 px-3 py-1.5 rounded-lg text-center num-input text-base font-bold text-cyan-300 tracking-wide bg-obsidian-850 border border-white/10"
+                          className="w-20 sm:w-24 px-2 sm:px-3 py-1.5 rounded-lg text-center num-input text-sm sm:text-base font-bold text-cyan-300 tracking-wide bg-obsidian-850 border border-white/10"
                         />
                         <span className="text-xs font-mono text-slate-400">/ {activeResult.maxInternalWeightage.toFixed(1)}</span>
                       </div>
@@ -1130,25 +1139,26 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                     </div>
                   ) : (
                     <div className="p-4 rounded-xl bg-obsidian-850/70 border border-white/10 space-y-3">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-slate-200 flex items-center gap-1.5">
-                        <SlidersHorizontal className="w-3.5 h-3.5 text-cyan-400" />
-                        <span>Step 2: Expected External Marks ({activeCourse.externalName})</span>
+                    <div className="flex items-center justify-between text-xs gap-2">
+                      <span className="font-bold text-slate-200 flex items-center gap-1.5 min-w-0">
+                        <SlidersHorizontal className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
+                        <span className="truncate">Step 2: External Target <span className="hidden xs:inline text-slate-400 font-normal">({activeCourse.externalName})</span></span>
                         <MicroTooltip content="External Target Slider: Drag to simulate your end-term exam score. Watch your predicted grade update in real-time according to CU cohort curve cutoffs." />
                       </span>
-                      <div className="flex items-center gap-1.5 font-mono">
+                      <div className="flex items-center gap-1 font-mono flex-shrink-0">
                         <input
                           type="number"
                           min="0"
                           max={activeCourse.externalRawMax}
                           step="0.5"
+                          inputMode="decimal"
                           value={activeCourse.externalTargetScore === 0 ? '' : activeCourse.externalTargetScore}
                           onChange={(e) => {
                             const raw = e.target.value;
                             onUpdateExternal(activeCourse.id, raw === '' ? 0 : (parseFloat(raw) || 0));
                           }}
                           placeholder="0"
-                          className="w-16 px-2 py-1 rounded text-center num-input text-xs font-bold text-cyan-400"
+                          className="w-16 px-2 py-1 rounded text-center num-input text-xs font-bold text-cyan-400 bg-obsidian-900 border border-white/10"
                         />
                         <span className="text-slate-400 text-xs">/ {activeCourse.externalRawMax}</span>
                       </div>
@@ -1207,7 +1217,8 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
+                      {/* Swipeable Snap Strip on Mobile, 7-Grid on Desktop */}
+                      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1.5 pt-1 -mx-1 px-1 sm:grid sm:grid-cols-7 sm:gap-1.5 sm:overflow-visible sm:pb-0 sm:pt-0 sm:mx-0 sm:px-0">
                         {activeResult.targetRequirements.map((req) => {
                           const isCurrentGrade = activeResult.predictedGrade === req.grade;
                           const gTheme = GRADE_COLORS[req.grade] || GRADE_COLORS['C'];
@@ -1228,7 +1239,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                                 }
                                 setTimeout(() => setSnapFeedback(null), 2500);
                               }}
-                              className={`p-2 rounded-xl border text-center transition-all flex flex-col items-center justify-between min-h-[76px] relative cursor-pointer active:scale-95 ${
+                              className={`p-2 rounded-xl border text-center transition-all flex flex-col items-center justify-between min-h-[74px] sm:min-h-[76px] w-[76px] xs:w-[82px] sm:w-auto flex-shrink-0 relative cursor-pointer active:scale-95 touch-manipulation ${
                                 isCurrentGrade
                                   ? `${gTheme.bg} ${gTheme.border} ring-2 ring-cyan-400 scale-[1.02] shadow-[0_0_15px_rgba(6,182,212,0.3)]`
                                   : req.alreadyAchieved
@@ -1311,7 +1322,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                           </div>
 
                           {/* Cutoff Reference Pills */}
-                          <div className="grid grid-cols-2 xs:grid-cols-4 sm:grid-cols-7 gap-1 text-[11px] font-mono">
+                          <div className="grid grid-cols-4 sm:grid-cols-7 gap-1 text-[10px] sm:text-[11px] font-mono">
                             {(['A+', 'A', 'B+', 'B', 'C+', 'C', 'D'] as GradeLevel[]).map(g => (
                               <div key={g} className="p-1.5 rounded-lg bg-obsidian-850 border border-white/5 text-center">
                                 <div className="font-bold text-slate-200">{g}</div>
@@ -1448,7 +1459,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
               initial="enter"
               animate="center"
               exit="exit"
-              className="glass-card rounded-2xl p-5 sm:p-7 border border-white/15 shadow-2xl text-center relative overflow-hidden"
+              className="glass-card rounded-2xl p-3.5 sm:p-7 border border-white/15 shadow-2xl text-center relative overflow-hidden"
             >
               <div className="absolute top-0 center w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2" />
 
@@ -1456,7 +1467,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                 <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-cyan-500/20 to-indigo-500/20 border border-emerald-500/30 text-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.3)]">
                   <Award className="w-8 h-8" />
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                <h2 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
                   Your Semester V Flight Plan is Ready!
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
@@ -1465,11 +1476,11 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
               </div>
 
               {/* Giant SGPA Hero Card */}
-              <div className="p-6 rounded-2xl bg-gradient-to-br from-obsidian-900 via-obsidian-850 to-cyan-950/40 border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.2)] mb-6">
+              <div className="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-obsidian-900 via-obsidian-850 to-cyan-950/40 border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.2)] mb-6">
                 <span className="text-xs font-mono uppercase tracking-widest text-slate-400 block mb-1">
                   Projected 5th Semester SGPA
                 </span>
-                <div className="text-6xl sm:text-7xl font-extrabold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-indigo-300">
+                <div className="text-5xl sm:text-7xl font-extrabold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-indigo-300">
                   {liveSgpa > 0 ? liveSgpa.toFixed(2) : '0.00'}
                 </div>
                 <div className="mt-3 flex items-center justify-center gap-2">
