@@ -106,33 +106,44 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
 
     setIsSubmitting(true);
 
+    const senderName = studentName.trim() || 'Anonymous Student';
+    const senderSection = studentSection.trim() || defaultSection;
+
     const payloadText = [
       `⭐ Rating: ${rating}/5 Stars`,
-      `👤 From: ${studentName.trim() || 'Anonymous Student'} (${studentSection || defaultSection})`,
+      `👤 From: ${senderName} (${senderSection})`,
       `❤️ Hearts Sent: ${heartsCount} (Global Total: ${globalHearts})`,
       `📝 Review / Feedback:`,
       message.trim(),
       `🕒 Sent: ${new Date().toLocaleString()}`
     ].join('\n');
 
-    // Instant delivery to developer's real-time stream (< 400ms)
+    // Instant delivery to developer's real-time stream using standard JSON body (100% UTF-8 safe across all browsers)
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-      await fetch('https://ntfy.sh/cu_gradepulse_feedback_anuj', {
+      const res = await fetch('https://ntfy.sh', {
         method: 'POST',
         signal: controller.signal,
         headers: {
-          'Title': `CU GradePulse: ${rating}★ Review from ${studentName.trim() || 'Student'}`,
-          'Priority': 'high',
-          'Tags': 'heart,mortar_board,star'
+          'Content-Type': 'application/json',
         },
-        body: payloadText
+        body: JSON.stringify({
+          topic: 'cu_gradepulse_feedback_anuj',
+          title: `CU GradePulse: ${rating}-Star Review from ${senderName}`,
+          message: payloadText,
+          priority: 4,
+          tags: ['heart', 'mortar_board', 'star']
+        })
       });
       clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        console.warn('Feedback delivery response status:', res.status);
+      }
     } catch (err) {
-      console.log('Instant notification logged:', err);
+      console.warn('Instant notification delivery error:', err);
     }
 
     setIsSubmitting(false);
