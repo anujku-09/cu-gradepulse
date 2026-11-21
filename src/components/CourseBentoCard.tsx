@@ -252,37 +252,7 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                     <span>{hasFullAttendance ? `+${attendanceComp.rawMax} Att` : 'No Att'}</span>
                   </button>
                 )}
-                <button
-                  onClick={() => {
-                    onUpdateDirectInternal(course.id, undefined);
-                    onQuickPreset(course.id, 'full');
-                  }}
-                  className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.04] hover:bg-emerald-950/60 hover:text-emerald-300 text-slate-400 border border-white/5"
-                  title="Set all internal marks to full"
-                >
-                  Full
-                </button>
-                <button
-                  onClick={() => {
-                    onUpdateDirectInternal(course.id, undefined);
-                    onQuickPreset(course.id, 'average');
-                  }}
-                  className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.04] hover:bg-cyan-950/60 hover:text-cyan-300 text-slate-400 border border-white/5"
-                  title="Set all internal marks to 75% average"
-                >
-                  75%
-                </button>
-                <button
-                  onClick={() => {
-                    onUpdateDirectInternal(course.id, 0);
-                    onQuickPreset(course.id, 'reset');
-                  }}
-                  className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.04] hover:bg-rose-950/60 hover:text-rose-300 text-slate-400 border border-white/5"
-                  title="Clear internal marks to 0"
-                >
-                  0
-                </button>
-                <div className="inline-flex items-center gap-0.5">
+                     <div className="inline-flex items-center gap-0.5">
                   <button
                     type="button"
                     onClick={() => setShowRegexBox(!showRegexBox)}
