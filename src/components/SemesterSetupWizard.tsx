@@ -952,6 +952,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
   </div>
 
 </div>
+</div>
                     {/* Embedded Course Regex Paste Box */}
                     {showRegexBox && (
                       <CourseRegexPasteBox
@@ -966,7 +967,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                         onClose={() => setShowRegexBox(false)}
                       />
                     )}
-          </div>
+          
 
                     {/* Simple Big Direct Internal Box */}
                     <div className="flex items-center justify-between gap-2 p-2.5 sm:p-3 rounded-xl bg-obsidian-900 border border-white/5">
