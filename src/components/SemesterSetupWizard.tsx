@@ -474,7 +474,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
         </div>
 
         {/* Animated Progress Bar (Desktop) */}
-        <div className="hidden sm:block w-full bg-obsidian-900 h-1.5 rounded-full overflow-hidden border border-white/5 relative">
+        <div className="hidden sm:block w-full max-w-4xl mx-auto bg-obsidian-900 h-1.5 rounded-full overflow-hidden border border-white/5 relative">
           <motion.div
             className="h-full bg-gradient-to-r from-cyan-500 via-indigo-500 to-violet-500"
             initial={{ width: 0 }}
@@ -484,7 +484,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
         </div>
 
         {/* Step Navigation Dots (Desktop Only - hidden sm:flex) */}
-        <div className="hidden sm:flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
+        <div className="hidden sm:flex w-full max-w-4xl mx-auto items-center justify-center gap-1 overflow-x-auto no-scrollbar py-0.5">
           {Array.from({ length: celebrationStep + 1 }, (_, i) => {
             const isCompleted = i < currentStep;
             const isCurrent = i === currentStep;
