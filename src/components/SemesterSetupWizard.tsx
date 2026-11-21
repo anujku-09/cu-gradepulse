@@ -615,14 +615,24 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                   })}
                 </div>
 
-                <div className="p-2.5 sm:p-3 rounded-xl bg-obsidian-850/80 border border-white/10 text-[11px] text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-1.5 truncate">
-                    <span className="text-cyan-400 font-mono font-semibold">Electives:</span>
-                    <span className="text-slate-200 font-medium truncate">{currentTrack.electiveHighlight}</span>
+                <div className="p-2.5 sm:p-3 rounded-xl bg-obsidian-850/80 border border-white/10 text-[11px] text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                
+                  {/* Electives Content */}
+                  <div className="flex items-start gap-1.5 min-w-0 flex-1">
+                    <span className="text-cyan-400 font-mono font-semibold flex-shrink-0">
+                      Electives:
+                    </span>
+                                
+                    <span className="text-slate-200 font-medium min-w-0 flex-1 whitespace-normal break-words leading-relaxed">
+                      {currentTrack.electiveHighlight}
+                    </span>
                   </div>
-                  <span className="text-[10px] text-emerald-400 font-medium flex-shrink-0">
+                                
+                  {/* Core Marks Status */}
+                  <span className="text-[10px] text-emerald-400 font-medium flex-shrink-0 whitespace-nowrap">
                     ✓ Core Marks Preserved
                   </span>
+                                
                 </div>
               </div>
 
