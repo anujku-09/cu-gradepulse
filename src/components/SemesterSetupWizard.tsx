@@ -116,7 +116,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
       '24SMT-341', // Probability & Statistics (4.0 Cr)
       '24CSH-301', // PBL in Java (3.0 Cr)
       '24CSH-352', // Apple iOS App Dev (3.0 Cr)
-      '24CST-351', // Web Development Fundamentals (3.0 Cr)
+      '24CST-XXX', // Web Development Fundamentals (3.0 Cr)
       '24CST-354', // ML Foundations (3.0 Cr)
       '24CST-356', // Cloud Arch (3.0 Cr)
       '24CST-358', // Network Security (3.0 Cr)

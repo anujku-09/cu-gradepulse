@@ -445,8 +445,8 @@ export function getCoursesTemplate(isSample: boolean = false): Course[] {
     // 5. Web Development Fundamentals (PE-III Offline Elective)
     {
       id: 'course-wdf',
-      code: '24CST-351',
-      name: 'PE-III: Web Development Fundamentals (Offline)',
+      code: '24CST-XXX',
+      name: 'PE-III: Web Dev/ Data Mining (Offline)',
       credits: 3.0,
       type: 'Theory',
       group: 'A',
@@ -746,9 +746,9 @@ export const COHORT_TRACKS_INFO: CohortTrackInfo[] = [
     name: 'Set F: Core Electives',
     badge: 'Rest Sections',
     icon: '🌐',
-    shortDesc: 'PE-II NPTEL + PE-III Web Dev / Offline Electives',
+    shortDesc: 'PE-II NPTEL + PE-III Web Dev / Data Mining/ Offline Electives',
     description: 'Set F (Rest remaining sections): PE-II NPTEL (Big Data / Cyber Threat) and PE-III Offline Theory (Web Dev, Mobile UX, Data Mining, Digital Image Processing, Business Analytics, VAPT).',
-    electiveHighlight: 'PE-II: NPTEL (Big Data / Cyber) + PE-III: Web Dev (24CST-351)',
+    electiveHighlight: 'PE-II: NPTEL (Big Data / Cyber) + PE-III: Web Dev / Data Mining /others (24CST-XXX)',
   },
   {
     id: 'apple',
@@ -834,7 +834,7 @@ export interface ElectivePreset {
 
 export const CU_5TH_SEM_ELECTIVE_PRESETS: ElectivePreset[] = [
   // Set F (Rest remaining sections)
-  { name: 'PE-III: Web Development Fundamentals (TPP only)', code: '24CST-351', type: 'Theory', credits: 3.0, set: 'Set F' },
+  { name: 'PE-III: Web Development Fundamentals (TPP only)', code: '24CST-XXX', type: 'Theory', credits: 3.0, set: 'Set F' },
   { name: 'PE-III: Mobile App User Experience Design', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set F' },
   { name: 'PE-III: Introduction to Digital Image Processing', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set F' },
   { name: 'PE-III: Data Mining', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set F' },
@@ -1101,8 +1101,8 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
         },
         {
           id: 'course-wdf',
-          code: '24CST-351',
-          name: 'PE-III: Web Development Fundamentals (Offline)',
+          code: '24CST-XXX',
+          name: 'PE-III: Web Dev / Data Mining / others (Offline)',
           credits: 3.0,
           type: 'Theory',
           group: 'A',
@@ -1119,7 +1119,7 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
 // Check if a course is considered an elective slot that switches between tracks
 export function isElectiveCourse(course: Course): boolean {
   const electiveCodes = [
-    '24CST-351', 'PE-2', 'PE-3', 'PE-5', 'PE-5A', 'PE-5B',
+    '24CST-XXX', 'PE-2', 'PE-3', 'PE-5', 'PE-5A', 'PE-5B',
     '24CSH-352', '24CSP-353',
     '24CST-354', '24CSP-355',
     '24CST-356', '24CSP-357',
@@ -1171,7 +1171,7 @@ export function detectTrackFromCourses(courses: Course[]): CohortTrackId {
   if ((codes.includes('PE-2') && codes.includes('PE-3') && courses.filter(c => c.type === 'DirectGrade').length >= 2) || (codes.includes('PE-5A') && codes.includes('PE-5B'))) {
     return 'dual-nptel';
   }
-  if (codes.includes('24CST-351') || codes.includes('PE-2') || codes.includes('PE-3') || codes.includes('PE-5')) {
+  if (codes.includes('24CST-XXX') || codes.includes('PE-2') || codes.includes('PE-3') || codes.includes('PE-5')) {
     return 'general';
   }
   return 'custom';

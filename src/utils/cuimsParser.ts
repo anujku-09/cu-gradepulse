@@ -37,7 +37,7 @@ export function parseCuimsText(rawText: string, courses: Course[]): ParseResult 
     }
 
     // 2. Check if line contains a course code or course name header
-    // Strict course code match: e.g. 24CST-302, 24CSH-301, 24CSP-305, 24CSP-304, 24SMT-341, 24CST-351, 24CSH-352, 24CSP-353, 24TDP-311, 24TDT-312, PE-5, PE-5A
+    // Strict course code match: e.g. 24CST-302, 24CSH-301, 24CSP-305, 24CSP-304, 24SMT-341, 24CST-XXX, 24CSH-352, 24CSP-353, 24TDP-311, 24TDT-312, PE-5, PE-5A
     const codeMatch = line.match(/(24[a-z]{3}[-_]?\d{3}|pe[-_]?5[a-z]?)/i);
     if (codeMatch) {
       const cleanCode = codeMatch[0].toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -62,7 +62,7 @@ export function parseCuimsText(rawText: string, courses: Course[]): ParseResult 
               (c.code === '24CSH-301' && lineClean.includes('project based learning in java')) ||
               (c.code === '24CSP-305' && lineClean.includes('competitive coding')) ||
               (c.code === '24CSP-304' && lineClean.includes('full stack')) ||
-              (c.code === '24CST-351' && lineClean.includes('web development')) ||
+              (c.code === '24CST-XXX' && lineClean.includes('web dev / data mining / others')) ||
               (c.code === '24CSH-352' && (lineClean.includes('ios') || lineClean.includes('swift') || lineClean.includes('apple'))) ||
               (c.code === '24CSP-353' && (lineClean.includes('apple') || lineClean.includes('frameworks') || lineClean.includes('swift lab'))) ||
               (c.code === '24CST-354' && lineClean.includes('machine learning')) ||
