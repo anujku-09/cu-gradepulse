@@ -108,7 +108,7 @@ export const CourseRegexPasteBox: React.FC<CourseRegexPasteBoxProps> = ({
         rows={isCompact ? 3 : 4}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder={`Paste copied CUIMS text for ${course.name}...\ne.g.\nMid-Semester Test-1  20  18.5\nMid-Semester Test-2  20  19\nQuiz  4  4\nSurprise Test  12  11`}
+        placeholder={`Paste copied CUIMS text for ${course.name}...\nSupports desktop tables & mobile formats:\ne.g.\nPractical MST\n8.5/10\nPractical Worksheet/Projects 1\n29/30\nMST-1 Hybrid\n16/20`}
         className="w-full bg-obsidian-900 border border-white/10 rounded-lg p-2 text-xs text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-cyan-500 font-mono resize-none"
       />
 

@@ -140,7 +140,7 @@ export const CuimsSmartPasteModal: React.FC<CuimsSmartPasteModalProps> = ({
             rows={6}
             value={rawText}
             onChange={(e) => setRawText(e.target.value)}
-            placeholder="Paste text directly from CUIMS assessment tables or reports here (e.g., 'Experiment 1  28 / 30' or 'MST-1 18')..."
+            placeholder="Paste text directly from CUIMS assessment tables or mobile copies here (e.g., 'Experiment 1  28 / 30', 'Practical MST \n 8.5/10', 'MST-1 Hybrid \n 16/20')..."
             className="w-full p-3 rounded-xl bg-obsidian-850 border border-white/10 text-xs font-mono text-slate-200 focus:outline-none focus:border-cyan-500 transition-all placeholder:text-slate-600"
           />
         </div>
