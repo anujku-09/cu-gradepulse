@@ -101,12 +101,12 @@ export const CourseDetailModal: React.FC<CourseDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[70] overflow-y-auto bg-obsidian-950/80 backdrop-blur-md flex justify-end animate-fadeIn">
+    <div className="fixed inset-0 z-[70] bg-obsidian-950/80 backdrop-blur-md flex justify-end animate-fadeIn">
       {/* Click outside backdrop */}
       <div className="fixed inset-0" onClick={onClose} />
 
       {/* Slide-over Drawer Panel (Responsive: full width on mobile, max-w-2xl on desktop) */}
-      <div className="relative w-full max-w-2xl bg-obsidian-900 border-l border-white/10 min-h-screen shadow-2xl p-4 sm:p-6 flex flex-col justify-between z-10 overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-obsidian-900 border-l border-white/10 h-full max-h-screen shadow-2xl p-4 sm:p-6 flex flex-col justify-between z-10 overflow-y-auto overscroll-contain">
         
         <div>
           {/* Drawer Top Header */}
