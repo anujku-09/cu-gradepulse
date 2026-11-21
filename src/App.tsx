@@ -701,6 +701,8 @@ export const App: React.FC = () => {
             setGlobalCutoffs(cutoffs);
             setCurveMode('custom');
           }}
+          courses={courses}
+          calc={calculation}
         />
       )}
 
