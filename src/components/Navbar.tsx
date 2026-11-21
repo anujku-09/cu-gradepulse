@@ -110,7 +110,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="Cohort Cutoff Curve Difficulty"
             >
               <option value="standard">Standard (95+)</option>
-              <option value="strict">Strict (97+)</option>
+              <option value="strict">Strict (96+)</option>
               <option value="lenient">Lenient (90+)</option>
               {curveMode === 'custom' && <option value="custom">Custom</option>}
             </select>
