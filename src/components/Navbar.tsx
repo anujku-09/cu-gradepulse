@@ -54,7 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const currentTrack = COHORT_TRACKS_INFO.find(t => t.id === currentTrackId) || COHORT_TRACKS_INFO[0];
 
   return (
-    <header className="sticky top-0 z-40 w-full max-w-[100vw] overflow-x-hidden border-b border-white/[0.08] bg-obsidian-950/92 backdrop-blur-xl transition-all select-none">
+    <header className="sticky top-0 z-[60] w-full max-w-[100vw] overflow-x-hidden border-b border-white/[0.08] bg-obsidian-950/95 backdrop-blur-xl transition-all select-none">
       {/* Unified Single Navbar: h-14 (56px) on mobile/tablet, h-16 (64px) on desktop */}
       <div className="w-full max-w-[1700px] mx-auto px-2 sm:px-4 lg:px-6 h-14 sm:h-16 flex items-center justify-between gap-1 sm:gap-2">
         

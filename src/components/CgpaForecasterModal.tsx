@@ -149,7 +149,7 @@ export const CgpaForecasterModal: React.FC<CgpaForecasterModalProps> = ({
 
             <div className="p-3 sm:p-3.5 rounded-xl bg-obsidian-850/60 border border-white/5 space-y-1">
               <label className="text-xs font-semibold text-slate-300 block">
-                Completed Credits
+                Credits
               </label>
               <div className="flex items-center gap-2">
                 <input

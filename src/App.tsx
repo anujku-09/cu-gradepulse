@@ -752,15 +752,17 @@ export const App: React.FC = () => {
         onToggleSimpleMode={() => setIsDetailedView(prev => !prev)}
       />
 
-      {/* Floating Bottom Mission Control Dock for Mobile Phones */}
-      <MobileBottomNav
-        calc={calculation}
-        onOpenForecaster={() => setIsForecasterOpen(true)}
-        onOpenPasteModal={() => setIsPasteModalOpen(true)}
-        onOpenExportModal={() => setIsExportModalOpen(true)}
-        onOpenCutoffModal={() => setIsCutoffModalOpen(true)}
-        onOpenWizard={handleOpenWizard}
-      />
+      {/* Floating Bottom Mission Control Dock for Mobile Phones (displayed on dashboard) */}
+      {!isSetupWizardOpen && (
+        <MobileBottomNav
+          calc={calculation}
+          onOpenForecaster={() => setIsForecasterOpen(true)}
+          onOpenPasteModal={() => setIsPasteModalOpen(true)}
+          onOpenExportModal={() => setIsExportModalOpen(true)}
+          onOpenCutoffModal={() => setIsCutoffModalOpen(true)}
+          onOpenWizard={handleOpenWizard}
+        />
+      )}
 
       {/* Developer Love & Feedback Modal */}
       <FeedbackModal
