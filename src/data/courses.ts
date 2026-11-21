@@ -205,13 +205,13 @@ export function detectAssessmentSchemeFromCode(code: string, name: string = ''):
     return 'DirectGrade';
   }
 
-  // 2. Hybrid PBL (24CSH-...)
-  if (c.includes('CSH') || n.includes('(hybrid)') || n.includes('hybrid') || n.includes('pbl')) {
+  // 2. Hybrid PBL & Track Hybrids (24CSH-..., Swift, iOS, IoT Network)
+  if (c.includes('CSH') || c.includes('24CSH-352') || c.includes('24CSP-353') || c.includes('24CST-360') || n.includes('swift') || n.includes('ios app') || n.includes('iot network') || n.includes('(hybrid)') || n.includes('hybrid') || n.includes('pbl')) {
     return 'Hybrid';
   }
 
-  // 3. 100% Continuous Evaluation / Project / Capstone
-  if (n.includes('capstone') || n.includes('continuous') || n.includes('project evaluation') || n.includes('internship') || n.includes('seminar')) {
+  // 3. 100% Continuous Evaluation / Industry Specialization / Project / Capstone
+  if (n.includes('capstone') || n.includes('continuous') || n.includes('project evaluation') || n.includes('internship') || n.includes('seminar') || n.includes('kpit') || n.includes('salesforce') || n.includes('servicenow') || n.includes('sap') || n.includes('mlops') || n.includes('virtusa') || n.includes('industry')) {
     return 'ContinuousEvaluation';
   }
 
@@ -757,9 +757,9 @@ export const COHORT_TRACKS_INFO: CohortTrackInfo[] = [
     name: 'Set B: Apple Track',
     badge: 'Apple Sections',
     icon: '🍎',
-    shortDesc: 'Swift Programming (Offline) + iOS App Design (Offline)',
-    description: 'Set B for Apple sections: Programming in Swift (Offline Mandatory) and Application Design & Development for iOS (Offline).',
-    electiveHighlight: 'PE-II: Swift (Offline) + PE-III: iOS App Design (Offline)',
+    shortDesc: 'Swift Programming (Hybrid 70/30) + iOS App Design (Hybrid 70/30)',
+    description: 'Set B for Apple sections: Programming in Swift (Hybrid 70/30) and Application Design & Development for iOS (Hybrid 70/30).',
+    electiveHighlight: 'PE-II: Swift (Hybrid 70/30) + PE-III: iOS App Design (Hybrid 70/30)',
   },
   {
     id: 'aiml',
@@ -775,18 +775,18 @@ export const COHORT_TRACKS_INFO: CohortTrackInfo[] = [
     name: 'Set C: IoT Track',
     badge: 'IoT Sections',
     icon: '📡',
-    shortDesc: 'PE-II NPTEL + PE-III IoT Network Protocols (Offline)',
-    description: 'Set C for IoT sections: PE-II NPTEL (Big Data / Cyber Threat) and PE-III IoT Network Architecture & Communication Protocols (Offline).',
-    electiveHighlight: 'PE-II: NPTEL + PE-III: IoT Network Protocols (Offline)',
+    shortDesc: 'PE-II NPTEL + PE-III IoT Network Protocols (Hybrid 70/30)',
+    description: 'Set C for IoT sections: PE-II NPTEL (Big Data / Cyber Threat) and PE-III IoT Network Architecture & Communication Protocols (Hybrid 70/30).',
+    electiveHighlight: 'PE-II: NPTEL + PE-III: IoT Network Protocols (Hybrid 70/30)',
   },
   {
     id: 'industry',
     name: 'Set E: Industry Integration',
     badge: 'Industry Skills',
     icon: '🏢',
-    shortDesc: 'PE-II NPTEL + PE-III KPIT / Salesforce / SAP / IBM',
-    description: 'Set E for Industry Skill Integration: PE-II NPTEL and PE-III Offline Specialization (KPIT C, Virtusa Testing, Salesforce, SAP, ServiceNow, Tech Mahindra, IBM MLOps).',
-    electiveHighlight: 'PE-II: NPTEL + PE-III: Industry Specialization (Offline)',
+    shortDesc: 'PE-II NPTEL + PE-III Industry Specialization (100% Internal)',
+    description: 'Set E for Industry Skill Integration: PE-II NPTEL and PE-III Offline Specialization (KPIT C, Virtusa Testing, Salesforce, SAP, ServiceNow, Tech Mahindra, IBM MLOps - 100% Continuous Internal Evaluation).',
+    electiveHighlight: 'PE-II: NPTEL + PE-III: Industry Specialization (100% Internal)',
   },
   {
     id: 'cloud',
@@ -843,21 +843,21 @@ export const CU_5TH_SEM_ELECTIVE_PRESETS: ElectivePreset[] = [
   { name: 'PE-III: Business Analytics and Visualization', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set F' },
   { name: 'PE-III: Vulnerability Assessment & Pen-Testing (IIFON)', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set F' },
   
-  // Set E (Industry Skill Integration)
-  { name: 'PE-III: KPIT: Advanced C Programming', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set E' },
-  { name: 'PE-III: Virtusa: Software Testing', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set E' },
-  { name: 'PE-III: Salesforce: Salesforce-1', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set E' },
-  { name: 'PE-III: SAP: SAP-1', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set E' },
-  { name: 'PE-III: ServiceNow: ServiceNow-1', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set E' },
-  { name: 'PE-III: Tech Mahindra: Cyber Security-1', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set E' },
-  { name: 'PE-III: IBM: MLOps-1', code: 'PE-3', type: 'Theory', credits: 3.0, set: 'Set E' },
+  // Set E (Industry Skill Integration - 100% Continuous Internal Evaluation)
+  { name: 'PE-III: KPIT: Advanced C Programming', code: 'PE-3', type: 'ContinuousEvaluation', credits: 3.0, set: 'Set E' },
+  { name: 'PE-III: Virtusa: Software Testing', code: 'PE-3', type: 'ContinuousEvaluation', credits: 3.0, set: 'Set E' },
+  { name: 'PE-III: Salesforce: Salesforce-1', code: 'PE-3', type: 'ContinuousEvaluation', credits: 3.0, set: 'Set E' },
+  { name: 'PE-III: SAP: SAP-1', code: 'PE-3', type: 'ContinuousEvaluation', credits: 3.0, set: 'Set E' },
+  { name: 'PE-III: ServiceNow: ServiceNow-1', code: 'PE-3', type: 'ContinuousEvaluation', credits: 3.0, set: 'Set E' },
+  { name: 'PE-III: Tech Mahindra: Cyber Security-1', code: 'PE-3', type: 'ContinuousEvaluation', credits: 3.0, set: 'Set E' },
+  { name: 'PE-III: IBM: MLOps-1', code: 'PE-3', type: 'ContinuousEvaluation', credits: 3.0, set: 'Set E' },
 
-  // Set C (IoT)
-  { name: 'PE-III: IoT Network Architecture & Protocols', code: '24CST-360', type: 'Theory', credits: 3.0, set: 'Set C' },
+  // Set C (IoT - Hybrid 70/30)
+  { name: 'PE-III: IoT Network Architecture & Protocols', code: '24CST-360', type: 'Hybrid', credits: 3.0, set: 'Set C' },
 
-  // Set B (Apple)
-  { name: 'PE-II: Programming in Swift (Offline)', code: '24CSH-352', type: 'Theory', credits: 3.0, set: 'Set B' },
-  { name: 'PE-III: Application Design & Dev for iOS (Offline)', code: '24CSP-353', type: 'Practical', credits: 3.0, set: 'Set B' },
+  // Set B (Apple - Both Subjects Hybrid 70/30)
+  { name: 'PE-II: Programming in Swift (Offline)', code: '24CSH-352', type: 'Hybrid', credits: 3.0, set: 'Set B' },
+  { name: 'PE-III: Application Design & Dev for iOS (Offline)', code: '24CSP-353', type: 'Hybrid', credits: 3.0, set: 'Set B' },
 
   // Set D (ML & AI)
   { name: 'PE-II: Optimization Techniques for AI (Offline)', code: '24CST-354', type: 'Theory', credits: 3.0, set: 'Set D' },
@@ -877,26 +877,26 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
           code: '24CSH-352',
           name: 'PE-II: Programming in Swift (Offline)',
           credits: 3.0,
-          type: 'Theory',
+          type: 'Hybrid',
           group: 'A',
-          externalName: 'External Theory Exam',
+          externalName: 'End Term Hybrid Theory',
           externalRawMax: 60,
-          externalWeightage: 60,
-          externalTargetScore: isSample ? 49 : 0,
-          components: createStandardTheoryComponents('apple-swift', isSample)
+          externalWeightage: 30,
+          externalTargetScore: isSample ? 50 : 0,
+          components: createStandardHybridComponents('apple-swift', isSample)
         },
         {
           id: 'course-apple-ios',
           code: '24CSP-353',
           name: 'PE-III: Application Design & Dev for iOS (Offline)',
           credits: 3.0,
-          type: 'Practical',
+          type: 'Hybrid',
           group: 'A',
-          externalName: 'External Practical Viva / Evaluation',
-          externalRawMax: 40,
-          externalWeightage: 40,
-          externalTargetScore: isSample ? 35 : 0,
-          components: createStandardPracticalComponents('apple-ios', isSample)
+          externalName: 'End Term Hybrid Practical / Review',
+          externalRawMax: 60,
+          externalWeightage: 30,
+          externalTargetScore: isSample ? 50 : 0,
+          components: createStandardHybridComponents('apple-ios', isSample)
         }
       ];
 
@@ -951,13 +951,13 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
           code: '24CST-360',
           name: 'PE-III: IoT Network Architecture & Protocols (Offline)',
           credits: 3.0,
-          type: 'Theory',
+          type: 'Hybrid',
           group: 'A',
-          externalName: 'External Theory',
+          externalName: 'End Term Hybrid Theory / Project',
           externalRawMax: 60,
-          externalWeightage: 60,
-          externalTargetScore: isSample ? 48 : 0,
-          components: createStandardTheoryComponents('iot-net', isSample)
+          externalWeightage: 30,
+          externalTargetScore: isSample ? 50 : 0,
+          components: createStandardHybridComponents('iot-net', isSample)
         }
       ];
 
@@ -982,13 +982,13 @@ export function getElectivesForTrack(trackId: CohortTrackId, isSample = false): 
           code: 'PE-3',
           name: 'PE-III: Industry Specialization (KPIT/Salesforce/SAP/IBM)',
           credits: 3.0,
-          type: 'Theory',
+          type: 'ContinuousEvaluation',
           group: 'A',
-          externalName: 'External Theory / Viva',
-          externalRawMax: 60,
-          externalWeightage: 60,
-          externalTargetScore: isSample ? 49 : 0,
-          components: createStandardTheoryComponents('ind-spec', isSample)
+          externalName: '100% Continuous Evaluation (No External Exam)',
+          externalRawMax: 0,
+          externalWeightage: 0,
+          externalTargetScore: 0,
+          components: createContinuousInternalComponents('ind-spec', isSample)
         }
       ];
 
