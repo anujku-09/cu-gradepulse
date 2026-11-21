@@ -54,8 +54,6 @@ export interface Course {
   directInternalOverride?: number;
   // Group B Direct Grade
   directGrade?: GradeLevel;
-  // Group C Dual-mode settings
-  isNonGraded?: boolean; // When true, MNG mode (Non-Graded, qualifying >= 40)
   isExcluded?: boolean; // When true, this subject is disallowed/excluded from contributing to SGPA & credits
   customCutoffs?: GradeCutoffs;
   isCustom?: boolean; // When true, custom added subject
@@ -73,9 +71,7 @@ export interface CourseResult {
   totalWeightedScore: number;
   predictedGrade: GradeLevel;
   gradePoint: number;
-  isQualified: boolean; // For MNG
-  isBacklog: boolean; // F grade or Not Qualified
-  isNonGraded: boolean;
+  isBacklog: boolean; // F grade
   isExcluded: boolean; // When true, excluded from SGPA calculations
   effectiveCredits: number;
   gradeCutoffs: GradeCutoffs;
@@ -106,28 +102,4 @@ export interface CgpaForecast {
   semesterCredits: number;
   predictedCgpa: number;
   cgpaDelta: number;
-}
-
-export interface StrategyPlanCourse {
-  courseId: string;
-  code: string;
-  name: string;
-  credits: number;
-  currentInternal: number;
-  maxInternal: number;
-  targetExternalRaw: number;
-  maxExternalRaw: number;
-  targetGrade: GradeLevel;
-  difficulty: 'Achieved' | 'Comfortable' | 'Challenging' | 'Maximum Effort' | 'Impossible';
-  isNonGraded?: boolean;
-  isQualified?: boolean;
-  note?: string;
-}
-
-export interface StrategyPlan {
-  targetSgpa: number;
-  achievableSgpa: number;
-  feasible: boolean;
-  courses: StrategyPlanCourse[];
-  summary: string;
 }

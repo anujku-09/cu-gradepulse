@@ -594,7 +594,6 @@ export function getCoursesTemplate(isSample: boolean = false): Course[] {
       credits: 2.0,
       type: 'Practical',
       group: 'C',
-      isNonGraded: true, // Non-Graded (MNG) by default
       externalName: 'External Viva / Voce',
       externalRawMax: 40,
       externalWeightage: 40,
@@ -683,7 +682,6 @@ export function getCoursesTemplate(isSample: boolean = false): Course[] {
       credits: 2.0,
       type: 'Theory',
       group: 'C',
-      isNonGraded: true, // Non-Graded (MNG) by default
       externalName: 'External Theory',
       externalRawMax: 60,
       externalWeightage: 60,
@@ -1218,8 +1216,7 @@ export function createNewBlankCourse(
   name: string,
   code: string,
   credits: number,
-  type: CourseType,
-  isNonGraded = false
+  type: CourseType
 ): Course {
   const id = `custom-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
   
@@ -1238,7 +1235,6 @@ export function createNewBlankCourse(
       externalTargetScore: 0,
       directGrade: 'A',
       components: [],
-      isNonGraded
     };
   }
 
@@ -1249,9 +1245,8 @@ export function createNewBlankCourse(
       name: name.trim() || 'Custom Practical Subject',
       credits: Number(credits) || 2.0,
       type: 'Practical',
-      group: isNonGraded ? 'C' : 'A',
+      group: 'A',
       isCustom: true,
-      isNonGraded,
       externalName: 'External Viva / Voce',
       externalRawMax: 40,
       externalWeightage: 40,
@@ -1267,9 +1262,8 @@ export function createNewBlankCourse(
       name: name.trim() || 'Custom Hybrid PBL Subject',
       credits: Number(credits) || 3.0,
       type: 'Hybrid',
-      group: isNonGraded ? 'C' : 'A',
+      group: 'A',
       isCustom: true,
-      isNonGraded,
       externalName: 'End Term Hybrid Theory',
       externalRawMax: 60,
       externalWeightage: 30,
@@ -1285,9 +1279,8 @@ export function createNewBlankCourse(
       name: name.trim() || 'Custom Continuous Evaluation Subject',
       credits: Number(credits) || 3.0,
       type: 'ContinuousEvaluation',
-      group: isNonGraded ? 'C' : 'A',
+      group: 'A',
       isCustom: true,
-      isNonGraded,
       externalName: 'Continuous Evaluation (No External Exam)',
       externalRawMax: 0,
       externalWeightage: 0,
@@ -1303,9 +1296,8 @@ export function createNewBlankCourse(
     name: name.trim() || 'Custom Theory Subject',
     credits: Number(credits) || 3.0,
     type: 'Theory',
-    group: isNonGraded ? 'C' : 'A',
+    group: 'A',
     isCustom: true,
-    isNonGraded,
     externalName: 'External Theory Exam',
     externalRawMax: 60,
     externalWeightage: 60,
@@ -1336,7 +1328,7 @@ export function convertCourseMode(course: Course, targetType: CourseType): Cours
     return {
       ...course,
       type: 'Practical',
-      group: course.isNonGraded ? 'C' : 'A',
+      group: course.group === 'B' ? 'A' : course.group,
       directGrade: undefined,
       externalName: 'External Viva / Voce',
       externalRawMax: 40,
@@ -1351,7 +1343,7 @@ export function convertCourseMode(course: Course, targetType: CourseType): Cours
     return {
       ...course,
       type: 'Hybrid',
-      group: course.isNonGraded ? 'C' : 'A',
+      group: course.group === 'B' ? 'A' : course.group,
       directGrade: undefined,
       externalName: 'End Term Hybrid Theory',
       externalRawMax: 60,
@@ -1366,7 +1358,7 @@ export function convertCourseMode(course: Course, targetType: CourseType): Cours
     return {
       ...course,
       type: 'ContinuousEvaluation',
-      group: course.isNonGraded ? 'C' : 'A',
+      group: course.group === 'B' ? 'A' : course.group,
       directGrade: undefined,
       externalName: 'Continuous Evaluation (No External Exam)',
       externalRawMax: 0,
@@ -1381,7 +1373,7 @@ export function convertCourseMode(course: Course, targetType: CourseType): Cours
   return {
     ...course,
     type: 'Theory',
-    group: course.isNonGraded ? 'C' : 'A',
+    group: course.group === 'B' ? 'A' : course.group,
     directGrade: undefined,
     externalName: 'External Theory Exam',
     externalRawMax: 60,

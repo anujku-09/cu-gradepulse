@@ -152,9 +152,7 @@ export function calculateCourseResult(course: Course, globalCutoffs: GradeCutoff
       totalWeightedScore,
       predictedGrade: activeGrade,
       gradePoint,
-      isQualified: true,
       isBacklog: false,
-      isNonGraded: false,
       isExcluded,
       effectiveCredits: isExcluded ? 0 : course.credits,
       gradeCutoffs: cutoffs,
@@ -200,17 +198,14 @@ export function calculateCourseResult(course: Course, globalCutoffs: GradeCutoff
   // is PENDING, NOT an F-Grade backlog!
   const hasUserEnteredAnyMarks = hasAnyInternalEntered || hasExternalTargetEntered;
 
-  const isMng = !!course.isNonGraded;
-  const isQualified = hasUserEnteredAnyMarks ? totalWeightedScore >= 40.0 : true;
-  
   let predictedGrade: GradeLevel = determineGrade(totalWeightedScore, cutoffs);
   let gradePoint = GRADE_POINTS[predictedGrade];
 
   // A backlog is ONLY real if user has entered marks AND still fails (< 40)
   const isExcluded = !!course.isExcluded;
-  const isBacklog = !isExcluded && hasUserEnteredAnyMarks && (isMng ? !isQualified : predictedGrade === 'F');
+  const isBacklog = !isExcluded && hasUserEnteredAnyMarks && predictedGrade === 'F';
 
-  const effectiveCredits = (isMng || isExcluded) ? 0 : course.credits;
+  const effectiveCredits = isExcluded ? 0 : course.credits;
 
   // Calculate what-if external targets for each grade tier
   const tiers: GradeLevel[] = ['D', 'C', 'C+', 'B', 'B+', 'A', 'A+'];
@@ -259,9 +254,7 @@ export function calculateCourseResult(course: Course, globalCutoffs: GradeCutoff
     totalWeightedScore,
     predictedGrade,
     gradePoint,
-    isQualified,
     isBacklog,
-    isNonGraded: isMng,
     isExcluded,
     effectiveCredits,
     gradeCutoffs: cutoffs,
@@ -305,28 +298,13 @@ export function calculateSemester(
       backlogCourses.push(`${course.code} - ${course.name}`);
     }
 
-    if (!res.isNonGraded) {
-      totalGradedCredits += res.effectiveCredits;
-      totalWeightedGradePoints += res.gradePoint * res.effectiveCredits;
+    totalGradedCredits += res.effectiveCredits;
+    totalWeightedGradePoints += res.gradePoint * res.effectiveCredits;
 
-      // Only count internal weightage of graded courses that contribute to SGPA
-      if (course.type !== 'DirectGrade') {
-        totalInternalEarned += res.weightedInternalScore;
-        totalInternalMax += res.maxInternalWeightage;
-      }
-    }
-  }
-
-  // Fallback: If all active courses are MNG, calculate internal metrics across MNG courses
-  if (totalInternalMax === 0) {
-    for (const course of courses) {
-      if (!course.isExcluded && course.type !== 'DirectGrade') {
-        const res = courseResults[course.id];
-        if (res) {
-          totalInternalEarned += res.weightedInternalScore;
-          totalInternalMax += res.maxInternalWeightage;
-        }
-      }
+    // Only count internal weightage of courses that contribute to SGPA
+    if (course.type !== 'DirectGrade' && res.effectiveCredits > 0) {
+      totalInternalEarned += res.weightedInternalScore;
+      totalInternalMax += res.maxInternalWeightage;
     }
   }
 

@@ -30,7 +30,6 @@ export const AddCustomCourseModal: React.FC<AddCustomCourseModalProps> = ({
   const [code, setCode] = useState('');
   const [credits, setCredits] = useState<number>(3.0);
   const [type, setType] = useState<CourseType>('Theory');
-  const [isNonGraded, setIsNonGraded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Auto-detect assessment scheme from code & name
@@ -53,7 +52,7 @@ export const AddCustomCourseModal: React.FC<AddCustomCourseModalProps> = ({
       return;
     }
 
-    const course = createNewBlankCourse(name, code, credits, type, isNonGraded);
+    const course = createNewBlankCourse(name, code, credits, type);
     onAddCourse(course);
     onClose();
   };
@@ -272,22 +271,6 @@ export const AddCustomCourseModal: React.FC<AddCustomCourseModalProps> = ({
                 </span>
               </button>
             </div>
-          </div>
-
-          {/* Non-Graded Checkbox */}
-          <div className="pt-2">
-            <label className="flex items-center gap-2.5 cursor-pointer p-2.5 rounded-xl bg-obsidian-850 border border-white/5 hover:border-white/10">
-              <input
-                type="checkbox"
-                checked={isNonGraded}
-                onChange={(e) => setIsNonGraded(e.target.checked)}
-                className="w-4 h-4 rounded text-cyan-500 bg-obsidian-900 border-white/20 focus:ring-0 cursor-pointer"
-              />
-              <div className="text-xs">
-                <span className="font-semibold text-slate-200">Mandatory Non-Graded (MNG)</span>
-                <span className="text-slate-400 block text-[11px]">Subject requires ≥40% to pass, but does not affect SGPA</span>
-              </div>
-            </label>
           </div>
 
           {/* Submit Actions */}

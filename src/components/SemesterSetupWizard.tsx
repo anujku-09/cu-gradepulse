@@ -45,19 +45,16 @@ interface SemesterSetupWizardProps {
   results: Record<string, CourseResult>;
   liveSgpa: number;
   totalGradedCredits: number;
-  isGlobalMng: boolean;
   curveMode: CurveMode;
   currentTrackId: CohortTrackId;
   onSelectTrack: (trackId: CohortTrackId) => void;
   onOpenTrackModal: () => void;
   onCurveChange: (mode: CurveMode) => void;
   onOpenCutoffModal: () => void;
-  onToggleGlobalMng: () => void;
   onUpdateExternal: (courseId: string, score: number) => void;
   onUpdateDirectGrade: (courseId: string, grade: GradeLevel) => void;
   onUpdateDirectInternal: (courseId: string, score: number | undefined) => void;
   onUpdateComponentMarks: (courseId: string, componentId: string, score: number) => void;
-  onToggleCourseMng: (courseId: string) => void;
   onToggleCourseExcluded: (courseId: string) => void;
   onQuickPreset: (courseId: string, preset: 'full' | 'average' | 'reset') => void;
   onToggleAttendance: (courseId: string, full: boolean) => void;
@@ -77,19 +74,16 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
   results,
   liveSgpa,
   totalGradedCredits,
-  isGlobalMng,
   curveMode,
   currentTrackId,
   onSelectTrack,
   onOpenTrackModal,
   onCurveChange,
   onOpenCutoffModal,
-  onToggleGlobalMng,
   onUpdateExternal,
   onUpdateDirectGrade,
   onUpdateDirectInternal,
   onUpdateComponentMarks,
-  onToggleCourseMng,
   onToggleCourseExcluded,
   onQuickPreset,
   onToggleAttendance,
@@ -101,7 +95,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
   onOpenFeedback,
   onComplete,
 }) => {
-  // Step 0: Track Mode (MNG vs Graded & Cohort Section)
+  // Step 0: Cohort Section Setup
   // Step 1..totalCourseSteps: The Semester V Courses
   // Step totalCourseSteps + 1: Celebration / Summary Deck
   const [currentStep, setCurrentStep] = useState(0);
@@ -578,22 +572,22 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                   Configure Your 5th Sem Setup
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
-                  Select your elective cohort track and Aptitude/Soft Skills evaluation mode.
+                  Select your elective cohort track to auto-populate your subjects and evaluation schemes.
                 </p>
               </div>
 
-              {/* 1. CHOOSE YOUR COHORT / SPECIALIZATION SECTION */}
-              <div className="space-y-2 mb-5 sm:mb-6 text-left">
+              {/* CHOOSE YOUR COHORT / SPECIALIZATION SECTION */}
+              <div className="space-y-2.5 mb-6 text-left">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                    <span>1. Select Your Elective Cohort Track:</span>
+                    <span>Select Your Elective Cohort Track:</span>
                   </span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800/60 font-semibold">
                     Elective Sets
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5">
                   {COHORT_TRACKS_INFO.map(track => {
                     const isSelected = track.id === currentTrackId;
                     return (
@@ -601,13 +595,13 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                         key={track.id}
                         type="button"
                         onClick={() => onSelectTrack(track.id)}
-                        className={`p-2 sm:p-2.5 rounded-xl border text-left transition-all flex items-center gap-2 sm:gap-2.5 active:scale-95 touch-manipulation ${
+                        className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all flex items-center gap-2.5 active:scale-95 touch-manipulation ${
                           isSelected
                             ? 'bg-gradient-to-r from-cyan-950/80 to-indigo-950/80 border-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.25)] ring-1 ring-cyan-500/50'
                             : 'bg-obsidian-900/80 hover:bg-obsidian-850 border-white/10 text-slate-300'
                         }`}
                       >
-                        <span className="text-base sm:text-xl flex-shrink-0">{track.icon}</span>
+                        <span className="text-lg sm:text-xl flex-shrink-0">{track.icon}</span>
                         <div className="min-w-0 flex-1">
                           <span className={`text-[11px] sm:text-xs font-bold block leading-tight truncate ${isSelected ? 'text-cyan-300' : 'text-slate-200'}`}>
                             {track.name}
@@ -621,7 +615,7 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                   })}
                 </div>
 
-                <div className="p-2 sm:p-2.5 rounded-xl bg-obsidian-850/80 border border-white/10 text-[11px] text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                <div className="p-2.5 sm:p-3 rounded-xl bg-obsidian-850/80 border border-white/10 text-[11px] text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                   <div className="flex items-center gap-1.5 truncate">
                     <span className="text-cyan-400 font-mono font-semibold">Electives:</span>
                     <span className="text-slate-200 font-medium truncate">{currentTrack.electiveHighlight}</span>
@@ -630,92 +624,6 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                     ✓ Core Marks Preserved
                   </span>
                 </div>
-              </div>
-
-              {/* 2. CHOOSE APTITUDE & SOFT SKILLS EVALUATION */}
-              <div className="space-y-1.5 mb-5 sm:mb-6 text-left">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-slate-200 block">
-                    2. Soft Skills & Aptitude Evaluation Mode:
-                  </span>
-                  <MicroTooltip content="Soft Skills-III (24TDP-311) and Aptitude-III (24TDT-312) are evaluated as either Non-Graded (Pass/Fail) or Full Credit depending on your department notification." />
-                </div>
-                <p className="text-[11px] text-slate-400">
-                  Choose how your section calculates Soft Skills & Aptitude credits.
-                </p>
-              </div>
-
-              {/* 2 Options Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
-                
-                {/* Option A: Non-Graded (MNG) */}
-                <div
-                  onClick={() => {
-                    if (!isGlobalMng) onToggleGlobalMng();
-                  }}
-                  className={`p-3.5 sm:p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                    isGlobalMng
-                      ? 'bg-gradient-to-b from-cyan-950/60 to-obsidian-900 border-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.2)] ring-1 ring-cyan-500/50'
-                      : 'bg-obsidian-900/60 border-white/10 hover:border-white/20'
-                  }`}
-                >
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/60 font-bold uppercase">
-                        Recommended (90% Batches)
-                      </span>
-                      {isGlobalMng && <CheckCircle className="w-4 h-4 text-cyan-400" />}
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="font-bold text-white text-base">
-                        Non-Graded Track (MNG)
-                      </h3>
-                      <MicroTooltip content="Non-Graded (MNG): Pass/Fail qualifying subjects (≥40/100 to avoid backlog). Marks do NOT dilute or alter your 10-point SGPA." />
-                    </div>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      Qualifying only (≥40/100). Marks do not affect your 10-point SGPA.
-                    </p>
-                  </div>
-                  <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-xs font-mono">
-                    <span className="text-slate-400">Graded Credits:</span>
-                    <span className="font-bold text-cyan-300">19.0 Credits</span>
-                  </div>
-                </div>
-
-                {/* Option B: Graded Track */}
-                <div
-                  onClick={() => {
-                    if (isGlobalMng) onToggleGlobalMng();
-                  }}
-                  className={`p-3.5 sm:p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                    !isGlobalMng
-                      ? 'bg-gradient-to-b from-indigo-950/60 to-obsidian-900 border-indigo-500/50 shadow-[0_0_20px_rgba(99,102,241,0.2)] ring-1 ring-indigo-500/50'
-                      : 'bg-obsidian-900/60 border-white/10 hover:border-white/20'
-                  }`}
-                >
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800/60 font-bold uppercase">
-                        Full Credit Track
-                      </span>
-                      {!isGlobalMng && <CheckCircle className="w-4 h-4 text-indigo-400" />}
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="font-bold text-white text-base">
-                        Graded Track
-                      </h3>
-                      <MicroTooltip content="Graded Track: Soft Skills & Aptitude letter grades (A+ to F) directly factor into your 10-point SGPA formula." />
-                    </div>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      Letter grades directly count toward your 10-point SGPA formula.
-                    </p>
-                  </div>
-                  <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-xs font-mono">
-                    <span className="text-slate-400">Graded Credits:</span>
-                    <span className="font-bold text-indigo-300">23.0 Credits</span>
-                  </div>
-                </div>
-
               </div>
 
               {/* Action Button */}
@@ -787,14 +695,6 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                     ) : isActiveCourseUnentered ? (
                       <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-medium border border-white/10 bg-obsidian-850 text-slate-400">
                         Awaiting
-                      </span>
-                    ) : activeCourse.isNonGraded ? (
-                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-bold border ${
-                        activeResult.isQualified
-                          ? 'bg-emerald-950 text-emerald-300 border-emerald-500/50'
-                          : 'bg-rose-950 text-rose-300 border-rose-500/50'
-                      }`}>
-                        {activeResult.isQualified ? 'PASS' : 'FAIL'}
                       </span>
                     ) : (
                       <span className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold font-mono border ${
@@ -940,15 +840,6 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                   ) : isActiveCourseUnentered ? (
                     <span className="px-3 py-1 rounded-full text-xs font-mono font-medium border border-white/10 bg-obsidian-850 text-slate-400">
                       Awaiting Marks
-                    </span>
-                  ) : activeCourse.isNonGraded ? (
-                    <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold border flex items-center gap-1 ${
-                      activeResult.isQualified
-                        ? 'bg-emerald-950 text-emerald-300 border-emerald-500/50'
-                        : 'bg-rose-950 text-rose-300 border-rose-500/50 animate-pulse'
-                    }`}>
-                      {activeResult.isQualified ? <CheckCircle className="w-3.5 h-3.5" /> : null}
-                      {activeResult.isQualified ? 'QUALIFIED (PASS)' : 'NOT QUALIFIED'}
                     </span>
                   ) : (
                     <span className={`px-3 py-1 rounded-full text-sm font-extrabold font-mono border ${
@@ -1295,9 +1186,9 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                         <span className="text-slate-400">
                           Slide to simulate external marks • Tap any grade below to snap marks
                         </span>
-                      ) : activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible) ? (
+                      ) : activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible && t.grade !== 'D') ? (
                         <span className="text-cyan-300">
-                          Target <strong>{activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible)?.requiredExternalRaw}</strong> for Grade {activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible)?.grade} (~{activeResult.gradeCutoffs[activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible)!.grade]}+ safe band)
+                          Target <strong>{activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible && t.grade !== 'D')?.requiredExternalRaw}</strong> for Grade {activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible && t.grade !== 'D')?.grade} (~{activeResult.gradeCutoffs[activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible && t.grade !== 'D')!.grade]}+ safe band)
                         </span>
                       ) : (
                         <span className="text-emerald-400 font-semibold">
@@ -1445,9 +1336,9 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                             <div>
                               <p className="leading-relaxed">
                                 Your projected score is <strong className="text-cyan-300 font-mono">{activeResult.totalWeightedScore.toFixed(1)}/100</strong>.
-                                {activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible) ? (
+                                {activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible && t.grade !== 'D') ? (
                                   <>
-                                    {' '}To reach <strong className="text-white">Grade {activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible)?.grade}</strong>, you need external marks of at least <strong className="text-cyan-300 font-mono">{activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible)?.requiredExternalRaw}/{activeCourse.externalRawMax}</strong>.
+                                    {' '}To reach <strong className="text-white">Grade {activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible && t.grade !== 'D')?.grade}</strong>, you need external marks of at least <strong className="text-cyan-300 font-mono">{activeResult.targetRequirements.find(t => !t.alreadyAchieved && t.possible && t.grade !== 'D')?.requiredExternalRaw}/{activeCourse.externalRawMax}</strong>.
                                   </>
                                 ) : (
                                   <span className="text-emerald-300 font-semibold"> You are in the top-percentile A+ band!</span>
@@ -1614,10 +1505,6 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                           <span className="text-rose-400">Excl</span>
                         ) : (c.type === 'DirectGrade' ? !c.directGrade : r.totalWeightedScore === 0) ? (
                           <span className="text-slate-400 font-mono text-[11px]">Pending</span>
-                        ) : c.isNonGraded ? (
-                          <span className={r.isQualified ? 'text-emerald-400' : 'text-rose-400'}>
-                            {r.isQualified ? 'PASS' : 'FAIL'}
-                          </span>
                         ) : (
                           <span className="text-cyan-300 font-mono">
                             {r.predictedGrade} ({r.gradePoint})

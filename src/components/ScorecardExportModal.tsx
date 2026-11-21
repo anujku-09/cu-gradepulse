@@ -238,7 +238,7 @@ export const ScorecardExportModal: React.FC<ScorecardExportModalProps> = ({
                       </td>
                       <td className="py-2 text-center">
                         <span className={`px-2 py-0.5 rounded font-bold ${gTheme.text} ${gTheme.bg} border ${gTheme.border}`}>
-                          {res.isNonGraded ? (res.isQualified ? 'PASS' : 'FAIL') : res.predictedGrade}
+                          {res.predictedGrade}
                         </span>
                       </td>
                     </tr>

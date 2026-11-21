@@ -171,7 +171,7 @@ export const CourseDetailModal: React.FC<CourseDetailModalProps> = ({
             <div className="p-2 sm:p-3 rounded-xl bg-obsidian-850/80 border border-white/5 text-center">
               <span className="text-[10px] sm:text-[11px] text-slate-400 uppercase font-mono block truncate">Grade</span>
               <span className={`text-base sm:text-lg font-extrabold font-mono ${theme.text}`}>
-                {result.isNonGraded ? (result.isQualified ? 'PASS' : 'FAIL') : `${result.predictedGrade} [${result.gradePoint}]`}
+                {result.predictedGrade} [{result.gradePoint}]
               </span>
             </div>
           </div>

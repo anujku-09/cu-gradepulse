@@ -40,7 +40,6 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
   const [code, setCode] = useState(course.code);
   const [credits, setCredits] = useState<number>(course.credits);
   const [type, setType] = useState<CourseType>(course.type);
-  const [isNonGraded, setIsNonGraded] = useState(!!course.isNonGraded);
   const [isExcluded, setIsExcluded] = useState(!!course.isExcluded);
 
   // Custom External Weightage States
@@ -54,7 +53,6 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
     setCode(course.code);
     setCredits(course.credits);
     setType(course.type);
-    setIsNonGraded(!!course.isNonGraded);
     setIsExcluded(!!course.isExcluded);
     setExternalName(course.externalName);
     setExternalRawMax(course.externalRawMax);
@@ -99,7 +97,6 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
       name: name.trim() || course.name,
       code: code.trim().toUpperCase() || course.code,
       credits: Number(credits) || course.credits,
-      isNonGraded,
       isExcluded,
     };
 
@@ -458,19 +455,6 @@ export const EditCourseModal: React.FC<EditCourseModalProps> = ({
               <div className="text-xs">
                 <span className="font-semibold text-slate-200">Disallow / Exclude from SGPA</span>
                 <span className="text-slate-400 block text-[11px]">Subject will be skipped in semester credit & GPA calculation</span>
-              </div>
-            </label>
-
-            <label className="flex items-center gap-2.5 cursor-pointer p-2.5 rounded-xl bg-obsidian-850 border border-white/5 hover:border-white/10">
-              <input
-                type="checkbox"
-                checked={isNonGraded}
-                onChange={(e) => setIsNonGraded(e.target.checked)}
-                className="w-4 h-4 rounded text-cyan-500 bg-obsidian-900 border-white/20 focus:ring-0 cursor-pointer"
-              />
-              <div className="text-xs">
-                <span className="font-semibold text-slate-200">Non-Graded Mode (MNG)</span>
-                <span className="text-slate-400 block text-[11px]">Requires 40% to pass, earned credits do not scale SGPA</span>
               </div>
             </label>
           </div>

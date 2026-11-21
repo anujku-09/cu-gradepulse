@@ -28,7 +28,6 @@ interface CommandPaletteProps {
   onClose: () => void;
   courses: Course[];
   onSelectCourse: (courseId: string) => void;
-  onOpenOptimizer: () => void;
   onOpenForecaster: () => void;
   onOpenPasteModal: () => void;
   onOpenExportModal: () => void;
@@ -38,13 +37,11 @@ interface CommandPaletteProps {
   onOpenTrackModal?: () => void;
   onOpenAddCustomCourse?: () => void;
   onClaimAllAttendance?: () => void;
-  onToggleGlobalMng: () => void;
   onCurveChange: (mode: CurveMode) => void;
   onGlobalQuickPreset: (preset: 'full' | 'average' | 'reset') => void;
   onStartBlank?: () => void;
   onLoadSample?: () => void;
   onToggleCourseExcluded?: (courseId: string) => void;
-  isGlobalMng?: boolean;
   curveMode?: CurveMode;
   isSimpleMode?: boolean;
   onToggleSimpleMode?: () => void;
@@ -55,7 +52,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onClose,
   courses,
   onSelectCourse,
-  onOpenOptimizer,
   onOpenForecaster,
   onOpenPasteModal,
   onOpenExportModal,
@@ -64,13 +60,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onOpenTrackModal,
   onOpenAddCustomCourse,
   onClaimAllAttendance,
-  onToggleGlobalMng,
   onCurveChange,
   onGlobalQuickPreset,
   onStartBlank,
   onLoadSample,
   onToggleCourseExcluded,
-  isGlobalMng = true,
   curveMode = 'standard',
   isSimpleMode = false,
   onToggleSimpleMode,
@@ -127,14 +121,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         run: () => onClaimAllAttendance?.()
       },
       {
-        id: 'opt',
-        category: 'Action',
-        title: 'Open AI Target SGPA Reverse-Optimizer',
-        subtitle: 'Calculate optimal external roadmap for your dream SGPA',
-        icon: <Sparkles className="w-4 h-4 text-indigo-400" />,
-        run: () => onOpenOptimizer()
-      },
-      {
         id: 'cgpa',
         category: 'Action',
         title: 'Open Cumulative CGPA Forecaster',
@@ -189,14 +175,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         subtitle: 'Toggle between clean minimal cards and detailed studio inspect mode',
         icon: isSimpleMode ? <Eye className="w-4 h-4 text-cyan-400" /> : <EyeOff className="w-4 h-4 text-slate-400" />,
         run: () => onToggleSimpleMode?.()
-      },
-      {
-        id: 'mng-toggle',
-        category: 'Setting',
-        title: `Toggle Aptitude & Soft Skills MNG Track (Currently: ${isGlobalMng ? 'Non-Graded / 19 Cr' : 'Graded / 23 Cr'})`,
-        subtitle: 'Switch between Non-Graded (MNG Pass/Fail) and Graded SGPA mode',
-        icon: <Layers className="w-4 h-4 text-indigo-400" />,
-        run: () => onToggleGlobalMng()
       },
       {
         id: 'curve-std',
@@ -263,7 +241,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       id: `course-${c.id}`,
       category: 'Course Jump',
       title: `${c.code}: ${c.name}${c.isExcluded ? ' (EXCLUDED)' : ''}`,
-      subtitle: `${c.credits} Credits • ${c.type}${c.isNonGraded ? ' • Non-Graded (MNG)' : ''} • Click to inspect details`,
+      subtitle: `${c.credits} Credits • ${c.type} • Click to inspect details`,
       icon: <BookOpen className={`w-4 h-4 ${c.isExcluded ? 'text-slate-500' : 'text-cyan-400'}`} />,
       run: () => onSelectCourse(c.id)
     }));
@@ -271,14 +249,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     return [...actions, ...excludeItems, ...courseItems];
   }, [
     courses, 
-    onOpenOptimizer, 
     onOpenForecaster, 
     onOpenPasteModal, 
     onOpenExportModal, 
     onOpenCutoffModal,
     onOpenWizard,
     onClaimAllAttendance,
-    onToggleGlobalMng, 
     onCurveChange, 
     onGlobalQuickPreset, 
     onSelectCourse,
@@ -286,7 +262,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     onLoadSample,
     onToggleCourseExcluded,
     onToggleSimpleMode,
-    isGlobalMng,
     curveMode,
     isSimpleMode
   ]);

@@ -1,17 +1,15 @@
 import React from 'react';
 import { 
-  Sparkles, 
   TrendingUp, 
   ClipboardPaste, 
   Camera, 
   Award,
-  Sliders
+  Zap
 } from 'lucide-react';
 import { SemesterCalculation } from '../types';
 
 interface MobileBottomNavProps {
   calc: SemesterCalculation;
-  onOpenOptimizer: () => void;
   onOpenForecaster: () => void;
   onOpenPasteModal: () => void;
   onOpenExportModal: () => void;
@@ -21,7 +19,6 @@ interface MobileBottomNavProps {
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   calc,
-  onOpenOptimizer,
   onOpenForecaster,
   onOpenPasteModal,
   onOpenExportModal,
@@ -38,11 +35,10 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     >
       <div className="flex items-center justify-around gap-1 max-w-md mx-auto">
         
-        {/* Live SGPA Badge / Guided Wizard Trigger */}
-        <button
-          onClick={onOpenWizard || onOpenOptimizer}
-          className="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-center transition-all active:scale-95 touch-manipulation group"
-          title="Launch Step-by-Step Card Flow"
+        {/* Live SGPA Badge */}
+        <div
+          className="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-center group"
+          title="Live Predicted SGPA"
         >
           <div className="flex items-center gap-1">
             <Award className={`w-3.5 h-3.5 ${hasBacklog ? 'text-rose-400' : 'text-cyan-400'}`} />
@@ -51,14 +47,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             </span>
           </div>
           <span className="text-[9px] font-mono text-slate-400 mt-0.5">
-            {onOpenWizard ? 'Cards ⚡' : 'SGPA'}
+            SGPA
           </span>
-        </button>
+        </div>
 
         {/* Smart Paste */}
         <button
           onClick={onOpenPasteModal}
           className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-300 hover:text-white transition-all active:scale-95 touch-manipulation"
+          title="Paste raw CUIMS text"
         >
           <ClipboardPaste className="w-4 h-4 text-cyan-400" />
           <span className="text-[10px] font-medium text-slate-400 mt-0.5">
@@ -66,21 +63,25 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           </span>
         </button>
 
-        {/* AI Optimizer (Featured Center Action) */}
-        <button
-          onClick={onOpenOptimizer}
-          className="flex flex-col items-center justify-center p-1.5 px-3 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all active:scale-95 touch-manipulation -translate-y-1"
-        >
-          <Sparkles className="w-4 h-4 text-white" />
-          <span className="text-[9px] font-bold tracking-tight mt-0.5 uppercase">
-            Optimizer
-          </span>
-        </button>
+        {/* Cards Flow (Featured Center Action) */}
+        {onOpenWizard && (
+          <button
+            onClick={onOpenWizard}
+            className="flex flex-col items-center justify-center p-1.5 px-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-violet-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-all active:scale-95 touch-manipulation -translate-y-1"
+            title="Launch Step-by-Step Card Flow"
+          >
+            <Zap className="w-4 h-4 text-white" />
+            <span className="text-[9px] font-bold tracking-tight mt-0.5 uppercase">
+              Cards ⚡
+            </span>
+          </button>
+        )}
 
         {/* CGPA Forecaster */}
         <button
           onClick={onOpenForecaster}
           className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-300 hover:text-white transition-all active:scale-95 touch-manipulation"
+          title="Forecast Cumulative CGPA"
         >
           <TrendingUp className="w-4 h-4 text-emerald-400" />
           <span className="text-[10px] font-medium text-slate-400 mt-0.5">
@@ -92,6 +93,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <button
           onClick={onOpenExportModal}
           className="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-slate-300 hover:text-white transition-all active:scale-95 touch-manipulation"
+          title="Export Scorecard Snapshot"
         >
           <Camera className="w-4 h-4 text-slate-300" />
           <span className="text-[10px] font-medium text-slate-400 mt-0.5">

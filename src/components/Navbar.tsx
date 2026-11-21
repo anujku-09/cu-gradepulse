@@ -21,12 +21,9 @@ import { COHORT_TRACKS_INFO } from '../data/courses';
 interface NavbarProps {
   curveMode: CurveMode;
   onCurveChange: (mode: CurveMode) => void;
-  isGlobalMng: boolean;
-  onToggleGlobalMng: () => void;
   currentTrackId: CohortTrackId;
   onOpenTrackModal: () => void;
   onOpenAddCustomCourse: () => void;
-  onOpenOptimizer: () => void;
   onOpenForecaster: () => void;
   onOpenPasteModal: () => void;
   onOpenExportModal: () => void;
@@ -41,12 +38,9 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   curveMode,
   onCurveChange,
-  isGlobalMng,
-  onToggleGlobalMng,
   currentTrackId,
   onOpenTrackModal,
   onOpenAddCustomCourse,
-  onOpenOptimizer,
   onOpenForecaster,
   onOpenPasteModal,
   onOpenExportModal,
@@ -103,16 +97,16 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* ============================================================== */}
-        {/* CENTER: Cutoff Curve & Apt/Soft Skills Toggle (Desktop >= 1024)*/}
+        {/* CENTER: Cutoff Curve Selector (Desktop >= 1024)                */}
         {/* ============================================================== */}
-        <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-full bg-obsidian-900 border border-white/10 flex-shrink-0">
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-obsidian-900 border border-white/10 flex-shrink-0">
           {/* Curve Selector */}
-          <div className="flex items-center gap-1 whitespace-nowrap text-xs">
-            <span className="text-slate-400 text-[11px] font-mono">Curve:</span>
+          <div className="flex items-center gap-1.5 whitespace-nowrap text-xs">
+            <span className="text-slate-400 text-[11px] font-mono">Cutoff Curve:</span>
             <select
               value={curveMode}
               onChange={(e) => onCurveChange(e.target.value as CurveMode)}
-              className="bg-obsidian-850 border border-white/10 rounded-md text-xs text-cyan-300 px-1.5 py-0.5 font-mono focus:border-cyan-500 focus:outline-none cursor-pointer"
+              className="bg-obsidian-850 border border-white/10 rounded-md text-xs text-cyan-300 px-2 py-0.5 font-mono focus:border-cyan-500 focus:outline-none cursor-pointer"
               title="Cohort Cutoff Curve Difficulty"
             >
               <option value="standard">Standard (95+)</option>
@@ -129,26 +123,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Sliders className="w-3.5 h-3.5 text-cyan-400" />
             </button>
           </div>
-
-          <div className="w-[1px] h-4 bg-white/10" />
-
-          {/* MNG / Graded Switch */}
-          <button
-            onClick={onToggleGlobalMng}
-            title="Batch Track Mode for Soft Skills-III & Aptitude-III"
-            className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium transition-all hover:bg-white/5 whitespace-nowrap"
-          >
-            <span className="text-slate-400 text-[11px]">Apt/Soft:</span>
-            {isGlobalMng ? (
-              <span className="flex items-center gap-1 text-emerald-400 font-semibold text-xs">
-                <ToggleRight className="w-3.5 h-3.5 text-emerald-400" /> MNG (19 Cr)
-              </span>
-            ) : (
-              <span className="flex items-center gap-1 text-indigo-400 font-semibold text-xs">
-                <ToggleLeft className="w-3.5 h-3.5 text-indigo-400" /> Graded (23 Cr)
-              </span>
-            )}
-          </button>
         </div>
 
         {/* ============================================================== */}
@@ -218,15 +192,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Paste raw CUIMS copied text/tables"
           >
             <ClipboardPaste className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
-          </button>
-
-          {/* Reverse Optimizer Button (Tablet / Desktop - on mobile available in Bottom Nav) */}
-          <button
-            onClick={onOpenOptimizer}
-            className="hidden md:flex items-center justify-center p-1.5 sm:p-2 rounded-lg text-xs font-medium bg-gradient-to-r from-indigo-900/60 to-violet-900/60 hover:from-indigo-800/80 hover:to-violet-800/80 text-indigo-200 border border-indigo-500/30 transition-all shadow-[0_0_12px_rgba(99,102,241,0.2)] flex-shrink-0"
-            title="AI SGPA Target Reverse-Optimizer"
-          >
-            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400" />
           </button>
 
           {/* Cumulative CGPA Forecaster Button (Tablet / Desktop - on mobile available in Bottom Nav) */}

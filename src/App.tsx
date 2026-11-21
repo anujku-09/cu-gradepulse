@@ -36,7 +36,6 @@ import { MissionControlHeader } from './components/MissionControlHeader';
 import { QuickStartGuide } from './components/QuickStartGuide';
 import { CourseBentoCard } from './components/CourseBentoCard';
 import { CourseDetailModal } from './components/CourseDetailModal';
-import { TargetOptimizerModal } from './components/TargetOptimizerModal';
 import { CgpaForecasterModal } from './components/CgpaForecasterModal';
 import { CuimsSmartPasteModal } from './components/CuimsSmartPasteModal';
 import { ScorecardExportModal } from './components/ScorecardExportModal';
@@ -86,7 +85,6 @@ export const App: React.FC = () => {
 
   // 5. Modal Dialog States
   const [inspectCourseId, setInspectCourseId] = useState<string | null>(null);
-  const [isOptimizerOpen, setIsOptimizerOpen] = useState(false);
   const [isForecasterOpen, setIsForecasterOpen] = useState(false);
   const [isPasteModalOpen, setIsPasteModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -119,13 +117,7 @@ export const App: React.FC = () => {
   const [filterGroup, setFilterGroup] = useState<'ALL' | 'A' | 'B' | 'C'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 7. Global MNG State: checks if both Soft Skills & Aptitude are non-graded
-  const isGlobalMng = useMemo(() => {
-    const dualCourses = courses.filter(c => c.group === 'C');
-    return dualCourses.every(c => c.isNonGraded);
-  }, [courses]);
-
-  // 8. Core Calculations
+  // 7. Core Calculations
   const calculation: SemesterCalculation = useMemo(() => {
     return calculateSemester(courses, globalCutoffs);
   }, [courses, globalCutoffs]);
@@ -221,25 +213,6 @@ export const App: React.FC = () => {
     } catch (e) {}
   }, []);
 
-  const handleToggleGlobalMng = useCallback(() => {
-    const nextState = !isGlobalMng;
-    setCourses(prev => prev.map(c => {
-      if (c.group === 'C') {
-        return { ...c, isNonGraded: nextState };
-      }
-      return c;
-    }));
-  }, [isGlobalMng]);
-
-  const handleToggleCourseMng = useCallback((courseId: string) => {
-    setCourses(prev => prev.map(c => {
-      if (c.id === courseId) {
-        return { ...c, isNonGraded: !c.isNonGraded };
-      }
-      return c;
-    }));
-  }, []);
-
   const handleToggleCourseExcluded = useCallback((courseId: string) => {
     setCourses(prev => prev.map(c => {
       if (c.id === courseId) {
@@ -257,20 +230,6 @@ export const App: React.FC = () => {
     setCourses(prev => prev.map(c => {
       if (c.id === courseId) {
         return { ...c, customCutoffs: cutoffs };
-      }
-      return c;
-    }));
-  }, []);
-
-  const handleApplyOptimizerStrategy = useCallback((roadmap: { courseId: string; targetExternal: number; targetGrade?: GradeLevel }[]) => {
-    const lookup = new Map(roadmap.map(r => [r.courseId, r]));
-    setCourses(prev => prev.map(c => {
-      const match = lookup.get(c.id);
-      if (match) {
-        if (c.type === 'DirectGrade' && match.targetGrade) {
-          return { ...c, directGrade: match.targetGrade };
-        }
-        return { ...c, externalTargetScore: match.targetExternal };
       }
       return c;
     }));
@@ -412,12 +371,9 @@ export const App: React.FC = () => {
       <Navbar
         curveMode={curveMode}
         onCurveChange={setCurveMode}
-        isGlobalMng={isGlobalMng}
-        onToggleGlobalMng={handleToggleGlobalMng}
         currentTrackId={currentTrackId}
         onOpenTrackModal={() => setIsTrackModalOpen(true)}
         onOpenAddCustomCourse={() => setIsAddCustomCourseOpen(true)}
-        onOpenOptimizer={() => setIsOptimizerOpen(true)}
         onOpenForecaster={() => setIsForecasterOpen(true)}
         onOpenPasteModal={() => setIsPasteModalOpen(true)}
         onOpenExportModal={() => setIsExportModalOpen(true)}
@@ -474,10 +430,7 @@ export const App: React.FC = () => {
         <MissionControlHeader
           calc={calculation}
           cgpaForecast={cgpaForecast}
-          isGlobalMng={isGlobalMng}
           onOpenForecaster={() => setIsForecasterOpen(true)}
-          onOpenOptimizer={() => setIsOptimizerOpen(true)}
-          onToggleMng={handleToggleGlobalMng}
         />
 
         {/* Quick Start & Mode Banner */}
@@ -607,7 +560,6 @@ export const App: React.FC = () => {
               onUpdateDirectGrade={handleUpdateDirectGrade}
               onUpdateDirectInternal={handleUpdateDirectInternal}
               onUpdateComponentMarks={handleUpdateComponentMarks}
-              onToggleCourseMng={handleToggleCourseMng}
               onToggleCourseExcluded={handleToggleCourseExcluded}
               onQuickPreset={handleQuickPreset}
               onInspect={(id) => setInspectCourseId(id)}
@@ -635,12 +587,6 @@ export const App: React.FC = () => {
               className="px-3.5 py-2 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 text-xs font-semibold text-slate-200 border border-white/10 transition-colors"
             >
               Parse CUIMS Text
-            </button>
-            <button
-              onClick={() => setIsOptimizerOpen(true)}
-              className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-xs font-bold text-white shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-colors"
-            >
-              AI Target SGPA Engine →
             </button>
           </div>
         </div>
@@ -673,19 +619,16 @@ export const App: React.FC = () => {
           results={calculation.courses}
           liveSgpa={calculation.sgpa}
           totalGradedCredits={calculation.totalGradedCredits}
-          isGlobalMng={isGlobalMng}
           curveMode={curveMode}
           currentTrackId={currentTrackId}
           onSelectTrack={handleSelectTrack}
           onOpenTrackModal={() => setIsTrackModalOpen(true)}
           onCurveChange={setCurveMode}
           onOpenCutoffModal={() => setIsCutoffModalOpen(true)}
-          onToggleGlobalMng={handleToggleGlobalMng}
           onUpdateExternal={handleUpdateExternal}
           onUpdateDirectGrade={handleUpdateDirectGrade}
           onUpdateDirectInternal={handleUpdateDirectInternal}
           onUpdateComponentMarks={handleUpdateComponentMarks}
-          onToggleCourseMng={handleToggleCourseMng}
           onToggleCourseExcluded={handleToggleCourseExcluded}
           onQuickPreset={handleQuickPreset}
           onToggleAttendance={handleToggleAttendance}
@@ -713,17 +656,6 @@ export const App: React.FC = () => {
           onSaveCustomCutoffs={handleSaveCustomCutoffs}
           onOpenEditCourse={(c) => setEditingCourse(c)}
           onConvertCourseMode={handleConvertCourseMode}
-        />
-      )}
-
-      {isOptimizerOpen && (
-        <TargetOptimizerModal
-          courses={courses}
-          globalCutoffs={globalCutoffs}
-          currentSgpa={calculation.sgpa}
-          isOpen={isOptimizerOpen}
-          onClose={() => setIsOptimizerOpen(false)}
-          onApplyStrategy={handleApplyOptimizerStrategy}
         />
       )}
 
@@ -802,7 +734,6 @@ export const App: React.FC = () => {
         onClose={() => setIsCommandPaletteOpen(false)}
         courses={courses}
         onSelectCourse={(id) => setInspectCourseId(id)}
-        onOpenOptimizer={() => setIsOptimizerOpen(true)}
         onOpenForecaster={() => setIsForecasterOpen(true)}
         onOpenPasteModal={() => setIsPasteModalOpen(true)}
         onOpenExportModal={() => setIsExportModalOpen(true)}
@@ -811,13 +742,11 @@ export const App: React.FC = () => {
         onOpenTrackModal={() => setIsTrackModalOpen(true)}
         onOpenAddCustomCourse={() => setIsAddCustomCourseOpen(true)}
         onClaimAllAttendance={handleClaimAllAttendance}
-        onToggleGlobalMng={handleToggleGlobalMng}
         onCurveChange={setCurveMode}
         onGlobalQuickPreset={handleGlobalQuickPreset}
         onStartBlank={handleStartBlank}
         onLoadSample={handleLoadSample}
         onToggleCourseExcluded={handleToggleCourseExcluded}
-        isGlobalMng={isGlobalMng}
         curveMode={curveMode}
         isSimpleMode={!isDetailedView}
         onToggleSimpleMode={() => setIsDetailedView(prev => !prev)}
@@ -826,7 +755,6 @@ export const App: React.FC = () => {
       {/* Floating Bottom Mission Control Dock for Mobile Phones */}
       <MobileBottomNav
         calc={calculation}
-        onOpenOptimizer={() => setIsOptimizerOpen(true)}
         onOpenForecaster={() => setIsForecasterOpen(true)}
         onOpenPasteModal={() => setIsPasteModalOpen(true)}
         onOpenExportModal={() => setIsExportModalOpen(true)}

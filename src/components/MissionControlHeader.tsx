@@ -14,19 +14,13 @@ import { SemesterCalculation, CgpaForecast } from '../types';
 interface MissionControlHeaderProps {
   calc: SemesterCalculation;
   cgpaForecast: CgpaForecast;
-  isGlobalMng: boolean;
   onOpenForecaster: () => void;
-  onOpenOptimizer: () => void;
-  onToggleMng: () => void;
 }
 
 export const MissionControlHeader: React.FC<MissionControlHeaderProps> = ({
   calc,
   cgpaForecast,
-  isGlobalMng,
   onOpenForecaster,
-  onOpenOptimizer,
-  onToggleMng,
 }) => {
   const { sgpa, totalGradedCredits, totalEarnedGradePoints, hasBacklog, backlogCourses, totalInternalEarned, totalInternalMax, overallInternalPercentage } = calc;
 
@@ -122,16 +116,10 @@ export const MissionControlHeader: React.FC<MissionControlHeaderProps> = ({
                   Academic Backlog Alert
                 </h4>
                 <p className="text-xs text-rose-300/80 mt-0.5">
-                  Affected: <span className="font-semibold text-rose-100">{backlogCourses.join(', ')}</span>. In CU, scoring &lt; 40 total marks results in an F grade or MNG Not Qualified status.
+                  Affected: <span className="font-semibold text-rose-100">{backlogCourses.join(', ')}</span>. In CU, scoring &lt; 40 total marks results in an F grade.
                 </p>
               </div>
             </div>
-            <button
-              onClick={onOpenOptimizer}
-              className="px-3 py-1.5 rounded-lg bg-rose-900/80 hover:bg-rose-800 text-rose-100 border border-rose-400/40 text-xs font-semibold whitespace-nowrap transition-all shadow-sm"
-            >
-              Resolve with AI Optimizer →
-            </button>
           </div>
         </div>
       )}
@@ -173,13 +161,7 @@ export const MissionControlHeader: React.FC<MissionControlHeaderProps> = ({
               <span>•</span>
               <span>Cr: <strong className="text-slate-100 font-semibold">{totalGradedCredits.toFixed(1)}</strong></span>
             </div>
-            <button
-              onClick={onOpenOptimizer}
-              className="text-cyan-400 hover:text-cyan-300 font-sans font-semibold text-[11px] flex items-center gap-1 transition-colors active:scale-95"
-            >
-              <Sparkles className="w-3 h-3" />
-              <span>Target Plan</span>
-            </button>
+            <span className="text-[10px] font-mono text-cyan-400 font-medium">CU Cohort Matrix</span>
           </div>
         </div>
 
@@ -275,17 +257,11 @@ export const MissionControlHeader: React.FC<MissionControlHeaderProps> = ({
           <div className="mt-5 sm:mt-6 pt-3 sm:pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400 font-mono">
             <span>Points: <strong className="text-slate-100 font-semibold">{totalEarnedGradePoints.toFixed(1)}</strong></span>
             <span>Credits: <strong className="text-slate-100 font-semibold">{totalGradedCredits.toFixed(1)}</strong></span>
-            <button
-              onClick={onOpenOptimizer}
-              className="text-cyan-400 hover:text-cyan-300 font-sans font-medium flex items-center gap-1 transition-colors ml-auto sm:ml-0"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              Target SGPA Plan
-            </button>
+            <span className="text-cyan-400 font-mono text-[11px] ml-auto sm:ml-0">CU Cohort Matrix</span>
           </div>
         </div>
 
-        {/* Bento 2: Graded Credits Breakdown & Batch Switch (3 cols) */}
+        {/* Bento 2: Graded Credits Breakdown (3 cols) */}
         <div className="lg:col-span-3 glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
@@ -317,24 +293,19 @@ export const MissionControlHeader: React.FC<MissionControlHeaderProps> = ({
 
             <div className="mt-4 p-2.5 rounded-xl bg-obsidian-850/80 border border-white/5 text-[11px] text-slate-300 space-y-1">
               <div className="flex justify-between">
-                <span>Core Graded:</span>
-                <span className="font-mono text-slate-200">19.0 Credits</span>
+                <span>Active Graded:</span>
+                <span className="font-mono text-cyan-300 font-semibold">{totalGradedCredits.toFixed(1)} Credits</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span>Apt & Soft Skills:</span>
-                <button
-                  onClick={onToggleMng}
-                  className="font-mono text-[10px] text-cyan-400 underline hover:text-cyan-300"
-                >
-                  {isGlobalMng ? '0.0 (MNG Pass/Fail)' : '4.0 (Graded)'}
-                </button>
+              <div className="flex justify-between items-center text-slate-400 text-[10px]">
+                <span>Status:</span>
+                <span>All active subjects included</span>
               </div>
             </div>
           </div>
 
           <div className="mt-3 text-[11px] text-slate-400 flex items-center gap-1">
             <Info className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
-            <span>MNG courses require ≥ 40 to pass.</span>
+            <span>Use "Exclude" on any card to omit it from SGPA.</span>
           </div>
         </div>
 
@@ -344,7 +315,7 @@ export const MissionControlHeader: React.FC<MissionControlHeaderProps> = ({
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                Internals {isGlobalMng && <span className="text-[10px] text-cyan-400 font-mono font-normal normal-case">(Graded)</span>}
+                Internals
               </span>
             </div>
 
@@ -356,7 +327,7 @@ export const MissionControlHeader: React.FC<MissionControlHeaderProps> = ({
                 {totalInternalEarned.toFixed(1)} / {totalInternalMax.toFixed(1)} wt secured
               </p>
               <span className="text-[10px] text-slate-500 font-mono block mt-0.5">
-                Across {isGlobalMng ? '6 Core Subjects' : '8 Graded Subjects'}
+                Across Active Subjects
               </span>
             </div>
 

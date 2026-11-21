@@ -31,7 +31,6 @@ interface CourseBentoCardProps {
   onUpdateDirectGrade: (courseId: string, grade: GradeLevel) => void;
   onUpdateDirectInternal: (courseId: string, score: number | undefined) => void;
   onUpdateComponentMarks: (courseId: string, componentId: string, score: number) => void;
-  onToggleCourseMng: (courseId: string) => void;
   onToggleCourseExcluded: (courseId: string) => void;
   onQuickPreset: (courseId: string, preset: 'full' | 'average' | 'reset') => void;
   onInspect: (courseId: string) => void;
@@ -47,7 +46,6 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
   onUpdateDirectGrade,
   onUpdateDirectInternal,
   onUpdateComponentMarks,
-  onToggleCourseMng,
   onToggleCourseExcluded,
   onQuickPreset,
   onInspect,
@@ -56,7 +54,7 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
 }) => {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [showRegexBox, setShowRegexBox] = useState(false);
-  const { predictedGrade, gradePoint, isNonGraded, isQualified, weightedInternalScore, maxInternalWeightage, totalWeightedScore, targetRequirements } = result;
+  const { predictedGrade, gradePoint, weightedInternalScore, maxInternalWeightage, totalWeightedScore, targetRequirements } = result;
 
   const isExcluded = !!course.isExcluded;
   const isUnentered = totalWeightedScore === 0;
@@ -84,8 +82,8 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
   );
   const hasFullAttendance = attendanceComp ? attendanceComp.rawObtained >= attendanceComp.rawMax : false;
 
-  // Next grade unlocker logic for the slider
-  const nextTarget = targetRequirements.find(t => !t.alreadyAchieved && t.possible);
+  // Next grade unlocker logic for the slider (excluding Grade D)
+  const nextTarget = targetRequirements.find(t => !t.alreadyAchieved && t.possible && t.grade !== 'D');
 
   return (
     <div
@@ -209,20 +207,6 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
                   0 / 100
                 </span>
               </div>
-            ) : isNonGraded ? (
-              <div className="flex flex-col items-end gap-1">
-                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold font-mono tracking-wide border flex items-center gap-1 ${
-                  isQualified 
-                    ? 'bg-emerald-950/80 text-emerald-400 border-emerald-500/40' 
-                    : 'bg-rose-950/80 text-rose-400 border-rose-500/40 animate-pulse'
-                }`}>
-                  {isQualified ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
-                  {isQualified ? 'PASS' : 'FAIL (<40)'}
-                </span>
-                <span className="text-[10px] font-mono text-slate-400">
-                  Total: {totalWeightedScore.toFixed(1)}/100
-                </span>
-              </div>
             ) : (
               <div className="flex flex-col items-end">
                 <span className={`px-2.5 py-0.5 rounded-full text-sm font-extrabold font-mono border ${theme.bg} ${theme.border} ${theme.text} ${theme.glow}`}>
@@ -235,30 +219,6 @@ export const CourseBentoCard: React.FC<CourseBentoCardProps> = ({
             )}
           </div>
         </div>
-
-        {/* Group C Track Mode Override Toggle (Soft Skills & Aptitude) */}
-        {course.group === 'C' && (
-          <div className="mt-3 p-2 rounded-xl bg-obsidian-850/80 border border-white/5 flex items-center justify-between text-xs">
-            <span className="text-slate-300 text-[11px] flex items-center gap-1">
-              <Info className="w-3 h-3 text-cyan-400" />
-              {isNonGraded ? 'Non-Graded (Pass/Fail Only)' : 'Graded (Affects SGPA)'}
-            </span>
-            <button
-              onClick={() => onToggleCourseMng(course.id)}
-              className="flex items-center gap-1 font-mono text-xs px-2 py-0.5 rounded hover:bg-white/5 text-cyan-400 font-semibold transition-all"
-            >
-              {isNonGraded ? (
-                <span className="flex items-center gap-1">
-                  <ToggleRight className="w-3.5 h-3.5 text-emerald-400" /> Switch to Graded
-                </span>
-              ) : (
-                <span className="flex items-center gap-1 text-indigo-400">
-                  <ToggleLeft className="w-3.5 h-3.5" /> Switch to Non-Graded
-                </span>
-              )}
-            </button>
-          </div>
-        )}
 
         {/* ============================================================== */}
         {/* DIRECT INTERNAL MARKS ENTRY SECTION (Non-DirectGrade courses)  */}
