@@ -937,45 +937,6 @@ export const SemesterSetupWizard: React.FC<SemesterSetupWizardProps> = ({
                       
                       {/* One-click quick presets */}
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <div className="inline-flex items-center gap-0.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onUpdateDirectInternal(activeCourse.id, undefined);
-                              onQuickPreset(activeCourse.id, 'full');
-                            }}
-                            className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.04] hover:bg-emerald-950/60 hover:text-emerald-300 text-slate-400 border border-white/5 transition-colors"
-                          >
-                            Full Marks
-                          </button>
-                          <MicroTooltip content="Full Marks: Sets maximum internal scores across all components for optimistic SGPA planning." />
-                        </div>
-                        <div className="inline-flex items-center gap-0.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onUpdateDirectInternal(activeCourse.id, undefined);
-                              onQuickPreset(activeCourse.id, 'average');
-                            }}
-                            className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.04] hover:bg-cyan-950/60 hover:text-cyan-300 text-slate-400 border border-white/5 transition-colors"
-                          >
-                            75% Avg
-                          </button>
-                          <MicroTooltip content="75% Avg: Simulates realistic average internal marks (~75% of maximum) across assessments." />
-                        </div>
-                        <div className="inline-flex items-center gap-0.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onUpdateDirectInternal(activeCourse.id, 0);
-                              onQuickPreset(activeCourse.id, 'reset');
-                            }}
-                            className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.04] hover:bg-rose-950/60 hover:text-rose-300 text-slate-400 border border-white/5 transition-colors"
-                          >
-                            Zero
-                          </button>
-                          <MicroTooltip content="Zero: Resets all internal marks to 0 to simulate baseline scenarios." />
-                        </div>
                         <div className="inline-flex items-center gap-1">
                           <button
                             type="button"
